@@ -1,0 +1,72 @@
+.app-switcher-container {
+  display: flex;
+  background-color: #dee2e3;
+  height: 30px;
+  padding: 6px;
+  border-bottom: 1px solid #d2d2d2;
+  font-size: 14px;
+}
+
+.app-switcher-container .username {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.app-switcher-container .not-logged-in {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.app-switcher-container .login-button,
+.app-switcher-container .not-logged-in .logout-button {
+  margin-left: 10px;
+}
+
+ul.app-switcher {
+  display: flex;
+  align-items: center;
+  list-style-type: none;
+  margin-bottom: 0;
+  flex-grow: 1;
+}
+
+ul.app-switcher li {
+  padding: 0 10px;
+  margin-bottom: 0;
+}
+
+ul.app-switcher li button.submenu-button,
+ul.app-switcher li a {
+  color: #5d5d5d;
+}
+
+ul.app-switcher li a {
+  text-decoration: none;
+}
+
+ul.app-switcher li button.submenu-button:hover,
+ul.app-switcher li a:hover {
+  color: #181818;
+}
+
+ul.app-switcher li button.submenu-button:focus,
+ul.app-switcher li a:focus {
+  color: #181818;
+  outline: none;
+}
+
+ul.app-switcher li button.submenu-button {
+  display: flex;
+  align-items: center;
+  border: none;
+  box-sizing: content-box;
+  cursor: pointer;
+  font: inherit;
+  height: auto;
+  padding: 0;
+  text-transform: none;
+  letter-spacing: unset;
+  margin-bottom: 0;
+}
