@@ -28,7 +28,8 @@ ul.app-switcher {
   display: flex;
   align-items: center;
   list-style-type: none;
-  margin-bottom: 0;
+  margin: 0;
+  padding: 0;
   flex-grow: 1;
 }
 
@@ -60,6 +61,7 @@ ul.app-switcher li a:focus {
 ul.app-switcher li button.submenu-button {
   display: flex;
   align-items: center;
+  background-color: transparent;
   border: none;
   box-sizing: content-box;
   cursor: pointer;

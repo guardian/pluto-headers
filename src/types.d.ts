@@ -3,4 +3,11 @@ declare module "*.css" {
   export default content;
 }
 
+declare module "*.svg" {
+  const content: any;
+  export default content;
+}
+
+declare var deploymentRootPath: string;
+
 declare module "@material-ui/core";
