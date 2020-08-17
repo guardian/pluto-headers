@@ -25,7 +25,7 @@ Since this is a react component library with dependencies such as react and mate
     ```
   - Push the changes
     ```
-    git push && git push --tags
+    git push --follow-tags
     ```
 
 # Local development
