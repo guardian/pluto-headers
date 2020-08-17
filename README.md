@@ -18,7 +18,15 @@ Since this is a react component library with dependencies such as react and mate
   ```
 
 - Publish
-  - Commit and push the changes
+  - Commit the changes
+  - Create a new version
+    ```
+    yarn version
+    ```
+  - Push the changes
+    ```
+    git push && git push --tags
+    ```
 
 # Local development
 
