@@ -204,18 +204,19 @@ const AppSwitcher = (props) => {
                 const decodedData = yield validateAndDecode(token, signingKey);
                 const loginData = JwtData(decodedData);
                 setLoginData(loginData);
-                if (!loginData) {
-                    setIsLoggedIn(false);
-                    setUsername("");
-                    setIsAdmin(false);
-                    console.error("Could not get jwt token data");
-                    return;
+                // Login valid callback if provided
+                if (props.onLoginValid) {
+                    props.onLoginValid(true, loginData);
                 }
                 setIsLoggedIn(true);
                 setUsername(loginData ? loginData.username : "");
                 setIsAdmin(loginData[adminClaimName]);
             }
             catch (error) {
+                // Login valid callback if provided
+                if (props.onLoginValid) {
+                    props.onLoginValid(false);
+                }
                 setIsLoggedIn(false);
                 setUsername("");
                 setIsAdmin(false);

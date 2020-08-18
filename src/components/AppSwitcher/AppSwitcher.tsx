@@ -26,6 +26,7 @@ interface AppSwitcherMenuSettings extends BaseMenuSettings {
 interface AppSwitcherProps {
   onLoggedIn?: () => void;
   onLoggedOut?: () => void;
+  onLoginValid?: (valid: boolean, jwtDataShape?: JwtDataShape) => void;
 }
 
 export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
@@ -114,18 +115,20 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
         const loginData = JwtData(decodedData);
         setLoginData(loginData);
 
-        if (!loginData) {
-          setIsLoggedIn(false);
-          setUsername("");
-          setIsAdmin(false);
-          console.error("Could not get jwt token data");
-          return;
+        // Login valid callback if provided
+        if (props.onLoginValid) {
+          props.onLoginValid(true, loginData);
         }
 
         setIsLoggedIn(true);
         setUsername(loginData ? (loginData.username as string) : "");
         setIsAdmin((loginData as any)[adminClaimName]);
       } catch (error) {
+        // Login valid callback if provided
+        if (props.onLoginValid) {
+          props.onLoginValid(false);
+        }
+
         setIsLoggedIn(false);
         setUsername("");
         setIsAdmin(false);
