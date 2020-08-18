@@ -1,4 +1,4 @@
-interface JwtDataShape {
+export interface JwtDataShape {
   aud: string;
   iss: string;
   iat: number;
@@ -16,7 +16,7 @@ interface JwtDataShape {
   appid?: string;
 }
 
-function JwtData(jwtData: object) {
+export function JwtData(jwtData: object) {
   return new Proxy(<JwtDataShape>jwtData, {
     get(target, prop) {
       switch (prop) {
@@ -26,6 +26,3 @@ function JwtData(jwtData: object) {
     },
   });
 }
-
-export type { JwtDataShape };
-export { JwtData };

@@ -4,7 +4,7 @@ import "./AppSwitcher.css";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { Menu, MenuItem, Button } from "@material-ui/core";
 import { loadInSigningKey, validateAndDecode } from "../../utils/JwtHelpers";
-import { JwtData } from "../../utils/DecodedProfile";
+import { JwtData, JwtDataShape } from "../../utils/DecodedProfile";
 import {
   hrefIsTheSameDeploymentRootPath,
   getDeploymentRootPathLink,
@@ -32,6 +32,13 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
+  const [loginData, setLoginData] = useState<JwtDataShape | null>(null);
+  const [expired, setExpired] = useState<boolean>(false);
+  const [checkExpiryTimer, setCheckExpiryTimer] = useState<number | undefined>(
+    undefined
+  );
+
+  // config
   const [menuSettings, setMenuSettings] = useState<AppSwitcherMenuSettings[]>(
     []
   );
@@ -39,9 +46,33 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
   const [resource, setResource] = useState<string>("");
   const [oAuthUri, setOAuthUri] = useState<string>("");
   const [adminClaimName, setAdminClaimName] = useState<string>("");
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+  /**
+   * lightweight function that is called every minute to verify the state of the token
+   * it returns a promise that resolves when the component state has been updated. In normal usage this
+   * is ignored but it is used in testing to ensure that the component state is only checked after it has been set.
+   */
+  const checkExpiryHandler = () => {
+    if (loginData) {
+      const nowTime = new Date().getTime() / 1000; //assume time is in seconds
+      //we know that it is not null due to above check
+      const expiry = loginData.exp;
+      const timeToGo = expiry ? expiry - nowTime : null;
+
+      if ((timeToGo && timeToGo <= 0) || !timeToGo) {
+        console.log("login has expired already");
+        setExpired(true);
+      }
+    } else {
+      console.log("no login data present for expiry check");
+    }
+  };
+
   useEffect(() => {
+    setCheckExpiryTimer(window.setInterval(checkExpiryHandler, 60000));
+
     const loadConfig = async () => {
       try {
         const response = await fetch("/meta/menu-config/menu.json");
@@ -81,6 +112,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
 
         const decodedData = await validateAndDecode(token, signingKey);
         const loginData = JwtData(decodedData);
+        setLoginData(loginData);
 
         if (!loginData) {
           setIsLoggedIn(false);
@@ -97,11 +129,23 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
         setIsLoggedIn(false);
         setUsername("");
         setIsAdmin(false);
-        console.error("existing login token was not valid: ", error);
+
+        if (error.name === "TokenExpiredError") {
+          console.error("Token has already expired");
+          setExpired(true);
+        } else {
+          console.error("existing login token was not valid: ", error);
+        }
       }
     };
 
     validateToken();
+
+    return () => {
+      if (checkExpiryTimer) {
+        window.clearInterval(checkExpiryTimer);
+      }
+    };
   }, []);
 
   const openSubmenu = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -281,7 +325,9 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       ) : (
         <div className="app-switcher-container">
           <span className="not-logged-in">
-            You are not currently logged in
+            {expired
+              ? "Your login has expired"
+              : "You are not currently logged in"}
             <Button
               className="login-button"
               variant="outlined"
@@ -296,7 +342,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
                 window.location.assign(makeLoginUrl());
               }}
             >
-              Login
+              Login {expired ? "again" : ""}
             </Button>
           </span>
         </div>
