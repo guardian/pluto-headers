@@ -408,10 +408,7 @@ const processQueue = (error, token) => {
  */
 const handleUnauthorized = (plutoConfig, error, failureCallback) => __awaiter(void 0, void 0, void 0, function* () {
     const originalRequest = error.config;
-    // (Backend returns 403 Forbidden when a token is expired instead of 401 Unauthorized
-    // therefore the check of 403 Forbidden)
-    if (!originalRequest._retry &&
-        (error.response.status === 401 || error.response.status === 403)) {
+    if (!originalRequest._retry && error.response.status === 401) {
         // Handle several incoming http requests that fails on 401 Unauthorized
         // Therefore create a queue of the failing requests
         // and resolve them when refresh token is fetched
