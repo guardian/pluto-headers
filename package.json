@@ -8,32 +8,80 @@
     "build"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand --verbose",
     "build": "rm -rf build && rollup -c"
   },
   "types": "./build/index.d.ts",
   "author": "",
   "license": "ISC",
+  "jest": {
+    "moduleFileExtensions": [
+      "jsx",
+      "js",
+      "tsx",
+      "ts",
+      "json"
+    ],
+    "verbose": true,
+    "moduleNameMapper": {
+      "\\.(css|less)$": "identity-obj-proxy"
+    },
+    "transform": {
+      "^.+\\.[jt]sx?$": "ts-jest",
+      "node_modules/react-multistep/.+\\.js$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!react-multistep)"
+    ],
+    "testResultsProcessor": "jest-junit",
+    "setupFiles": [
+      "./jestSetup.jsx"
+    ]
+  },
   "peerDependencies": {
     "@material-ui/core": "^4.10.2",
     "@material-ui/icons": "^4.9.1",
+    "axios": "^0.19.1",
     "jsonwebtoken": "^8.5.1",
+    "query-string": "^6.13.1",
     "react": "^16.12.0",
+    "react-dom": "^16.12.0",
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
+    "@material-ui/core": "^4.10.2",
+    "@material-ui/icons": "^4.9.1",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.4.0",
     "@svgr/rollup": "^5.4.0",
+    "@types/enzyme": "^3.10.5",
     "@types/react": "^16.9.36",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
+    "@types/sinon": "^9.0.4",
+    "axios": "^0.19.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "expect": "^24.9.0",
+    "jest": "^26.0.1",
+    "jest-cli": "^24.8.0",
+    "jest-fetch-mock": "^3.0.1",
+    "jest-junit": "^4.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "moxios": "^0.4.0",
+    "object.entries": "^1.1.1",
     "prettier": "^2.0.5",
+    "query-string": "^6.13.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-router-dom": "^5.2.0",
+    "react-test-renderer": "^16.13.1",
     "rollup": "^2.23.1",
     "rollup-plugin-peer-deps-external": "^2.2.3",
     "rollup-plugin-postcss": "^3.1.5",
     "rollup-plugin-typescript2": "^0.27.2",
-    "source-map-loader": "^1.0.0",
+    "sinon": "^8.0.4",
+    "ts-jest": "^26.1.0",
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.7"
   }

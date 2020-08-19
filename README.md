@@ -2,8 +2,11 @@
 
 Pluto headers is used as a base with header components for all pluto apps.
 
-The components consists of a Header component with the purpose of being used as a web page header in the pluto applications, the header may for example contain a web application logo.
-And also an AppSwitcher component used for displaying menu selections by configuration, show who you are logged in as and a log in / log out button.
+The components consists of
+
+- Header component with the purpose of being used as a web page header with a logo in the pluto applications.
+- AppSwitcher component used for displaying menu selections by configuration, show who you are logged in as and a log in / log out button.
+- Util interceptor for handling unauthorized requests in axios.
 
 # React component library
 
@@ -35,6 +38,10 @@ Since this is a react component library with dependencies such as react and mate
   ```
   yarn && yarn build
   ```
+
+- Remove the devDependencies that are the same as peerDependecies by removing them from package.json and do a yarn install. Otherwise the devDependencies will collide during local development with the external repository.
+
+  The hard way of doing this is to npm link these devDependencies from this repository to the external repository.
 
 - In external repository package.json, update pluto-headers dependency by adding a relative path to the root
 
