@@ -9,5 +9,3 @@ declare module "*.svg" {
 }
 
 declare var deploymentRootPath: string;
-
-declare module "@material-ui/core";
