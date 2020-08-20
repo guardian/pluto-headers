@@ -1,27 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./AppSwitcher.css";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
-import { Menu, MenuItem, Button } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import { loadInSigningKey, validateAndDecode } from "../../utils/JwtHelpers";
 import { JwtData, JwtDataShape } from "../../utils/DecodedProfile";
 import {
   hrefIsTheSameDeploymentRootPath,
   getDeploymentRootPathLink,
 } from "../../utils/AppLinks";
-
-type MenuType = "link" | "submenu";
-
-interface BaseMenuSettings {
-  type: MenuType;
-  text: string;
-  href: string;
-  adminOnly?: boolean;
-}
-
-interface AppSwitcherMenuSettings extends BaseMenuSettings {
-  content?: BaseMenuSettings[];
-}
+import { MenuButton } from "../MenuButton/MenuButton";
 
 interface AppSwitcherProps {
   onLoggedIn?: () => void;
@@ -47,8 +34,6 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
   const [resource, setResource] = useState<string>("");
   const [oAuthUri, setOAuthUri] = useState<string>("");
   const [adminClaimName, setAdminClaimName] = useState<string>("");
-
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   /**
    * lightweight function that is called every minute to verify the state of the token
@@ -151,14 +136,6 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
     };
   }, []);
 
-  const openSubmenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const closeMenu = () => {
-    setAnchorEl(null);
-  };
-
   const makeLoginUrl = () => {
     const currentUri = new URL(window.location.href);
     const redirectUri =
@@ -204,102 +181,20 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       {isLoggedIn ? (
         <div className="app-switcher-container">
           <ul className="app-switcher">
-            {(menuSettings || []).map(
-              ({ type, text, href, adminOnly, content }, index) =>
-                type === "link" ? (
-                  getLink(text, href, adminOnly, index)
-                ) : (
-                  <li
-                    key={`${index}-submenu`}
-                    style={{
-                      display: adminOnly
-                        ? isAdmin
-                          ? "inherit"
-                          : "none"
-                        : "inherit",
-                    }}
-                  >
-                    <button
-                      className="submenu-button"
-                      aria-controls={`simple-menu-${index}`}
-                      aria-haspopup="true"
-                      onClick={openSubmenu}
-                    >
-                      {text}
-                      <ArrowDropDownIcon
-                        style={{ fontSize: "16px" }}
-                      ></ArrowDropDownIcon>
-                    </button>
-                    <Menu
-                      id={`simple-menu-${index}`}
-                      anchorEl={anchorEl}
-                      getContentAnchorEl={null}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "center",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "center",
-                      }}
-                      keepMounted
-                      open={Boolean(anchorEl)}
-                      onClose={closeMenu}
-                    >
-                      {(content || []).map(
-                        ({ type, text, href, adminOnly }, index) => {
-                          if (type === "submenu") {
-                            console.error(
-                              "You have provided a submenu inside a submenu, nested submenus are not supported!"
-                            );
-                            return;
-                          }
-
-                          if (hrefIsTheSameDeploymentRootPath(href)) {
-                            return (
-                              <MenuItem
-                                key={`${index}-menu-item`}
-                                style={{
-                                  display: adminOnly
-                                    ? isAdmin
-                                      ? "inherit"
-                                      : "none"
-                                    : "inherit",
-                                }}
-                                component={Link}
-                                to={getDeploymentRootPathLink(href)}
-                                onClick={() => {
-                                  closeMenu();
-                                }}
-                              >
-                                {text}
-                              </MenuItem>
-                            );
-                          }
-
-                          return (
-                            <MenuItem
-                              key={`${index}-menu-item`}
-                              style={{
-                                display: adminOnly
-                                  ? isAdmin
-                                    ? "inherit"
-                                    : "none"
-                                  : "inherit",
-                              }}
-                              onClick={() => {
-                                closeMenu();
-                                window.location.assign(href);
-                              }}
-                            >
-                              {text}
-                            </MenuItem>
-                          );
-                        }
-                      )}
-                    </Menu>
-                  </li>
-                )
+            {(
+              menuSettings || []
+            ).map(({ type, text, href, adminOnly, content }, index) =>
+              type === "link" ? (
+                getLink(text, href, adminOnly, index)
+              ) : (
+                <MenuButton
+                  index={index}
+                  isAdmin={isAdmin}
+                  text={text}
+                  adminOnly={adminOnly}
+                  content={content}
+                />
+              )
             )}
           </ul>
           <div>

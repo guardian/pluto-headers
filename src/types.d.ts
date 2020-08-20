@@ -1,3 +1,16 @@
+type MenuType = "link" | "submenu";
+
+interface BaseMenuSettings {
+  type: MenuType;
+  text: string;
+  href: string;
+  adminOnly?: boolean;
+}
+
+interface AppSwitcherMenuSettings extends BaseMenuSettings {
+  content?: BaseMenuSettings[];
+}
+
 declare module "*.css" {
   const content: string;
   export default content;

@@ -1,0 +1,27 @@
+ul.app-switcher li button.submenu-button {
+  color: #5d5d5d;
+}
+
+ul.app-switcher li button.submenu-button:hover {
+  color: #181818;
+}
+
+ul.app-switcher li button.submenu-button:focus {
+  color: #181818;
+  outline: none;
+}
+
+ul.app-switcher li button.submenu-button {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  box-sizing: content-box;
+  cursor: pointer;
+  font: inherit;
+  height: auto;
+  padding: 0;
+  text-transform: none;
+  letter-spacing: unset;
+  margin-bottom: 0;
+}
