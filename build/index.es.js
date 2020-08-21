@@ -145,7 +145,7 @@ const MenuButton = (props) => {
     const closeMenu = () => {
         setAnchorEl(null);
     };
-    return (React.createElement("li", { key: index, style: {
+    return (React.createElement("li", { style: {
             display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
         } },
         React.createElement("button", { className: "submenu-button", "aria-controls": `pluto-menu-button-${index}`, "aria-haspopup": "true", onClick: openSubmenu },
@@ -303,7 +303,7 @@ const AppSwitcher = (props) => {
             display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
         } }, hrefIsTheSameDeploymentRootPath(href) ? (React.createElement(Link, { to: getDeploymentRootPathLink(href) }, text)) : (React.createElement("a", { href: href }, text))));
     return (React.createElement(React.Fragment, null, isLoggedIn ? (React.createElement("div", { className: "app-switcher-container" },
-        React.createElement("ul", { className: "app-switcher" }, (menuSettings || []).map(({ type, text, href, adminOnly, content }, index) => type === "link" ? (getLink(text, href, adminOnly, index)) : (React.createElement(MenuButton, { index: index, isAdmin: isAdmin, text: text, adminOnly: adminOnly, content: content })))),
+        React.createElement("ul", { className: "app-switcher" }, (menuSettings || []).map(({ type, text, href, adminOnly, content }, index) => type === "link" ? (getLink(text, href, adminOnly, index)) : (React.createElement(MenuButton, { key: index, index: index, isAdmin: isAdmin, text: text, adminOnly: adminOnly, content: content })))),
         React.createElement("div", null,
             React.createElement("span", null,
                 "You are logged in as ",

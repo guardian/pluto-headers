@@ -188,6 +188,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
                 getLink(text, href, adminOnly, index)
               ) : (
                 <MenuButton
+                  key={index}
                   index={index}
                   isAdmin={isAdmin}
                   text={text}

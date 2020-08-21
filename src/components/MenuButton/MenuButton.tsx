@@ -30,7 +30,6 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
 
   return (
     <li
-      key={index}
       style={{
         display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
       }}
