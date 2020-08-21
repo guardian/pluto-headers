@@ -157,7 +157,7 @@ const MenuButton = (props) => {
     const closeMenu = () => {
         setAnchorEl(null);
     };
-    return (React__default['default'].createElement("li", { key: index, style: {
+    return (React__default['default'].createElement("li", { style: {
             display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
         } },
         React__default['default'].createElement("button", { className: "submenu-button", "aria-controls": `pluto-menu-button-${index}`, "aria-haspopup": "true", onClick: openSubmenu },
@@ -315,7 +315,7 @@ const AppSwitcher = (props) => {
             display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
         } }, hrefIsTheSameDeploymentRootPath(href) ? (React__default['default'].createElement(reactRouterDom.Link, { to: getDeploymentRootPathLink(href) }, text)) : (React__default['default'].createElement("a", { href: href }, text))));
     return (React__default['default'].createElement(React__default['default'].Fragment, null, isLoggedIn ? (React__default['default'].createElement("div", { className: "app-switcher-container" },
-        React__default['default'].createElement("ul", { className: "app-switcher" }, (menuSettings || []).map(({ type, text, href, adminOnly, content }, index) => type === "link" ? (getLink(text, href, adminOnly, index)) : (React__default['default'].createElement(MenuButton, { index: index, isAdmin: isAdmin, text: text, adminOnly: adminOnly, content: content })))),
+        React__default['default'].createElement("ul", { className: "app-switcher" }, (menuSettings || []).map(({ type, text, href, adminOnly, content }, index) => type === "link" ? (getLink(text, href, adminOnly, index)) : (React__default['default'].createElement(MenuButton, { key: index, index: index, isAdmin: isAdmin, text: text, adminOnly: adminOnly, content: content })))),
         React__default['default'].createElement("div", null,
             React__default['default'].createElement("span", null,
                 "You are logged in as ",
