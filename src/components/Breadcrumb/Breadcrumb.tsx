@@ -5,7 +5,7 @@ import "./Breadcrumb.css";
 import iconCommission from "../../static/icon_commission.png";
 import iconProject from "../../static/icon_project.png";
 import iconMaster from "../../static/icon_master.png";
-//const iconCommission = "";
+import iconBreadcrumbArrow from "../../static/breadcrumb_arrow_lightgray.png";
 
 /**
  * only one of these needs to be set.  The others will be inferred from the data about it.
@@ -196,7 +196,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
     if (this.state.hasError) {
       return (
         <div className="breadcrumb-container">
-          <Typography>Could not load location data</Typography>
+          <p>Could not load location data</p>
         </div>
       );
     } else {
@@ -209,7 +209,10 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
                 src={iconCommission}
                 alt="Commission"
               />
-              <Typography>{this.state.commissionName}</Typography>
+              <p className="breadcrumb-text">{this.state.commissionName}</p>
+              {
+                this.state.projectName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
+              }
             </div>
           )}
           {this.state.projectName == "" ? null : (
@@ -219,13 +222,16 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
                 src={iconProject}
                 alt="Project"
               />
-              <Typography>{this.state.projectName}</Typography>
+              <p className="breadcrumb-text">{this.state.projectName}</p>
+              {
+                this.state.masterName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
+              }
             </div>
           )}
           {this.state.masterName == "" ? null : (
             <div className="breadcrumb">
               <img className="breadcrumb-icon" src={iconMaster} alt="Master" />
-              <Typography>{this.state.masterName}</Typography>
+              <p className="breadcrumb-text">{this.state.masterName}</p>
             </div>
           )}
         </div>
