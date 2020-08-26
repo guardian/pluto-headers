@@ -1,6 +1,5 @@
 import React from "react";
 import axios from "axios";
-import { Typography } from "@material-ui/core";
 import "./Breadcrumb.css";
 import iconCommission from "../../static/icon_commission.png";
 import iconProject from "../../static/icon_project.png";

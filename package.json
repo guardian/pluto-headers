@@ -8,7 +8,7 @@
     "build"
   ],
   "scripts": {
-    "test": "jest --runInBand --verbose",
+    "test": "jest --verbose",
     "build": "rm -rf build && rollup -c"
   },
   "types": "./build/index.d.ts",
@@ -26,13 +26,10 @@
     "moduleNameMapper": {
       "\\.(css|less)$": "identity-obj-proxy"
     },
+    "resolver": null,
     "transform": {
-      "^.+\\.[jt]sx?$": "ts-jest",
-      "node_modules/react-multistep/.+\\.js$": "ts-jest"
+      "^.+\\.[jt]sx?$": "ts-jest"
     },
-    "transformIgnorePatterns": [
-      "node_modules/(?!react-multistep)"
-    ],
     "testResultsProcessor": "jest-junit",
     "setupFiles": [
       "./jestSetup.jsx"
@@ -56,6 +53,7 @@
     "@rollup/plugin-node-resolve": "^8.4.0",
     "@svgr/rollup": "^5.4.0",
     "@types/enzyme": "^3.10.5",
+    "@types/moxios": "^0.4.9",
     "@types/react": "^16.9.36",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
