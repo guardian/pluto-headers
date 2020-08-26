@@ -5,6 +5,7 @@ import postcss from "rollup-plugin-postcss";
 import packageJson from "./package.json";
 import external from "rollup-plugin-peer-deps-external";
 import svgr from "@svgr/rollup";
+import image from "@rollup/plugin-image";
 
 export default [
   {
@@ -27,6 +28,7 @@ export default [
       commonjs(),
       typescript({ useTsconfigDeclarationDir: true }),
       postcss(),
+      image({exclude:"*.svg"}),
       svgr(),
     ],
   },

@@ -1,0 +1,16 @@
+div.breadcrumb-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: flex-start;
+}
+
+div.breadcrumb {
+    flex: 1;
+}
+
+.breadcrumb-icon {
+    width: 40px;
+    height: 40px;
+}

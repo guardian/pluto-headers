@@ -1,6 +1,6 @@
-import React, { useState, useEffect, createElement } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, Button } from '@material-ui/core';
+import { Menu, MenuItem, Button, Typography } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import axios from 'axios';
@@ -332,25 +332,7 @@ const AppSwitcher = (props) => {
                 expired ? "again" : ""))))));
 };
 
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-var _ref = /*#__PURE__*/createElement("path", {
-  d: "M67.412 54.496l5.15-2.681V11.507H68.7L59.227 24.08h-1.011l.551-14.052h40.926l.552 14.052h-1.104l-9.196-12.573H85.99v40.215l5.058 2.682v1.386H67.412v-1.294zM104.935 52.646V7.992l-3.954-1.571v-.832L115.236 3h1.471v21.171l.368-.37c3.127-2.773 7.726-4.622 12.232-4.622 6.254 0 9.013 3.513 9.013 10.17v23.297l3.311 1.849v1.386h-18.762v-1.386l3.403-1.85V29.349c0-3.605-1.563-5.084-4.598-5.084-2.024 0-3.679.647-4.967 1.664V52.83l3.311 1.85v1.294h-18.761V54.68l3.678-2.034zM153.679 38.964c.368 7.396 3.679 13.128 11.496 13.128 3.771 0 6.438-1.757 8.921-3.051v1.479c-1.931 2.681-6.898 6.471-13.795 6.471-12.048 0-18.302-6.748-18.302-18.49 0-11.463 6.714-18.582 17.658-18.582 10.3 0 15.634 5.177 15.634 18.767v.37h-21.612v-.092zm-.184-1.664l10.668-.647c0-9.153-1.563-15.255-4.69-15.255-3.311 0-5.978 7.026-5.978 15.902zM0 73.63c0-19.415 12.784-26.35 27.039-26.35 6.07 0 11.771 1.018 14.99 2.312l.276 13.59h-1.38l-8.368-13.128c-1.472-.647-2.76-.832-5.335-.832-7.54 0-11.496 8.783-11.312 23.205.184 17.288 3.127 25.147 10.117 25.147 1.84 0 3.219-.278 4.139-.74v-18.49l-4.599-2.68v-1.48h22.256v1.664l-4.598 2.496v18.213c-3.77 1.479-10.117 2.866-16.738 2.866C10.3 99.515 0 91.934 0 73.629zM47.547 64.57v-1.11l14.991-2.588 1.656.092v29.584c0 3.606 1.747 4.623 4.598 4.623 1.84 0 3.495-.74 4.874-2.312V66.42l-4.046-1.757V63.46l14.898-2.68 1.472.092V94.8l4.047 1.664v1.11l-14.715 1.848-1.472-.092v-4.438h-.368c-2.759 2.496-6.53 4.715-11.22 4.715-7.173 0-10.392-4.252-10.392-10.724V66.42l-4.323-1.85zM143.011 60.78l1.195.092V71.78h.368c1.564-8.043 5.151-11.002 9.381-11.002.644 0 1.472.093 1.839.278v11.279c-.643-.185-1.931-.278-3.035-.278-3.402 0-5.885.647-8.093 1.664v21.634l3.403 1.849v1.386h-19.313v-1.386l3.495-1.942V65.772l-4.047-1.202v-1.017l14.807-2.774z",
-  fill: "#fff"
-});
-
-var _ref2 = /*#__PURE__*/createElement("path", {
-  d: "M180.442 61.702V50.146l-4.046-1.479v-.925l15.082-2.773 1.472.185v49.553l4.138 1.48v1.294l-14.899 2.033-1.195-.092v-4.068h-.368c-2.207 2.219-5.15 4.16-9.841 4.16-8.093 0-14.071-6.194-14.071-18.952 0-13.405 6.898-20.061 17.29-20.061 3.035 0 5.334.554 6.438 1.201zm0 31.71V63.83c-.92-.647-1.655-1.387-4.138-1.294-4.047.184-6.53 6.286-6.53 17.195 0 9.8 1.747 15.254 7.173 15.07 1.564-.093 2.759-.648 3.495-1.387zM213.55 60.778l1.287.092v34.392l3.403 1.849v1.386h-19.313v-1.386l3.495-1.942V66.325l-4.139-1.664v-1.11l15.267-2.773zm1.379-9.337c0 3.605-3.035 6.378-6.621 6.378-3.679 0-6.53-2.773-6.53-6.379 0-3.605 2.851-6.471 6.53-6.471 3.586 0 6.621 2.866 6.621 6.471zM261.741 95.264V65.958l-4.046-1.48v-1.386l14.899-2.774 1.471.093v4.345h.368c3.219-2.866 8.001-4.715 12.691-4.715 6.438 0 9.381 3.05 9.381 9.892v25.146L300 97.021v1.386h-19.313v-1.386l3.494-1.942V70.765c0-3.79-1.655-5.27-4.69-5.27-1.931 0-3.587.463-5.15 1.664v28.198l3.403 1.941v1.387H258.43v-1.387l3.311-2.034zM240.313 76.866v-4.9c0-7.396-1.564-9.8-6.162-9.8-.552 0-1.012.093-1.564.093l-8.093 11.001h-1.103V63.09c3.494-1.109 7.817-2.31 13.611-2.31 9.932 0 15.634 2.773 15.634 11.093v23.945l3.587.924v.925c-1.379.832-4.23 1.664-7.265 1.664-4.875 0-7.266-1.572-8.277-4.345h-.368c-2.116 2.866-5.059 4.437-9.657 4.437-5.886 0-9.933-3.698-9.933-10.077 0-6.194 3.771-9.522 11.588-11.001l8.002-1.48zm0 16.548V78.622l-2.483.185c-3.863.37-5.335 2.866-5.335 8.32 0 6.01 1.932 7.582 4.691 7.582 1.563 0 2.391-.463 3.127-1.295zM110.729 76.866v-4.9c0-7.396-1.563-9.8-6.162-9.8-.551 0-1.011.093-1.563.093L94.911 73.26h-1.104V63.09c3.495-1.109 7.817-2.31 13.611-2.31 9.933 0 15.635 2.773 15.635 11.093v23.945l3.587.924v.925c-1.38.832-4.231 1.664-7.266 1.664-4.874 0-7.265-1.572-8.277-4.345h-.368c-2.115 2.866-5.058 4.437-9.656 4.437-5.886 0-9.933-3.698-9.933-10.077 0-6.194 3.77-9.522 11.588-11.001l8.001-1.48zm0 16.548V78.622l-2.483.185c-3.863.37-5.334 2.866-5.334 8.32 0 6.01 1.931 7.582 4.69 7.582 1.656 0 2.483-.463 3.127-1.295z",
-  fill: "#fff"
-});
-
-function SvgGuardianWhite(props) {
-  return /*#__PURE__*/createElement("svg", _extends({
-    width: 300,
-    height: 100,
-    fill: "none"
-  }, props), _ref, _ref2);
-}
+var img = "data:image/svg+xml,%3csvg width='300' height='100' viewBox='0 0 300 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M67.4124 54.496L72.5626 51.815V11.5068H68.6999L59.2272 24.08H58.2156L58.7674 10.0276H99.6932L100.245 24.08H99.1414L89.9446 11.5068H85.9899V51.7225L91.0482 54.4036V55.7903H67.4124V54.496Z' fill='white'/%3e%3cpath d='M104.935 52.6456V7.99229L100.981 6.42064V5.5886L115.236 3H116.707V24.171L117.075 23.8012C120.202 21.0277 124.801 19.1787 129.307 19.1787C135.561 19.1787 138.32 22.6918 138.32 29.3482V52.6456L141.631 54.4946V55.8813H122.869V54.4946L126.272 52.6456V29.3482C126.272 25.7427 124.709 24.2635 121.674 24.2635C119.65 24.2635 117.995 24.9106 116.707 25.9276V52.8305L120.018 54.6795V55.9738H101.257V54.6795L104.935 52.6456Z' fill='white'/%3e%3cpath d='M153.679 38.9637C154.047 46.3597 157.358 52.0916 165.175 52.0916C168.946 52.0916 171.613 50.3351 174.096 49.0408V50.52C172.165 53.201 167.198 56.9915 160.301 56.9915C148.253 56.9915 141.999 50.2426 141.999 38.5015C141.999 27.0377 148.713 19.9191 159.657 19.9191C169.957 19.9191 175.291 25.0963 175.291 38.6864V39.0562H153.679V38.9637ZM153.495 37.2996L164.163 36.6525C164.163 27.5 162.6 21.3983 159.473 21.3983C156.162 21.3983 153.495 28.4245 153.495 37.2996Z' fill='white'/%3e%3cpath d='M0 73.6292C0 54.2147 12.7836 47.2809 27.0386 47.2809C33.1085 47.2809 38.8105 48.2979 42.0294 49.5922L42.3053 63.1823H40.9258L32.5567 50.0544C31.0852 49.4073 29.7977 49.2224 27.2225 49.2224C19.6812 49.2224 15.7265 58.0051 15.9105 72.4273C16.0944 89.7154 19.0374 97.5737 26.027 97.5737C27.8663 97.5737 29.2458 97.2963 30.1655 96.8341V78.3441L25.5671 75.6631V74.1839H47.8234V75.848L43.225 78.3441V96.5567C39.4543 98.0359 33.1085 99.4227 26.4868 99.4227C10.3004 99.5151 0 91.9342 0 73.6292Z' fill='white'/%3e%3cpath d='M47.5473 64.5698V63.4604L62.5381 60.8718L64.1935 60.9643V90.5482C64.1935 94.1538 65.9409 95.1707 68.7919 95.1707C70.6313 95.1707 72.2867 94.4311 73.6662 92.8595V66.4188L69.6196 64.6622V63.4604L84.5185 60.7794L85.9899 60.8718V94.8009L90.0365 96.465V97.5744L75.3217 99.4234L73.8502 99.3309V94.8934H73.4823C70.7232 97.3895 66.9526 99.6083 62.2622 99.6083C55.0887 99.6083 51.8698 95.3556 51.8698 88.8841V66.4188L47.5473 64.5698Z' fill='white'/%3e%3cpath d='M143.011 60.7794L144.206 60.8718V71.7809H144.574C146.138 63.7377 149.725 60.7794 153.955 60.7794C154.599 60.7794 155.427 60.8718 155.794 61.0567V72.3356C155.151 72.1507 153.863 72.0582 152.759 72.0582C149.357 72.0582 146.874 72.7054 144.666 73.7223V95.3556L148.069 97.2046V98.5914H128.756V97.2046L132.251 95.2632V65.7716L128.204 64.5698V63.5528L143.011 60.7794Z' fill='white'/%3e%3cpath d='M180.442 61.7024V50.1462L176.396 48.667V47.7425L191.478 44.969L192.95 45.1539V94.707L197.088 96.1862V97.4805L182.189 99.5144L180.994 99.422V95.3542H180.626C178.419 97.573 175.476 99.5144 170.785 99.5144C162.692 99.5144 156.714 93.3203 156.714 80.5622C156.714 67.157 163.612 60.5006 174.004 60.5006C177.039 60.5006 179.338 61.0553 180.442 61.7024ZM180.442 93.4127V63.8288C179.522 63.1816 178.787 62.442 176.304 62.5345C172.257 62.7194 169.774 68.8211 169.774 79.7301C169.774 89.5298 171.521 94.9844 176.947 94.7995C178.511 94.707 179.706 94.1523 180.442 93.4127Z' fill='white'/%3e%3cpath d='M213.55 60.7779L214.837 60.8704V95.2617L218.24 97.1107V98.4975H198.927V97.1107L202.422 95.1693V66.3249L198.283 64.6608V63.5514L213.55 60.7779ZM214.929 51.4405C214.929 55.046 211.894 57.8195 208.308 57.8195C204.629 57.8195 201.778 55.046 201.778 51.4405C201.778 47.8349 204.629 44.969 208.308 44.969C211.894 44.969 214.929 47.8349 214.929 51.4405Z' fill='white'/%3e%3cpath d='M261.741 95.2643V65.9576L257.695 64.4785V63.0917L272.594 60.3182L274.065 60.4107V64.7558H274.433C277.652 61.8899 282.434 60.0409 287.124 60.0409C293.562 60.0409 296.505 63.0917 296.505 69.933V95.0794L300 97.0208V98.4075H280.687V97.0208L284.181 95.0794V70.765C284.181 66.9746 282.526 65.4954 279.491 65.4954C277.56 65.4954 275.904 65.9576 274.341 67.1595V95.3567L277.744 97.2982V98.6849H258.43V97.2982L261.741 95.2643Z' fill='white'/%3e%3cpath d='M240.313 76.8656V71.9658C240.313 64.5698 238.749 62.1661 234.151 62.1661C233.599 62.1661 233.139 62.2585 232.587 62.2585L224.494 73.2601H223.391V63.0906C226.885 61.9812 231.208 60.7794 237.002 60.7794C246.934 60.7794 252.636 63.5528 252.636 71.8733V95.8179L256.223 96.7424V97.6669C254.844 98.4989 251.993 99.3309 248.958 99.3309C244.083 99.3309 241.692 97.7593 240.681 94.9858H240.313C238.197 97.8518 235.254 99.4234 230.656 99.4234C224.77 99.4234 220.723 95.7254 220.723 89.3464C220.723 83.1522 224.494 79.824 232.311 78.3448L240.313 76.8656ZM240.313 93.4142V78.6222L237.83 78.8071C233.967 79.1769 232.495 81.673 232.495 87.1276C232.495 93.1368 234.427 94.7085 237.186 94.7085C238.749 94.7085 239.577 94.2462 240.313 93.4142Z' fill='white'/%3e%3cpath d='M110.729 76.8656V71.9658C110.729 64.5698 109.166 62.1661 104.567 62.1661C104.016 62.1661 103.556 62.2585 103.004 62.2585L94.9107 73.2601H93.8071V63.0906C97.3019 61.9812 101.624 60.7794 107.418 60.7794C117.351 60.7794 123.053 63.5528 123.053 71.8733V95.8179L126.64 96.7424V97.6669C125.26 98.4989 122.409 99.3309 119.374 99.3309C114.5 99.3309 112.109 97.7593 111.097 94.9858H110.729C108.614 97.8518 105.671 99.4234 101.073 99.4234C95.1866 99.4234 91.14 95.7254 91.14 89.3464C91.14 83.1522 94.9107 79.824 102.728 78.3448L110.729 76.8656ZM110.729 93.4142V78.6222L108.246 78.8071C104.383 79.1769 102.912 81.673 102.912 87.1276C102.912 93.1368 104.843 94.7085 107.602 94.7085C109.258 94.7085 110.085 94.2462 110.729 93.4142Z' fill='white'/%3e%3c/svg%3e";
 
 var css_248z$2 = ".header {\n  display: flex;\n  width: 100%;\n  background-color: #052962;\n}\n\n.content {\n  padding: 10px;\n  width: 100%;\n  height: 60px;\n}\n";
 styleInject(css_248z$2);
@@ -360,7 +342,7 @@ const Header = () => {
         React.createElement("div", { className: "header" },
             React.createElement("div", { className: "content" },
                 React.createElement("a", { href: "/", style: { display: "inline-block", maxHeight: "60px" } },
-                    React.createElement(SvgGuardianWhite, { width: "180px", height: "60px", viewBox: "0 0 300 100" }))))));
+                    React.createElement(img, { width: "180px", height: "60px", viewBox: "0 0 300 100" }))))));
 };
 
 /**
@@ -448,5 +430,175 @@ const handleUnauthorized = (plutoConfig, error, failureCallback) => __awaiter(vo
     }
 });
 
-export { AppSwitcher, Header, handleUnauthorized };
+var css_248z$3 = "div.breadcrumb-container {\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-start;\n    align-items: center;\n    align-content: flex-start;\n}\n\ndiv.breadcrumb {\n    flex: 1;\n}\n\n.breadcrumb-icon {\n    width: 40px;\n    height: 40px;\n}";
+styleInject(css_248z$3);
+
+const img$1 = "data:image/png;base64,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";
+
+class Breadcrumb extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            hasError: false,
+            loading: false,
+            projectName: "",
+            commissionName: "",
+            masterName: ""
+        };
+    }
+    /**
+     * implement an error boundary so we can't break the rest of the UI
+     * @param error
+     */
+    static getDerivedStateFromError(error) {
+        return { loading: false, hasError: true };
+    }
+    componentDidCatch(error, errorInfo) {
+        console.error("An uncaught error happened in the Breadcrumb component ", error, errorInfo);
+    }
+    /**
+     * return a promise that completes when state change is complete
+     */
+    setStatePromise(newState) {
+        return new Promise((resolve, reject) => this.setState(newState, () => resolve()));
+    }
+    /**
+     * generic function to load in data from either project or commission endpoints in pluto-core
+     * @param url url to load
+     */
+    plutoCoreLoad(url) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield axios.get(url);
+                if (response.data && response.data.result && response.data.result.title) {
+                    return {
+                        title: response.data.result.title,
+                        workingGroupId: response.data.workingGroupId,
+                        commissionId: response.data.id
+                    };
+                }
+                else {
+                    return {
+                        title: "(none)"
+                    };
+                }
+            }
+            catch (err) {
+                if (err.response) {
+                    switch (err.response.status) {
+                        case 404:
+                            console.info("No data existed for the url ", url);
+                            return {
+                                title: "(none)"
+                            };
+                        case 503 | 504:
+                            console.info("pluto-core is not responding, retrying...");
+                            return new Promise((resolve, reject) => {
+                                window.setTimeout(() => {
+                                    this.plutoCoreLoad(url)
+                                        .then((result) => resolve(result))
+                                        .catch(err => reject(err));
+                                }, 2000);
+                            });
+                    }
+                    throw "Could not load pluto-core data";
+                }
+            }
+            return {
+                title: "(none)"
+            }; //we shouldn't get here but the compiler wants a return
+        });
+    }
+    loadCommissionData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.setStatePromise({ loading: true });
+            //I could do the whole type-registration thing and validate it for the data, but really we are only interested
+            //in a field or two so I might as well do it manually.
+            const url = `/pluto-core/api/pluto/commission/${this.props.commissionId}`;
+            try {
+                const serverContent = yield this.plutoCoreLoad(url);
+                return this.setStatePromise({ loading: false, commissionName: serverContent.title });
+            }
+            catch (err) {
+                return this.setStatePromise({ loading: false, hasError: true });
+            }
+        });
+    }
+    loadProjectData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.setStatePromise({ loading: true });
+            const url = `/pluto-core/api/project/${this.props.commissionId}`;
+            try {
+                const serverContentProject = yield this.plutoCoreLoad(url);
+                if (serverContentProject.commissionId) {
+                    const commissionUrl = `/pluto-core/api/pluto/commission/${serverContentProject.commissionId}`;
+                    const serverContentComm = yield this.plutoCoreLoad(commissionUrl);
+                    return this.setStatePromise({ loading: false,
+                        commissionName: serverContentComm.title,
+                        projectName: serverContentProject.title });
+                }
+                else {
+                    return this.setStatePromise({
+                        loading: false,
+                        projectName: serverContentProject.title
+                    });
+                }
+            }
+            catch (err) {
+                console.error("Could not load project data: ", err);
+                return this.setStatePromise({ loading: false, hasError: true });
+            }
+        });
+    }
+    loadMasterData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.setStatePromise({ loading: true });
+            const url = `/deliverables/api/asset/${this.props.masterId}`;
+            console.log("loadMasterData not implemented yet");
+            return this.setStatePromise({ loading: false, hasError: true });
+        });
+    }
+    /**
+     * master load function that hands off to specific ones
+     */
+    loadData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.props.masterId) {
+                return this.loadMasterData();
+            }
+            else if (this.props.projectId) {
+                return this.loadProjectData();
+            }
+            else if (this.props.commissionId) {
+                return this.loadCommissionData();
+            }
+            else {
+                console.error("Breadcrumb component has no master, project nor commission id.");
+            }
+        });
+    }
+    componentDidMount() {
+        this.loadData();
+    }
+    render() {
+        if (this.state.hasError) {
+            return (React.createElement("div", { className: "breadcrumb-container" },
+                React.createElement(Typography, null, "Could not load location data")));
+        }
+        else {
+            return (React.createElement("div", { className: "breadcrumb-container" },
+                this.state.commissionName == "" ? null : React.createElement("div", { className: "breadcrumb" },
+                    React.createElement("img", { className: "breadcrumb-icon", src: `data:image.png;base64/${img$1}`, alt: "Commission" }),
+                    React.createElement(Typography, null, this.state.commissionName)),
+                this.state.projectName == "" ? null : React.createElement("div", { className: "breadcrumb" },
+                    React.createElement("img", { className: "breadcrumb-icon", src: "/static/icon/project.png", alt: "Project" }),
+                    React.createElement(Typography, null, this.state.projectName)),
+                this.state.masterName == "" ? null : React.createElement("div", { className: "breadcrumb" },
+                    React.createElement("img", { className: "breadcrumb-icon", src: "/static/icon/master.png", alt: "Master" }),
+                    React.createElement(Typography, null, this.state.masterName))));
+        }
+    }
+}
+
+export { AppSwitcher, Breadcrumb, Header, handleUnauthorized };
 //# sourceMappingURL=index.es.js.map
