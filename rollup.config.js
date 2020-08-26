@@ -28,7 +28,7 @@ export default [
       commonjs(),
       typescript({ useTsconfigDeclarationDir: true }),
       postcss(),
-      image({exclude:"*.svg"}),
+      image({ exclude: /\.(svg)$/ }),
       svgr(),
     ],
   },
