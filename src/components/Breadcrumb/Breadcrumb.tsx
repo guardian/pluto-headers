@@ -81,8 +81,8 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
       if (response.data && response.data.result && response.data.result.title) {
         return {
           title: response.data.result.title,
-          workingGroupId: response.data.workingGroupId,
-          commissionId: response.data.id,
+          workingGroupId: response.data.result.workingGroupId,
+          commissionId: response.data.result.commissionId ?? response.data.id,
         };
       } else {
         return {
@@ -97,22 +97,23 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
             return {
               title: "(none)",
             };
-          case 503 | 504:
+          case 503:
+          case 504:
             console.info("pluto-core is not responding, retrying...");
 
             return new Promise((resolve, reject) => {
               window.setTimeout(() => {
                 this.plutoCoreLoad(url)
-                  .then((result) => resolve(result))
-                  .catch((err) => reject(err));
+                    .then((result) => resolve(result))
+                    .catch((err) => reject(err));
               }, 2000);
             });
           default:
             break;
         }
-
-        throw "Could not load pluto-core data";
       }
+      throw "Could not load pluto-core data";
+      console.error(err);
     }
     return {
       title: "(none)",
@@ -138,7 +139,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
 
   async loadProjectData(): Promise<void> {
     await this.setStatePromise({ loading: true });
-    const url = `/pluto-core/api/project/${this.props.commissionId}`;
+    const url = `/pluto-core/api/project/${this.props.projectId}`;
 
     try {
       const serverContentProject = await this.plutoCoreLoad(url);

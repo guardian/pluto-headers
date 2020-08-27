@@ -12,7 +12,7 @@ describe("Breadcrumb", ()=>{
 
         return moxios.wait(() => {
             const request = moxios.requests.mostRecent()
-            expect(request.config.url).toEqual("/pluto-core/pluto/commission/5");
+            expect(request.config.url).toEqual("/pluto-core/api/pluto/commission/5");
             request
                 .respondWith({
                     status: 200,
@@ -20,13 +20,13 @@ describe("Breadcrumb", ()=>{
                         "status": "ok",
                         "result": {
                             id: 5,
-                            title: "My comission title"
+                            title: "My commission title"
                         }
                     }
                 })
                 .then(() => {
                     try {
-                        const container = rendered.find("div#breadcrumb-container");
+                        const container = rendered.find("div.breadcrumb-container");
                         expect(container.length).toEqual(1);
                         expect(container.children().length).toEqual(1);
                         const crumb = container.childAt(0);
@@ -39,4 +39,125 @@ describe("Breadcrumb", ()=>{
                 })
         })
     });
+
+    it("should load in commission and project if only project id is set", (done) => {
+        const rendered = shallow(<Breadcrumb projectId={5}/>);
+
+        return moxios.wait(() => {
+            const request = moxios.requests.mostRecent()
+            expect(request.config.url).toEqual("/pluto-core/api/project/5");
+            request
+                .respondWith({
+                    status: 200,
+                    response: {
+                        "status": "ok",
+                        "result": {
+                            commissionId: 8,
+                            title: "My project title"
+                        }
+                    }
+                })
+                .then(() => {
+                    return moxios.wait( () => {
+                        const request = moxios.requests.mostRecent();
+                        expect(request.config.url).toEqual("/pluto-core/api/pluto/commission/8");
+                        request
+                            .respondWith({
+                                status: 200,
+                                response: {
+                                    "status": "ok",
+                                    "result": {
+                                        id: 8,
+                                        title: "My commission title"
+                                    }
+                                }
+                            })
+                            .then(()=>{
+                                try {
+                                    const container = rendered.find("div.breadcrumb-container");
+                                    expect(container.length).toEqual(1);
+                                    expect(container.children().length).toEqual(2);
+                                    const crumb = container.childAt(0);
+                                    const commText = crumb.find("p");
+                                    expect(commText.text()).toEqual("My commission title");
+
+                                    const projcrumb = container.childAt(1);
+                                    const projText = projcrumb.find("p");
+                                    expect(projText.text()).toEqual("My project title")
+                                    done();
+                                } catch(err) {
+                                    done.fail(err);
+                                }
+                            })
+                    })
+                })
+        })
+    });
+
+    it("should display generic error text on server error", (done)=>{
+        const rendered = shallow(<Breadcrumb projectId={5}/>);
+
+        return moxios.wait(() => {
+            const request = moxios.requests.mostRecent()
+            expect(request.config.url).toEqual("/pluto-core/api/project/5");
+            request
+                .respondWith({
+                    status: 500,
+                    response: {
+                        "status": "error",
+                        "detail": "Kaboom"
+                    }
+                })
+                .then(() => {
+                    const container = rendered.find("div.breadcrumb-container");
+                    expect(container.length).toEqual(1);
+                    expect(container.children().length).toEqual(1);
+                    const errcrumb = container.find("p");
+                    expect(errcrumb.text()).toEqual("Could not load location data");
+                    done();
+                })
+                .catch((err)=>done.fail(err));
+        });
+    });
+
+    it("should retry on server 503", (done) => {
+        const rendered = shallow(<Breadcrumb commissionId={5}/>);
+
+        return moxios.wait(()=> {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.url).toEqual("/pluto-core/api/pluto/commission/5");
+            request.respondWith({
+                status: 503,
+                response: {}
+            }).then( () => {
+                //if we don't wait as long as the main code is waiting, then we end up testing the _last_ request
+                return window.setTimeout(()=>moxios.wait( ()=> {
+                    const request = moxios.requests.mostRecent();
+                    expect(request.config.url).toEqual("/pluto-core/api/pluto/commission/5");
+                    request.respondWith({
+                        status: 200,
+                        response: {
+                            "status": "ok",
+                            result: {
+                                id: 8,
+                                title: "My commission title"
+                            }
+                        }
+                    }).then(()=>{
+                        try {
+                            const container = rendered.find("div.breadcrumb-container");
+                            expect(container.length).toEqual(1);
+                            expect(container.children().length).toEqual(1);
+                            const crumb = container.childAt(0);
+                            const commText = crumb.find("p");
+                            expect(commText.text()).toEqual("My commission title");
+                            done();
+                        } catch(err) {
+                            done.fail(err);
+                        }
+                    }).catch((err)=>done.fail(err));
+                }),2000)
+            });
+        })
+    })
 });
