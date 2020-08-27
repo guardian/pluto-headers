@@ -24,6 +24,8 @@ interface BreadcrumbState {
   projectName: string;
   commissionName: string;
   masterName: string;
+  commissionId?: number;
+  projectId?: number;
 }
 
 interface UsefulServerData {
@@ -43,6 +45,8 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
       projectName: "",
       commissionName: "",
       masterName: "",
+      commissionId: undefined,
+      projectId: undefined
     };
   }
 
@@ -149,6 +153,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
         return this.setStatePromise({
           loading: false,
           commissionName: serverContentComm.title,
+          commissionId: serverContentProject.commissionId,
           projectName: serverContentProject.title,
         });
       } else {
@@ -209,7 +214,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
                 src={iconCommission}
                 alt="Commission"
               />
-              <p className="breadcrumb-text">{this.state.commissionName}</p>
+              <a href={`/pluto-core/commission/${this.props.commissionId ?? this.state.commissionId}`} className="breadcrumb-text">{this.state.commissionName}</a>
               {
                 this.state.projectName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
               }
@@ -222,7 +227,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
                 src={iconProject}
                 alt="Project"
               />
-              <p className="breadcrumb-text">{this.state.projectName}</p>
+              <a href={`/pluto-core/project/${this.props.projectId ?? this.state.projectId}`} className="breadcrumb-text">{this.state.projectName}</a>
               {
                 this.state.masterName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
               }

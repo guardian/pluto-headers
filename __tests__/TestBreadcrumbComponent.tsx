@@ -30,8 +30,9 @@ describe("Breadcrumb", ()=>{
                         expect(container.length).toEqual(1);
                         expect(container.children().length).toEqual(1);
                         const crumb = container.childAt(0);
-                        const commText = crumb.find("p");
+                        const commText = crumb.find("a");
                         expect(commText.text()).toEqual("My commission title");
+                        expect(commText.prop("href")).toEqual("/pluto-core/commission/5")
                         done();
                     } catch(err) {
                         done.fail(err);
@@ -78,12 +79,14 @@ describe("Breadcrumb", ()=>{
                                     expect(container.length).toEqual(1);
                                     expect(container.children().length).toEqual(2);
                                     const crumb = container.childAt(0);
-                                    const commText = crumb.find("p");
+                                    const commText = crumb.find("a");
                                     expect(commText.text()).toEqual("My commission title");
+                                    expect(commText.prop("href")).toEqual("/pluto-core/commission/8");
 
                                     const projcrumb = container.childAt(1);
-                                    const projText = projcrumb.find("p");
+                                    const projText = projcrumb.find("a");
                                     expect(projText.text()).toEqual("My project title")
+                                    expect(projText.prop("href")).toEqual("/pluto-core/project/5");
                                     done();
                                 } catch(err) {
                                     done.fail(err);
@@ -149,8 +152,9 @@ describe("Breadcrumb", ()=>{
                             expect(container.length).toEqual(1);
                             expect(container.children().length).toEqual(1);
                             const crumb = container.childAt(0);
-                            const commText = crumb.find("p");
+                            const commText = crumb.find("a");
                             expect(commText.text()).toEqual("My commission title");
+                            expect(commText.prop("href")).toEqual("/pluto-core/commission/5");
                             done();
                         } catch(err) {
                             done.fail(err);
