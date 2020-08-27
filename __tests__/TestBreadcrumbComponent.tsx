@@ -1,7 +1,7 @@
 import React from "react";
 import {shallow, mount} from "enzyme";
 import moxios from "moxios";
-import {Breadcrumb} from "../src/components/Breadcrumb/Breadcrumb";
+import {Breadcrumb} from "../src";
 
 describe("Breadcrumb", ()=>{
     beforeEach(() => moxios.install());
