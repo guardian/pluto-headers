@@ -4,7 +4,7 @@
 import * as t from "ts-interface-checker";
 // tslint:disable:object-literal-key-quotes
 
-export const OAuthConfiguration = t.iface([], {
+export const OAuthConfigurationIF = t.iface([], {
   "clientId": "string",
   "resource": "string",
   "oAuthUri": "string",
@@ -13,6 +13,6 @@ export const OAuthConfiguration = t.iface([], {
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
-  OAuthConfiguration,
+  OAuthConfigurationIF,
 };
 export default exportedTypeSuite;

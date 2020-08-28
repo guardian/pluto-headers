@@ -1,7 +1,7 @@
 import OAuthConfigurationTI from "./OAuthConfiguration-ti";
 import {createCheckers} from "ts-interface-checker";
 
-interface OAuthConfiguration {
+interface OAuthConfigurationIF {
     clientId: string;
     resource: string;
     oAuthUri: string;
@@ -10,10 +10,10 @@ interface OAuthConfiguration {
 }
 
 const {
-    OAuthConfigurationChecker
+    OAuthConfigurationIF
 } = createCheckers(OAuthConfigurationTI);
 
-class OAuthConfiguration implements OAuthConfiguration {
+class OAuthConfiguration {
     clientId: string;
     resource: string;
     oAuthUri: string;
@@ -23,7 +23,7 @@ class OAuthConfiguration implements OAuthConfiguration {
     constructor(from:any, validate=true) {
         if(validate) {
             //this will throw an error (VError from ts-interface-checker) if the configuration does not validate
-            OAuthConfigurationChecker.check(from);
+            OAuthConfigurationIF.check(from);
         }
         this.clientId = from.clientId;
         this.resource = from.resource;

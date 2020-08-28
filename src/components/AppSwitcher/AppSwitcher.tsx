@@ -103,7 +103,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       }
 
       setIsLoggedIn(true);
-      setUsername(loginData ? (loginData.username as string) : "");
+      setUsername(loginData ? (loginData.preferred_username ?? loginData.username ?? "") : "");
       setIsAdmin(config.isAdmin(loginData));
 
     } catch (error) {

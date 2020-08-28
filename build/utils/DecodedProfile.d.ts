@@ -8,6 +8,7 @@ export interface JwtDataShape {
     first_name?: string;
     family_name?: string;
     username?: string;
+    preferred_username?: string;
     location?: string;
     job_title?: string;
     authmethod?: string;
