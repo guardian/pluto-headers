@@ -8,8 +8,9 @@
     "build"
   ],
   "scripts": {
-    "test": "jest --runInBand --verbose",
-    "build": "rm -rf build && rollup -c"
+    "test": "jest --verbose",
+    "build": "rm -rf build && rollup -c",
+    "update-interfaces": "ts-interface-builder src/utils/OAuthConfiguration.ts"
   },
   "types": "./build/index.d.ts",
   "author": "",
@@ -24,15 +25,12 @@
     ],
     "verbose": true,
     "moduleNameMapper": {
-      "\\.(css|less)$": "identity-obj-proxy"
+      "\\.(css|less|png|svg)$": "identity-obj-proxy"
     },
+    "resolver": null,
     "transform": {
-      "^.+\\.[jt]sx?$": "ts-jest",
-      "node_modules/react-multistep/.+\\.js$": "ts-jest"
+      "^.+\\.[jt]sx?$": "ts-jest"
     },
-    "transformIgnorePatterns": [
-      "node_modules/(?!react-multistep)"
-    ],
     "testResultsProcessor": "jest-junit",
     "setupFiles": [
       "./jestSetup.jsx"
@@ -52,9 +50,11 @@
     "@material-ui/core": "^4.10.2",
     "@material-ui/icons": "^4.9.1",
     "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-image": "^2.0.5",
     "@rollup/plugin-node-resolve": "^8.4.0",
     "@svgr/rollup": "^5.4.0",
     "@types/enzyme": "^3.10.5",
+    "@types/moxios": "^0.4.9",
     "@types/react": "^16.9.36",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
@@ -63,6 +63,7 @@
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "expect": "^24.9.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^26.0.1",
     "jest-cli": "^24.8.0",
     "jest-fetch-mock": "^3.0.1",
@@ -81,8 +82,12 @@
     "rollup-plugin-postcss": "^3.1.5",
     "rollup-plugin-typescript2": "^0.27.2",
     "sinon": "^8.0.4",
+    "ts-interface-builder": "^0.2.2",
     "ts-jest": "^26.1.0",
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "ts-interface-checker": "^0.1.13"
   }
 }

@@ -9,6 +9,8 @@ import {
   getDeploymentRootPathLink,
 } from "../../utils/AppLinks";
 import { MenuButton } from "../MenuButton/MenuButton";
+import OAuthConfiguration from "../../utils/OAuthConfiguration";
+import {VError} from "ts-interface-checker";
 
 interface AppSwitcherProps {
   onLoggedIn?: () => void;
@@ -56,78 +58,86 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
     }
   };
 
+  const loadConfig:()=>Promise<OAuthConfiguration> = async () => {
+    try {
+      const response = await fetch("/meta/menu-config/menu.json");
+
+      if (response.status === 200) {
+        const data = await response.json();
+
+        setMenuSettings(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    const response = await fetch("/meta/oauth/config.json");
+    if (response.status === 200) {
+      const data = await response.json();
+      const config = new OAuthConfiguration(data);  //validates the configuration and throws a VError if it fails
+      setClientId(config.clientId);
+      setResource(config.resource);
+      setOAuthUri(config.oAuthUri);
+      setAdminClaimName(config.adminClaimName);
+      return config;
+    } else {
+      throw `Server returned ${response.status}`;
+    }
+  };
+
+  const validateToken:(config:OAuthConfiguration)=>Promise<void> = async (config:OAuthConfiguration) => {
+    const token = sessionStorage.getItem("pluto:access-token");
+    if (!token) return;
+
+    try {
+      let signingKey = sessionStorage.getItem("adfs-test:signing-key");
+      if (!signingKey) signingKey = await loadInSigningKey();
+
+      const decodedData = await validateAndDecode(token, signingKey);
+      const loginData = JwtData(decodedData);
+      setLoginData(loginData);
+
+      // Login valid callback if provided
+      if (props.onLoginValid) {
+        props.onLoginValid(true, loginData);
+      }
+
+      setIsLoggedIn(true);
+      setUsername(loginData ? (loginData.username as string) : "");
+      setIsAdmin(config.isAdmin(loginData));
+
+    } catch (error) {
+      // Login valid callback if provided
+      if (props.onLoginValid) {
+        props.onLoginValid(false);
+      }
+
+      setIsLoggedIn(false);
+      setUsername("");
+      setIsAdmin(false);
+
+      if (error.name === "TokenExpiredError") {
+        console.error("Token has already expired");
+        setExpired(true);
+      } else {
+        console.error("existing login token was not valid: ", error);
+      }
+    }
+  };
+
   useEffect(() => {
     setCheckExpiryTimer(window.setInterval(checkExpiryHandler, 60000));
-
-    const loadConfig = async () => {
-      try {
-        const response = await fetch("/meta/menu-config/menu.json");
-
-        if (response.status === 200) {
-          const data = await response.json();
-
-          setMenuSettings(data);
-        }
-      } catch (error) {
-        console.error(error);
+    
+    loadConfig().then( (config)=>{
+      validateToken(config);
+    }).catch((err) => {
+      if(err instanceof VError) {
+        console.log("OAuth configuration was not valid: ", err);
+      } else {
+        console.log("Could not load oauth configuration: ", err);
       }
+    })
 
-      try {
-        const response = await fetch("/meta/oauth/config.json");
-        if (response.status === 200) {
-          const data = await response.json();
-          setClientId(data.clientId);
-          setResource(data.resource);
-          setOAuthUri(data.oAuthUri);
-          setAdminClaimName(data.adminClaimName);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    loadConfig();
-
-    const validateToken = async () => {
-      const token = sessionStorage.getItem("pluto:access-token");
-      if (!token) return;
-
-      try {
-        let signingKey = sessionStorage.getItem("adfs-test:signing-key");
-        if (!signingKey) signingKey = await loadInSigningKey();
-
-        const decodedData = await validateAndDecode(token, signingKey);
-        const loginData = JwtData(decodedData);
-        setLoginData(loginData);
-
-        // Login valid callback if provided
-        if (props.onLoginValid) {
-          props.onLoginValid(true, loginData);
-        }
-
-        setIsLoggedIn(true);
-        setUsername(loginData ? (loginData.username as string) : "");
-        setIsAdmin((loginData as any)[adminClaimName]);
-      } catch (error) {
-        // Login valid callback if provided
-        if (props.onLoginValid) {
-          props.onLoginValid(false);
-        }
-
-        setIsLoggedIn(false);
-        setUsername("");
-        setIsAdmin(false);
-
-        if (error.name === "TokenExpiredError") {
-          console.error("Token has already expired");
-          setExpired(true);
-        } else {
-          console.error("existing login token was not valid: ", error);
-        }
-      }
-    };
-
-    validateToken();
 
     return () => {
       if (checkExpiryTimer) {
