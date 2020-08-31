@@ -1,0 +1,58 @@
+@font-face {
+    font-family: "gnm-font-sans-reg";
+    src: url("/static/Guardian-Ag-Sans-1-Web-Reg.woff") format('woff');
+}
+
+@font-face {
+    font-family: "gnm-font-sans-bold";
+    src: url("/static/Guardian-Ag-Sans-1-Web-Bold.woff") format('woff');
+}
+
+@font-face {
+    font-family: "gnm-font-egyp-reg";
+    src: url("/static/Guardian-Egyp-Web-Regular.woff") format('woff');
+}
+
+@font-face {
+    font-family: "gnm-font-egyp-bold";
+    src: url("/static/Guardian-Egyp-Web-Semibold.woff") format('woff');
+}
+
+div.breadcrumb-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: flex-start;
+}
+
+div.breadcrumb {
+    font-family: "gnm-font-egyp-bold", Georgia, serif !important;
+    font-size: 1.8rem;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    flex-direction: row;
+    max-width: 400px;
+    min-width: 150px;
+    margin-right: 0.6em;
+}
+
+.breadcrumb-icon {
+    width: 40px;
+    height: 40px;
+    padding-right: 0.2em;
+}
+
+.breadcrumb img.breadcrumb-arrow {
+    margin-left: auto;
+    width: 12px;
+    height: 20px;
+}
+
+.breadcrumb-text {
+    font-weight: 400;
+    margin-bottom: 0;
+    line-height: 1em;
+
+}
