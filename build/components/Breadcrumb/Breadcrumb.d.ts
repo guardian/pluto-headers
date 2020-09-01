@@ -17,6 +17,8 @@ interface BreadcrumbState {
     projectName: string;
     commissionName: string;
     masterName: string;
+    commissionId?: number;
+    projectId?: number;
 }
 interface UsefulServerData {
     projectId?: number;

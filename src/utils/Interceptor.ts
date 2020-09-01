@@ -21,7 +21,7 @@ export const refreshToken = async (
   const postdata: { [key: string]: string } = {
     grant_type: "refresh_token",
     client_id: clientId,
-    refresh_token: sessionStorage.getItem("pluto:refresh-token") as string,
+    refresh_token: window.localStorage.getItem("pluto:refresh-token") as string,
   };
 
   try {
@@ -98,8 +98,8 @@ export const handleUnauthorized = async (
     try {
       const data = await refreshToken(plutoConfig);
 
-      sessionStorage.setItem("pluto:access-token", data.access_token);
-      sessionStorage.setItem("pluto:refresh-token", data.refresh_token);
+      window.localStorage.setItem("pluto:access-token", data.access_token);
+      window.localStorage.setItem("pluto:refresh-token", data.refresh_token);
 
       originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
       processQueue(null, data.access_token);

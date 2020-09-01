@@ -10,7 +10,7 @@ import {
 } from "../../utils/AppLinks";
 import { MenuButton } from "../MenuButton/MenuButton";
 import OAuthConfiguration from "../../utils/OAuthConfiguration";
-import {VError} from "ts-interface-checker";
+import { VError } from "ts-interface-checker";
 
 interface AppSwitcherProps {
   onLoggedIn?: () => void;
@@ -58,7 +58,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
     }
   };
 
-  const loadConfig:()=>Promise<OAuthConfiguration> = async () => {
+  const loadConfig: () => Promise<OAuthConfiguration> = async () => {
     try {
       const response = await fetch("/meta/menu-config/menu.json");
 
@@ -74,7 +74,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
     const response = await fetch("/meta/oauth/config.json");
     if (response.status === 200) {
       const data = await response.json();
-      const config = new OAuthConfiguration(data);  //validates the configuration and throws a VError if it fails
+      const config = new OAuthConfiguration(data); //validates the configuration and throws a VError if it fails
       setClientId(config.clientId);
       setResource(config.resource);
       setOAuthUri(config.oAuthUri);
@@ -85,13 +85,14 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
     }
   };
 
-  const validateToken:(config:OAuthConfiguration)=>Promise<void> = async (config:OAuthConfiguration) => {
-    const token = sessionStorage.getItem("pluto:access-token");
+  const validateToken: (config: OAuthConfiguration) => Promise<void> = async (
+    config: OAuthConfiguration
+  ) => {
+    const token = window.localStorage.getItem("pluto:access-token");
     if (!token) return;
 
     try {
-      let signingKey = sessionStorage.getItem("adfs-test:signing-key");
-      if (!signingKey) signingKey = await loadInSigningKey();
+      const signingKey = await loadInSigningKey();
 
       const decodedData = await validateAndDecode(token, signingKey);
       const loginData = JwtData(decodedData);
@@ -103,9 +104,12 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       }
 
       setIsLoggedIn(true);
-      setUsername(loginData ? (loginData.preferred_username ?? loginData.username ?? "") : "");
+      setUsername(
+        loginData
+          ? loginData.preferred_username ?? loginData.username ?? ""
+          : ""
+      );
       setIsAdmin(config.isAdmin(loginData));
-
     } catch (error) {
       // Login valid callback if provided
       if (props.onLoginValid) {
@@ -127,17 +131,18 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
 
   useEffect(() => {
     setCheckExpiryTimer(window.setInterval(checkExpiryHandler, 60000));
-    
-    loadConfig().then( (config)=>{
-      validateToken(config);
-    }).catch((err) => {
-      if(err instanceof VError) {
-        console.log("OAuth configuration was not valid: ", err);
-      } else {
-        console.log("Could not load oauth configuration: ", err);
-      }
-    })
 
+    loadConfig()
+      .then((config) => {
+        validateToken(config);
+      })
+      .catch((err) => {
+        if (err instanceof VError) {
+          console.log("OAuth configuration was not valid: ", err);
+        } else {
+          console.log("Could not load oauth configuration: ", err);
+        }
+      });
 
     return () => {
       if (checkExpiryTimer) {
