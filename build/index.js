@@ -88,10 +88,10 @@ function validateAndDecode(token, signingKey, refreshToken) {
         console.error("could not verify JWT: ", err);
         reject(err);
       }
-      // console.log("decoded JWT");
-      sessionStorage.setItem("pluto:access-token", token); //it validates so save the token
+
+      window.localStorage.setItem("pluto:access-token", token); //it validates so save the token
       if (refreshToken)
-        sessionStorage.setItem("pluto:refresh-token", refreshToken);
+        window.localStorage.setItem("pluto:refresh-token", refreshToken);
       resolve(decoded);
     });
   });
@@ -1233,13 +1233,11 @@ const AppSwitcher = (props) => {
     });
     const validateToken = (config) => __awaiter(void 0, void 0, void 0, function* () {
         var _a, _b;
-        const token = sessionStorage.getItem("pluto:access-token");
+        const token = window.localStorage.getItem("pluto:access-token");
         if (!token)
             return;
         try {
-            let signingKey = sessionStorage.getItem("adfs-test:signing-key");
-            if (!signingKey)
-                signingKey = yield loadInSigningKey();
+            const signingKey = yield loadInSigningKey();
             const decodedData = yield validateAndDecode(token, signingKey);
             const loginData = JwtData(decodedData);
             setLoginData(loginData);
@@ -1248,7 +1246,8 @@ const AppSwitcher = (props) => {
                 props.onLoginValid(true, loginData);
             }
             setIsLoggedIn(true);
-            setUsername(loginData ? ((_b = (_a = loginData.preferred_username) !== null && _a !== void 0 ? _a : loginData.username) !== null && _b !== void 0 ? _b : "") : "");
+            setUsername(loginData
+                ? (_b = (_a = loginData.preferred_username) !== null && _a !== void 0 ? _a : loginData.username) !== null && _b !== void 0 ? _b : "" : "");
             setIsAdmin(config.isAdmin(loginData));
         }
         catch (error) {
@@ -1270,9 +1269,11 @@ const AppSwitcher = (props) => {
     });
     React.useEffect(() => {
         setCheckExpiryTimer(window.setInterval(checkExpiryHandler, 60000));
-        loadConfig().then((config) => {
+        loadConfig()
+            .then((config) => {
             validateToken(config);
-        }).catch((err) => {
+        })
+            .catch((err) => {
             if (err instanceof dist.VError) {
                 console.log("OAuth configuration was not valid: ", err);
             }
@@ -1371,7 +1372,7 @@ const refreshToken = (plutoConfig) => __awaiter(void 0, void 0, void 0, function
     const postdata = {
         grant_type: "refresh_token",
         client_id: clientId,
-        refresh_token: sessionStorage.getItem("pluto:refresh-token"),
+        refresh_token: window.localStorage.getItem("pluto:refresh-token"),
     };
     try {
         const response = yield axios__default['default'].post(tokenUri, qs__default['default'].stringify(postdata), {
@@ -1429,8 +1430,8 @@ const handleUnauthorized = (plutoConfig, error, failureCallback) => __awaiter(vo
         isRefreshing = true;
         try {
             const data = yield refreshToken(plutoConfig);
-            sessionStorage.setItem("pluto:access-token", data.access_token);
-            sessionStorage.setItem("pluto:refresh-token", data.refresh_token);
+            window.localStorage.setItem("pluto:access-token", data.access_token);
+            window.localStorage.setItem("pluto:refresh-token", data.refresh_token);
             originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
             processQueue(null, data.access_token);
             return axios__default['default'](originalRequest);
@@ -1448,7 +1449,197 @@ const handleUnauthorized = (plutoConfig, error, failureCallback) => __awaiter(vo
     }
 });
 
+var css_248z$3 = "@font-face {\n    font-family: \"gnm-font-sans-reg\";\n    src: url(\"/static/Guardian-Ag-Sans-1-Web-Reg.woff\") format('woff');\n}\n\n@font-face {\n    font-family: \"gnm-font-sans-bold\";\n    src: url(\"/static/Guardian-Ag-Sans-1-Web-Bold.woff\") format('woff');\n}\n\n@font-face {\n    font-family: \"gnm-font-egyp-reg\";\n    src: url(\"/static/Guardian-Egyp-Web-Regular.woff\") format('woff');\n}\n\n@font-face {\n    font-family: \"gnm-font-egyp-bold\";\n    src: url(\"/static/Guardian-Egyp-Web-Semibold.woff\") format('woff');\n}\n\ndiv.breadcrumb-container {\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-start;\n    align-items: center;\n    align-content: flex-start;\n}\n\ndiv.breadcrumb {\n    font-family: \"gnm-font-egyp-bold\", Georgia, serif !important;\n    font-size: 1.8rem;\n    display: flex;\n    flex: 1;\n    align-items: center;\n    flex-direction: row;\n    max-width: 400px;\n    min-width: 150px;\n    margin-right: 0.6em;\n}\n\n.breadcrumb-icon {\n    width: 40px;\n    height: 40px;\n    padding-right: 0.2em;\n}\n\n.breadcrumb img.breadcrumb-arrow {\n    margin-left: auto;\n    width: 12px;\n    height: 20px;\n}\n\n.breadcrumb-text {\n    font-weight: 400;\n    margin-bottom: 0;\n    line-height: 1em;\n\n}";
+styleInject(css_248z$3);
+
+const img = "data:image/png;base64,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";
+
+const img$1 = "data:image/png;base64,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";
+
+const img$2 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gcJCSoVJq9XKQAABVVJREFUWMPNmVtsVFUUhv+9z2XmnM6lnbZSKy0WpKChtWUoI2IDITGAgq2W2qqNIAImPvigAUkjYIhgRImG4ANEhPCAQlQQ8Ub0QRCl5VKohBBsuUittS0D0+nczm37ABan57SlY1tmJfMwOXvO/vZae/17rzWEMYZBGzOgXD7JYud+gnLxGPTOizC6/WBqBABABAnUkQ4uMw9iXgnsE2dCyC0iIHTQU5HBAOr+Kyz08w5E6veAKSGAUDA12v8Egh1gBojNAdlXBXn6InBp95AhBTSCHce79q3xRk9/A3AcmBpDIkYEO6BrsBfNh6v8zXeoI33l/waMNHzJAnuWA7oOpiUGZpqUtwG8gNSqjbA/+DhJCJDpKgK7l7Now34wXcFwGOFESFMr4a5YR0D52wdksRD8W2qY2nIaTBseuB7jBIh5XniW7CRElE2PTWnFNAVXt9YwpaVx+OEAQFehXjoF/0cLGdPVgQEDu15hWstvwBDtt9tSLS0K9XIDunavYP0Chn/dxaJnDg4oHcMCqUYRadiHyLHPmCWgEew4Hti3emTC2hekriLweS2MkH+ZCbBr/1ovmIE7boaO4IH1W+KyWGtvZp0bZoEZes84/u4JEEYXgkvNjvtQVyaubq6A1t4Ee8EcSMXlEMZMBnWkA1oMautZhA5vR/T0gRsecGRA9lXBNnEW+FHjQKVUGJEAlKZfEDz4PrS282ZpoTwyaw+B8+QSwhhD1xerWPjorjghdle9C9n3jOUiu/auhuSrhpD9QJ+OCB5YDyK5kDJjGQgvWodUCePqpnKorWdNQp5S+gKc898ghGkq2lZNYizaHTeoP8ChtGjjt7i2Y6nZi7IbWWsbCa/8cZIxzaw/oR8/hPbXOUhTqyFk32+Wr2t/QutoBhEkCLlFIJxg4SIGrb0JeqAN1JFh+R7xXq81uRKB2nLG4JXzR0AYQ28B0jovQTu0DdQ1yvTi4HfvofvgB7f2a1Y+Ml773gTZuakM6uWTPd/lqVVwV2+M95Tk6tO7saYjoMql44M+a1k4EL+YtvOWmx299DRyM3F6ZUQf4q1AuVBPqNbeNDQaFg1aTE5MZzz+oxQDnoJ//w5qdPuRrKaH/KBsBM/cQZsSAUUyGyGghLclL6BgB6UOT9LycSnpoPyo+5IXMGs8qDjWd6PaSrrwShDzShi1jX8EVtcsIacQrrI1kIrmm55JJZVImfkSwPHg0nPhnFcLPmuCaZxj9quw3/y9MGYy3BXrTMJMOAGpNZsheZ/sde3SYMsvBS/kFhMiuRgLdsZDFJchZcZS68XlFELIKUSk7hOIYx+CY9bLluPsk2aD8+QgeuoryN6nIE9faJmp0uRyiGOKETmx91Z4HRkQRhdQCkIgT1mApMpmXoRUsuDWhVW/3so63noYzNCSQ/54AXetqj9BnZlTKABwqdlEKqkEEcQ7DyfYIE+rAXVmTomrSZzzah8FFZIgvHY4564gpqKJpqT94H56Q5/X85EKbWr1RhC707oulorLiOStAO4AJBFskH3PwV4wh/TfmzE0+Lc+z2IX6wA1NkKes0HML4Vn8TYCyvXf+gDlkbZkO7Hl+UAEaUQuBGL+dKQt2mqCswa8uSLP0p1EKn5iWPWR8CLkkkp4Fm8nfe39gRuYp/azwJ7XAS02ZG0RwouAYL/RwCycm1gDM25bhq+PDX79dnOk7lMwygEJghJeBAwD8rRn4XhsJaH9VHSDAuypEa63svDhjxGu2514E730RXDurKFtoptLOAPqlUZDaT4K5UI9UdvOwQh2Av++ixBwrkzwWRMhjvMxMc8HIaeAJvI3xD/McB4leLuGsAAAAABJRU5ErkJggg==";
+
+const img$3 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAUCAYAAAC58NwRAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gcJCCAXM4y0uAAAAU9JREFUKM+Nkz+KIkEUh79nN4UeoBH8m0nnYp3AE5gLbeI5Zm7gATQ22GQPoCBl1l5ADHZZMNVATAqx30Y2M2O3Mw8KquD73qMe/LherzqbzXS73aqq8t0Joih6u1wuHI9HROSt0+m886Iq/X4fYwzee5xzOOf0lSCqSpqmul6v8d5jjMFay3A4lCIhBLDWCpBLaZoCaJEUPi4/lcKPD2utiIiuVqtSKfw6cjAYCFAqiWrxUna7XS6JCN1ulyRJpFQAcM7pZrMhyzIAWq3Wv0oZfLvd2O/3PBqKCL1e70/hBO89i8VCT6cT9/sdYwyj0Yg4jqXyHVyr1ZhOp7/iOH7+dBGcJAn1ej1fa6UMrlarT3AuFMGTyeQJBgi998zncz2fzy87Pypot9ufOo/HYxqNhpTmIYoigiDI4WazKa/yQJZlv5fL5d/D4bD5SUT/A3usFchwG8zQAAAAAElFTkSuQmCC";
+
+class Breadcrumb extends React__default['default'].Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            hasError: false,
+            loading: false,
+            projectName: "",
+            commissionName: "",
+            masterName: "",
+            commissionId: undefined,
+            projectId: undefined
+        };
+    }
+    /**
+     * implement an error boundary so we can't break the rest of the UI
+     * @param error
+     */
+    static getDerivedStateFromError(error) {
+        return { loading: false, hasError: true };
+    }
+    componentDidCatch(error, errorInfo) {
+        console.error("An uncaught error happened in the Breadcrumb component ", error, errorInfo);
+    }
+    /**
+     * return a promise that completes when state change is complete
+     */
+    setStatePromise(newState) {
+        return new Promise((resolve, reject) => this.setState(newState, () => resolve()));
+    }
+    /**
+     * generic function to load in data from either project or commission endpoints in pluto-core
+     * @param url url to load
+     */
+    plutoCoreLoad(url) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield axios__default['default'].get(url);
+                if (response.data && response.data.result && response.data.result.title) {
+                    return {
+                        title: response.data.result.title,
+                        workingGroupId: response.data.result.workingGroupId,
+                        commissionId: (_a = response.data.result.commissionId) !== null && _a !== void 0 ? _a : response.data.id,
+                    };
+                }
+                else {
+                    return {
+                        title: "(none)",
+                    };
+                }
+            }
+            catch (err) {
+                if (err.response) {
+                    switch (err.response.status) {
+                        case 404:
+                            console.info("No data existed for the url ", url);
+                            return {
+                                title: "(none)",
+                            };
+                        case 503:
+                        case 504:
+                            console.info("pluto-core is not responding, retrying...");
+                            return new Promise((resolve, reject) => {
+                                window.setTimeout(() => {
+                                    this.plutoCoreLoad(url)
+                                        .then((result) => resolve(result))
+                                        .catch((err) => reject(err));
+                                }, 2000);
+                            });
+                    }
+                }
+                throw "Could not load pluto-core data";
+            }
+            return {
+                title: "(none)",
+            }; //we shouldn't get here but the compiler wants a return
+        });
+    }
+    loadCommissionData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.setStatePromise({ loading: true });
+            //I could do the whole type-registration thing and validate it for the data, but really we are only interested
+            //in a field or two so I might as well do it manually.
+            const url = `/pluto-core/api/pluto/commission/${this.props.commissionId}`;
+            try {
+                const serverContent = yield this.plutoCoreLoad(url);
+                return this.setStatePromise({
+                    loading: false,
+                    commissionName: serverContent.title,
+                });
+            }
+            catch (err) {
+                return this.setStatePromise({ loading: false, hasError: true });
+            }
+        });
+    }
+    loadProjectData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.setStatePromise({ loading: true });
+            const url = `/pluto-core/api/project/${this.props.projectId}`;
+            try {
+                const serverContentProject = yield this.plutoCoreLoad(url);
+                if (serverContentProject.commissionId) {
+                    const commissionUrl = `/pluto-core/api/pluto/commission/${serverContentProject.commissionId}`;
+                    const serverContentComm = yield this.plutoCoreLoad(commissionUrl);
+                    return this.setStatePromise({
+                        loading: false,
+                        commissionName: serverContentComm.title,
+                        commissionId: serverContentProject.commissionId,
+                        projectName: serverContentProject.title,
+                    });
+                }
+                else {
+                    return this.setStatePromise({
+                        loading: false,
+                        projectName: serverContentProject.title,
+                    });
+                }
+            }
+            catch (err) {
+                console.error("Could not load project data: ", err);
+                return this.setStatePromise({ loading: false, hasError: true });
+            }
+        });
+    }
+    loadMasterData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.setStatePromise({ loading: true });
+            const url = `/deliverables/api/asset/${this.props.masterId}`;
+            console.log("loadMasterData not implemented yet");
+            return this.setStatePromise({ loading: false, hasError: true });
+        });
+    }
+    /**
+     * master load function that hands off to specific ones
+     */
+    loadData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.props.masterId) {
+                return this.loadMasterData();
+            }
+            else if (this.props.projectId) {
+                return this.loadProjectData();
+            }
+            else if (this.props.commissionId) {
+                return this.loadCommissionData();
+            }
+            else {
+                console.error("Breadcrumb component has no master, project nor commission id.");
+            }
+        });
+    }
+    componentDidMount() {
+        this.loadData();
+    }
+    render() {
+        var _a, _b;
+        if (this.state.hasError) {
+            return (React__default['default'].createElement("div", { className: "breadcrumb-container" },
+                React__default['default'].createElement("p", null, "Could not load location data")));
+        }
+        else {
+            return (React__default['default'].createElement("div", { className: "breadcrumb-container" },
+                this.state.commissionName == "" ? null : (React__default['default'].createElement("div", { className: "breadcrumb" },
+                    React__default['default'].createElement("img", { className: "breadcrumb-icon", src: img, alt: "Commission" }),
+                    React__default['default'].createElement("a", { href: `/pluto-core/commission/${(_a = this.props.commissionId) !== null && _a !== void 0 ? _a : this.state.commissionId}`, className: "breadcrumb-text" }, this.state.commissionName),
+                    this.state.projectName == "" ? null : React__default['default'].createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
+                this.state.projectName == "" ? null : (React__default['default'].createElement("div", { className: "breadcrumb" },
+                    React__default['default'].createElement("img", { className: "breadcrumb-icon", src: img$1, alt: "Project" }),
+                    React__default['default'].createElement("a", { href: `/pluto-core/project/${(_b = this.props.projectId) !== null && _b !== void 0 ? _b : this.state.projectId}`, className: "breadcrumb-text" }, this.state.projectName),
+                    this.state.masterName == "" ? null : React__default['default'].createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
+                this.state.masterName == "" ? null : (React__default['default'].createElement("div", { className: "breadcrumb" },
+                    React__default['default'].createElement("img", { className: "breadcrumb-icon", src: img$2, alt: "Master" }),
+                    React__default['default'].createElement("p", { className: "breadcrumb-text" }, this.state.masterName)))));
+        }
+    }
+}
+
 exports.AppSwitcher = AppSwitcher;
+exports.Breadcrumb = Breadcrumb;
 exports.Header = Header;
 exports.handleUnauthorized = handleUnauthorized;
 //# sourceMappingURL=index.js.map
