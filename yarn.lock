@@ -4526,7 +4526,7 @@ jest-environment-node@^26.3.0:
     jest-mock "^26.3.0"
     jest-util "^26.3.0"
 
-jest-fetch-mock@^3.0.1:
+jest-fetch-mock@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/jest-fetch-mock/-/jest-fetch-mock-3.0.3.tgz#31749c456ae27b8919d69824f1c2bd85fe0a1f3b"
   integrity sha512-Ux1nWprtLrdrH4XwE7O7InRY6psIi3GOsqNESJgMJ+M5cv4A8Lh7SN9d2V2kKRZ8ebAfcd1LNyZguAOb6JiDqw==
@@ -4659,6 +4659,11 @@ jest-leak-detector@^26.4.0:
   dependencies:
     jest-get-type "^26.3.0"
     pretty-format "^26.4.0"
+
+jest-localstorage-mock@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/jest-localstorage-mock/-/jest-localstorage-mock-2.4.3.tgz#29a77a892acdbe2303436a5eb28d03997d98a430"
+  integrity sha512-UgifkHKoWVRUoSqO4Z4Z+Hl1NbiYBVDlmkmulFFeRRneGECWAlAdGWJdyz+2NisjOZnnQoxQl0s5dQ7ch62Jxw==
 
 jest-matcher-utils@^24.9.0:
   version "24.9.0"
