@@ -29,8 +29,12 @@
     },
     "resolver": null,
     "transform": {
-      "^.+\\.[jt]sx?$": "ts-jest"
+      "^.+\\.[jt]sx?$": "ts-jest",
+      "^.+\\.js$": "ts-jest"
     },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(enzyme-cleanup)/)"
+    ],
     "testResultsProcessor": "jest-junit",
     "setupFiles": [
       "./jestSetup.jsx"

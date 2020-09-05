@@ -13,6 +13,7 @@ interface LoginComponentProps {
     onLoginCantRefresh?: (reason:string)=>void;
     onLoginExpired: ()=>void;
     onLoggedOut?: ()=>void;
+    overrideRefreshLogin?: (tokenUri:string)=>Promise<void>;    //only used for testing
     tokenUri: string;
 }
 
@@ -24,11 +25,13 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
 
     const loginDataRef = useRef(props.loginData);
     const tokenUriRef = useRef(props.tokenUri);
+    const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
 
     useEffect(()=>{
         const intervalTimerId = window.setInterval(checkExpiryHandler, props.checkInterval ?? 60000);
 
         return (()=>{
+            console.log("removing checkExpiryHandler")
             window.clearInterval(intervalTimerId);
         })
     }, []);
@@ -53,7 +56,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         const expiry = loginDataRef.current.exp;
         const timeToGo = expiry - nowTime;
 
-        setLoginExpiryCount(`${timeToGo}s`);
+        setLoginExpiryCount(`${Math.ceil(timeToGo)}s`);
     }
 
     /**
@@ -62,7 +65,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
      * is ignored but it is used in testing to ensure that the component state is only checked after it has been set.
      */
     const checkExpiryHandler = () => {
-        if (loginDataRef) {
+        if (loginDataRef.current) {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             //we know that it is not null due to above check
             const expiry = loginDataRef.current.exp;
@@ -71,23 +74,29 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             if (timeToGo <= 120) {
                 console.log("less than 2mins to expiry, attempting refresh...");
                 setRefreshInProgress(true);
-                refreshLogin(tokenUriRef.current).then(()=>{
-                    if(props.onLoginRefreshed) props.onLoginRefreshed();
+
+                let refreshedPromise;
+
+                if(overrideRefreshLoginRef.current){
+                    refreshedPromise = overrideRefreshLoginRef.current(tokenUriRef.current);
+                }  else {
+                    refreshedPromise = refreshLogin(tokenUriRef.current);
+                }
+
+                refreshedPromise.then(()=>{
                     console.log("Login refreshed");
                     setRefreshInProgress(false);
                     setRefreshFailed(false);
                     setRefreshed(true);
+                    if(props.onLoginRefreshed) props.onLoginRefreshed();
                     window.setTimeout(()=>setRefreshed(false), 5000);   //show success message for 5s
                 }).catch(errString=>{
                     if(props.onLoginCantRefresh) props.onLoginCantRefresh(errString);
                     setRefreshFailed(true);
                     setRefreshInProgress(false);
+                    updateCountdownHandler();
                     return;
                 })
-            }
-            if (timeToGo <= 0) {
-                console.log("login has expired already");
-                props.onLoginExpired();
             }
         } else {
             console.log("no login data present for expiry check");

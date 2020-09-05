@@ -3137,6 +3137,11 @@ enzyme-adapter-utils@^1.13.1:
     prop-types "^15.7.2"
     semver "^5.7.1"
 
+enzyme-cleanup@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/enzyme-cleanup/-/enzyme-cleanup-1.1.2.tgz#688efebf220a3eabe8bbddae6aa00505cbbf5cc1"
+  integrity sha512-uyYsAshhUNQgh6w6QEc++PBbd3zlAfQOXtCFYkqTyZ5ytBKHt+FQ/vI2bU6AixFxMMpWY3ojbpR9BHYOXQ89Ag==
+
 enzyme-shallow-equal@^1.0.1, enzyme-shallow-equal@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/enzyme-shallow-equal/-/enzyme-shallow-equal-1.0.4.tgz#b9256cb25a5f430f9bfe073a84808c1d74fced2e"
