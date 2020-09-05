@@ -1,8 +1,9 @@
-import React, { useState, useEffect, createElement } from 'react';
+import React, { useState, useRef, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, Button } from '@material-ui/core';
+import { Menu, MenuItem, CircularProgress, Tooltip, Button } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import { Error as Error$1, CheckCircle } from '@material-ui/icons';
 import axios from 'axios';
 import qs from 'query-string';
 
@@ -1161,39 +1162,197 @@ class OAuthConfiguration {
     }
 }
 
-const AppSwitcher = (props) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [username, setUsername] = useState("");
-    const [loginData, setLoginData] = useState(null);
-    const [expired, setExpired] = useState(false);
-    const [checkExpiryTimer, setCheckExpiryTimer] = useState(undefined);
-    // config
-    const [menuSettings, setMenuSettings] = useState([]);
-    const [clientId, setClientId] = useState("");
-    const [resource, setResource] = useState("");
-    const [oAuthUri, setOAuthUri] = useState("");
-    const [adminClaimName, setAdminClaimName] = useState("");
+/**
+ * call out to the IdP to request a refresh of the login using the refresh token stored in the localstorage.
+ * on success, the updated token is stored in the local storage and the promise resolves
+ * on failure, the local storage is not touched and the promise rejects with an error string
+ * if the server returns a 500 or 503/504 error then it's assumed to be transient and the request will be retried
+ * after a 2s delay.
+ *
+ * this is NOT written as a conventional async function in order to utilise more fine-grained control of when the promise
+ * is resolved; i.e., it calls itself on a timer in order to retry so we must only resolve the promise once there has been
+ * a definitive success or failure of the operation which could be after multiple calls
+ * @param tokenUri server uri to make the refresh request to
+ * @returns a Promise
+ */
+const refreshLogin = (tokenUri) => new Promise((resolve, reject) => {
+    const refreshToken = localStorage.getItem("pluto:refresh-token");
+    if (!refreshToken) {
+        reject("No refresh token");
+    }
+    const postdata = {
+        grant_type: "refresh_token",
+        refresh_token: refreshToken
+    };
+    const content_elements = Object.keys(postdata).map((k) => k + "=" + encodeURIComponent(postdata[k]));
+    const body_content = content_elements.join("&");
+    const performRefresh = () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield fetch(tokenUri, {
+            method: "POST",
+            body: body_content,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        });
+        switch (response.status) {
+            case 200:
+                const content = yield response.json();
+                console.log("Server response: ", content);
+                localStorage.setItem("pluto:access-token", content.access_token);
+                if (content.refresh_token)
+                    localStorage.setItem("pluto:refresh-token", content.refresh_token);
+                resolve();
+                break;
+            case 403:
+            case 401:
+                console.log("Refresh was rejected with a forbidden error");
+                reject("Request forbidden");
+                break;
+            case 500:
+                console.log("Refresh was rejected due to a server error");
+                window.setTimeout(() => performRefresh(), 2000); //try again in 2s
+                break;
+            case 503:
+            case 504:
+                console.log("Authentication server not available");
+                window.setTimeout(() => performRefresh(), 2000); //try again in 2s
+                break;
+            default:
+                const errorbody = yield response.text();
+                console.log("Unexpected response from authentication server: ", response.status, errorbody);
+                reject("Unexpected response");
+                break;
+        }
+    });
+    performRefresh().catch(err => reject(err.toString()));
+});
+
+const LoginComponent = (props) => {
+    var _a;
+    const [refreshInProgress, setRefreshInProgress] = useState(false);
+    const [refreshFailed, setRefreshFailed] = useState(false);
+    const [refreshed, setRefreshed] = useState(false);
+    const [loginExpiryCount, setLoginExpiryCount] = useState("");
+    const loginDataRef = useRef(props.loginData);
+    const tokenUriRef = useRef(props.tokenUri);
+    const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
+    useEffect(() => {
+        var _a;
+        const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
+        return (() => {
+            console.log("removing checkExpiryHandler");
+            window.clearInterval(intervalTimerId);
+        });
+    }, []);
+    useEffect(() => {
+        console.log("refreshFailed was toggled to ", refreshFailed);
+        if (refreshFailed) {
+            console.log("setting countdown handler");
+            const intervalTimerId = window.setInterval(updateCountdownHandler, 1000);
+            return (() => {
+                console.log("cleared countdown handler");
+                window.clearInterval(intervalTimerId);
+            });
+        }
+    }, [refreshFailed]);
+    /**
+     * called periodically every second once a refresh has failed to alert the user how long they have left
+     */
+    const updateCountdownHandler = () => {
+        const nowTime = new Date().getTime() / 1000; //assume time is in seconds
+        const expiry = loginDataRef.current.exp;
+        const timeToGo = expiry - nowTime;
+        if (timeToGo > 1) {
+            setLoginExpiryCount(`expires in ${Math.ceil(timeToGo)}s`);
+        }
+        else {
+            if (props.onLoginExpired)
+                props.onLoginExpired();
+            setLoginExpiryCount("has expired");
+        }
+    };
     /**
      * lightweight function that is called every minute to verify the state of the token
      * it returns a promise that resolves when the component state has been updated. In normal usage this
      * is ignored but it is used in testing to ensure that the component state is only checked after it has been set.
      */
     const checkExpiryHandler = () => {
-        if (loginData) {
+        if (loginDataRef.current) {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             //we know that it is not null due to above check
-            const expiry = loginData.exp;
-            const timeToGo = expiry ? expiry - nowTime : null;
-            if ((timeToGo && timeToGo <= 0) || !timeToGo) {
-                console.log("login has expired already");
-                setExpired(true);
+            const expiry = loginDataRef.current.exp;
+            const timeToGo = expiry - nowTime;
+            if (timeToGo <= 120) {
+                console.log("less than 2mins to expiry, attempting refresh...");
+                setRefreshInProgress(true);
+                let refreshedPromise;
+                if (overrideRefreshLoginRef.current) {
+                    refreshedPromise = overrideRefreshLoginRef.current(tokenUriRef.current);
+                }
+                else {
+                    refreshedPromise = refreshLogin(tokenUriRef.current);
+                }
+                refreshedPromise.then(() => {
+                    console.log("Login refreshed");
+                    setRefreshInProgress(false);
+                    setRefreshFailed(false);
+                    setRefreshed(true);
+                    if (props.onLoginRefreshed)
+                        props.onLoginRefreshed();
+                    window.setTimeout(() => setRefreshed(false), 5000); //show success message for 5s
+                }).catch(errString => {
+                    if (props.onLoginCantRefresh)
+                        props.onLoginCantRefresh(errString);
+                    setRefreshFailed(true);
+                    setRefreshInProgress(false);
+                    updateCountdownHandler();
+                    return;
+                });
             }
         }
         else {
             console.log("no login data present for expiry check");
         }
     };
+    return (React.createElement("div", { className: "login-block" },
+        refreshInProgress ? React.createElement("span", { id: "refresh-in-progress" },
+            React.createElement(CircularProgress, null),
+            "\u00A0Refreshing your login...") : null,
+        refreshFailed ? React.createElement("span", { id: "refresh-failed" },
+            React.createElement(Tooltip, { title: "Could not refresh login, try logging out and logging in again" },
+                React.createElement(React.Fragment, null,
+                    React.createElement(Error$1, { style: { color: "red" } }),
+                    "\u00A0Login ",
+                    loginExpiryCount))) : null,
+        refreshed ? React.createElement("span", { id: "refresh-success" },
+            React.createElement(CheckCircle, { style: { color: "green" } }),
+            "\u00A0Token refreshed") : null,
+        React.createElement("span", null,
+            "You are logged in as ",
+            React.createElement("span", { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)),
+        React.createElement("span", null,
+            React.createElement(Button, { className: "login-button", variant: "outlined", size: "small", onClick: () => {
+                    if (props.onLoggedOut) {
+                        props.onLoggedOut();
+                        return;
+                    }
+                    window.location.assign("/logout");
+                } }, "Logout"))));
+};
+
+const AppSwitcher = (props) => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [loginData, setLoginData] = useState(null);
+    const [expired, setExpired] = useState(false);
+    // config
+    const [menuSettings, setMenuSettings] = useState([]);
+    const [clientId, setClientId] = useState("");
+    const [resource, setResource] = useState("");
+    const [oAuthUri, setOAuthUri] = useState("");
+    const [adminClaimName, setAdminClaimName] = useState("");
+    const [tokenUri, setTokenUri] = useState("");
     const loadConfig = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const response = yield fetch("/meta/menu-config/menu.json");
@@ -1212,6 +1371,7 @@ const AppSwitcher = (props) => {
             setClientId(config.clientId);
             setResource(config.resource);
             setOAuthUri(config.oAuthUri);
+            setTokenUri(config.tokenUri);
             setAdminClaimName(config.adminClaimName);
             return config;
         }
@@ -1220,7 +1380,6 @@ const AppSwitcher = (props) => {
         }
     });
     const validateToken = (config) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a, _b;
         const token = window.localStorage.getItem("pluto:access-token");
         if (!token)
             return;
@@ -1234,8 +1393,6 @@ const AppSwitcher = (props) => {
                 props.onLoginValid(true, loginData);
             }
             setIsLoggedIn(true);
-            setUsername(loginData
-                ? (_b = (_a = loginData.preferred_username) !== null && _a !== void 0 ? _a : loginData.username) !== null && _b !== void 0 ? _b : "" : "");
             setIsAdmin(config.isAdmin(loginData));
         }
         catch (error) {
@@ -1244,7 +1401,6 @@ const AppSwitcher = (props) => {
                 props.onLoginValid(false);
             }
             setIsLoggedIn(false);
-            setUsername("");
             setIsAdmin(false);
             if (error.name === "TokenExpiredError") {
                 console.error("Token has already expired");
@@ -1256,7 +1412,6 @@ const AppSwitcher = (props) => {
         }
     });
     useEffect(() => {
-        setCheckExpiryTimer(window.setInterval(checkExpiryHandler, 60000));
         loadConfig()
             .then((config) => {
             validateToken(config);
@@ -1269,11 +1424,6 @@ const AppSwitcher = (props) => {
                 console.log("Could not load oauth configuration: ", err);
             }
         });
-        return () => {
-            if (checkExpiryTimer) {
-                window.clearInterval(checkExpiryTimer);
-            }
-        };
     }, []);
     const makeLoginUrl = () => {
         const currentUri = new URL(window.location.href);
@@ -1291,20 +1441,9 @@ const AppSwitcher = (props) => {
     const getLink = (text, href, adminOnly, index) => (React.createElement("li", { key: index, style: {
             display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
         } }, hrefIsTheSameDeploymentRootPath(href) ? (React.createElement(Link, { to: getDeploymentRootPathLink(href) }, text)) : (React.createElement("a", { href: href }, text))));
-    return (React.createElement(React.Fragment, null, isLoggedIn ? (React.createElement("div", { className: "app-switcher-container" },
+    return (React.createElement(React.Fragment, null, isLoggedIn && loginData ? (React.createElement("div", { className: "app-switcher-container" },
         React.createElement("ul", { className: "app-switcher" }, (menuSettings || []).map(({ type, text, href, adminOnly, content }, index) => type === "link" ? (getLink(text, href, adminOnly, index)) : (React.createElement(MenuButton, { key: index, index: index, isAdmin: isAdmin, text: text, adminOnly: adminOnly, content: content })))),
-        React.createElement("div", null,
-            React.createElement("span", null,
-                "You are logged in as ",
-                React.createElement("span", { className: "username" }, username)),
-            React.createElement("span", null,
-                React.createElement(Button, { className: "login-button", variant: "outlined", size: "small", onClick: () => {
-                        if (props.onLoggedOut) {
-                            props.onLoggedOut();
-                            return;
-                        }
-                        window.location.assign("/logout");
-                    } }, "Logout"))))) : (React.createElement("div", { className: "app-switcher-container" },
+        React.createElement(LoginComponent, { loginData: loginData, onLoggedOut: props.onLoggedOut, onLoginExpired: () => setExpired(true), tokenUri: tokenUri }))) : (React.createElement("div", { className: "app-switcher-container" },
         React.createElement("span", { className: "not-logged-in" },
             expired
                 ? "Your login has expired"

@@ -56,7 +56,12 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         const expiry = loginDataRef.current.exp;
         const timeToGo = expiry - nowTime;
 
-        setLoginExpiryCount(`${Math.ceil(timeToGo)}s`);
+        if(timeToGo>1) {
+            setLoginExpiryCount(`expires in ${Math.ceil(timeToGo)}s`);
+        } else {
+            if(props.onLoginExpired) props.onLoginExpired();
+            setLoginExpiryCount("has expired");
+        }
     }
 
     /**
@@ -114,7 +119,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                 refreshFailed ? <span id="refresh-failed">
                     <Tooltip title="Could not refresh login, try logging out and logging in again">
                         <>
-                        <Error style={{color:"red"}}/>&nbsp;Login expires in {loginExpiryCount}
+                        <Error style={{color:"red"}}/>&nbsp;Login {loginExpiryCount}
                         </>
                     </Tooltip>
                 </span> : null
