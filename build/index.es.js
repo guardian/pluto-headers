@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, CircularProgress, Tooltip, Button } from '@material-ui/core';
+import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { Error as Error$1, CheckCircle } from '@material-ui/icons';
+import { Person, Error as Error$1, CheckCircle } from '@material-ui/icons';
+import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import qs from 'query-string';
 
@@ -1228,6 +1229,16 @@ const refreshLogin = (tokenUri) => new Promise((resolve, reject) => {
     performRefresh().catch(err => reject(err.toString()));
 });
 
+const useStyles = makeStyles({
+    inlineIcon: {
+        padding: 0,
+        margin: "auto",
+        display: "inline-block",
+        marginRight: "0.2em",
+        maxWidth: "16px",
+        maxHeight: "16px",
+    }
+});
 const LoginComponent = (props) => {
     var _a;
     const [refreshInProgress, setRefreshInProgress] = useState(false);
@@ -1237,9 +1248,17 @@ const LoginComponent = (props) => {
     const loginDataRef = useRef(props.loginData);
     const tokenUriRef = useRef(props.tokenUri);
     const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
+    const classes = useStyles();
     useEffect(() => {
         var _a;
         const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
+        try {
+            checkExpiryHandler();
+        }
+        catch (err) {
+            //ensure that we log errors but don't let it stop us returning the un-install hook
+            console.error("Could not check for expiry: ", err);
+        }
         return (() => {
             console.log("removing checkExpiryHandler");
             window.clearInterval(intervalTimerId);
@@ -1315,23 +1334,43 @@ const LoginComponent = (props) => {
             console.log("no login data present for expiry check");
         }
     };
-    return (React.createElement("div", { className: "login-block" },
-        refreshInProgress ? React.createElement("span", { id: "refresh-in-progress" },
-            React.createElement(CircularProgress, null),
-            "\u00A0Refreshing your login...") : null,
-        refreshFailed ? React.createElement("span", { id: "refresh-failed" },
-            React.createElement(Tooltip, { title: "Could not refresh login, try logging out and logging in again" },
-                React.createElement(React.Fragment, null,
-                    React.createElement(Error$1, { style: { color: "red" } }),
-                    "\u00A0Login ",
-                    loginExpiryCount))) : null,
-        refreshed ? React.createElement("span", { id: "refresh-success" },
-            React.createElement(CheckCircle, { style: { color: "green" } }),
-            "\u00A0Token refreshed") : null,
-        React.createElement("span", null,
-            "You are logged in as ",
-            React.createElement("span", { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)),
-        React.createElement("span", null,
+    return (React.createElement(Grid, { container: true, className: "login-block", direction: "row", spacing: 2, alignItems: "center", justify: "flex-end" },
+        React.createElement(Grid, { item: true },
+            React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-start", justify: "flex-end" },
+                React.createElement(Grid, { item: true, style: { marginRight: "0.2em" } },
+                    React.createElement(Typography, null, "You are logged in as")),
+                React.createElement(Grid, { item: true },
+                    React.createElement(Person, null)),
+                React.createElement(Grid, { item: true },
+                    React.createElement(Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
+        refreshInProgress ?
+            React.createElement(Grid, { item: true, id: "refresh-in-progress" },
+                React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
+                    React.createElement(Grid, { item: true },
+                        React.createElement(CircularProgress, { className: classes.inlineIcon })),
+                    React.createElement(Grid, { item: true },
+                        React.createElement(Typography, null, "Refreshing your login..."))))
+            : null,
+        refreshFailed ?
+            React.createElement(Grid, { item: true },
+                React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end", id: "refresh-failed" },
+                    React.createElement(Grid, { item: true },
+                        React.createElement(Error$1, { style: { color: "red" }, className: classes.inlineIcon })),
+                    React.createElement(Grid, { item: true },
+                        React.createElement(Tooltip, { title: "Could not refresh login, try logging out and logging in again" },
+                            React.createElement(Typography, null,
+                                "Login ",
+                                loginExpiryCount)))))
+            : null,
+        refreshed ?
+            React.createElement(Grid, { item: true, id: "refresh-success" },
+                React.createElement(Grid, { container: true, spacing: 0, alignItems: "center", justify: "flex-end" },
+                    React.createElement(Grid, { item: true },
+                        React.createElement(CheckCircle, { style: { color: "green" }, className: classes.inlineIcon })),
+                    React.createElement(Grid, { item: true },
+                        React.createElement(Typography, null, "Token refreshed"))))
+            : null,
+        React.createElement(Grid, { item: true },
             React.createElement(Button, { className: "login-button", variant: "outlined", size: "small", onClick: () => {
                     if (props.onLoggedOut) {
                         props.onLoggedOut();
@@ -1443,7 +1482,10 @@ const AppSwitcher = (props) => {
         } }, hrefIsTheSameDeploymentRootPath(href) ? (React.createElement(Link, { to: getDeploymentRootPathLink(href) }, text)) : (React.createElement("a", { href: href }, text))));
     return (React.createElement(React.Fragment, null, isLoggedIn && loginData ? (React.createElement("div", { className: "app-switcher-container" },
         React.createElement("ul", { className: "app-switcher" }, (menuSettings || []).map(({ type, text, href, adminOnly, content }, index) => type === "link" ? (getLink(text, href, adminOnly, index)) : (React.createElement(MenuButton, { key: index, index: index, isAdmin: isAdmin, text: text, adminOnly: adminOnly, content: content })))),
-        React.createElement(LoginComponent, { loginData: loginData, onLoggedOut: props.onLoggedOut, onLoginExpired: () => setExpired(true), tokenUri: tokenUri }))) : (React.createElement("div", { className: "app-switcher-container" },
+        React.createElement(LoginComponent, { loginData: loginData, onLoggedOut: props.onLoggedOut, onLoginExpired: () => {
+                setExpired(true);
+                setIsLoggedIn(false);
+            }, tokenUri: tokenUri }))) : (React.createElement("div", { className: "app-switcher-container" },
         React.createElement("span", { className: "not-logged-in" },
             expired
                 ? "Your login has expired"

@@ -182,7 +182,10 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
           </ul>
           <LoginComponent loginData={loginData}
                           onLoggedOut={props.onLoggedOut}
-                          onLoginExpired={()=>setExpired(true)}
+                          onLoginExpired={()=>{
+                            setExpired(true);
+                            setIsLoggedIn(false);
+                          }}
                           tokenUri={tokenUri}
           />
         </div>

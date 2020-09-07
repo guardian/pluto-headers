@@ -1,9 +1,10 @@
 import React, {useState, useEffect, useRef} from "react";
-import {Button, Tooltip} from "@material-ui/core";
+import {Button, Grid, Tooltip, Typography} from "@material-ui/core";
 import {JwtDataShape} from "../../utils/DecodedProfile";
 import {CircularProgress} from "@material-ui/core";
-import {Error, CheckCircle} from "@material-ui/icons";
+import {Error, CheckCircle, Person} from "@material-ui/icons";
 import {refreshLogin} from "../../utils/OAuth2Helper";
+import {makeStyles} from "@material-ui/core/styles";
 
 interface LoginComponentProps {
     refreshToken?: string;
@@ -17,6 +18,17 @@ interface LoginComponentProps {
     tokenUri: string;
 }
 
+const useStyles = makeStyles({
+    inlineIcon: {
+        padding: 0,
+        margin: "auto",
+        display: "inline-block",
+        marginRight: "0.2em",
+        maxWidth: "16px",
+        maxHeight: "16px",
+    }
+});
+
 const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     const [refreshInProgress, setRefreshInProgress] = useState<boolean>(false);
     const [refreshFailed, setRefreshFailed] = useState<boolean>(false);
@@ -27,8 +39,16 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     const tokenUriRef = useRef(props.tokenUri);
     const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
 
+    const classes = useStyles();
+
     useEffect(()=>{
         const intervalTimerId = window.setInterval(checkExpiryHandler, props.checkInterval ?? 60000);
+        try {
+            checkExpiryHandler();
+        } catch(err) {
+            //ensure that we log errors but don't let it stop us returning the un-install hook
+            console.error("Could not check for expiry: ", err);
+        }
 
         return (()=>{
             console.log("removing checkExpiryHandler")
@@ -109,30 +129,50 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     };
 
     return (
-        <div className="login-block">
+        <Grid container className="login-block" direction="row" spacing={2} alignItems="center" justify="flex-end">
+            <Grid item>
+                <Grid container spacing={0} alignItems="flex-start" justify="flex-end">
+                    <Grid item style={{marginRight: "0.2em"}}><Typography>You are logged in as</Typography></Grid>
+                    <Grid item><Person/></Grid>
+                    <Grid item><Typography className="username">{props.loginData.preferred_username ?? props.loginData.username}</Typography></Grid>
+                </Grid>
+            </Grid>
             {
-                refreshInProgress ? <span id="refresh-in-progress">
-                    <CircularProgress/>&nbsp;Refreshing your login...
-                </span> : null
+                refreshInProgress ?
+                    <Grid item id="refresh-in-progress">
+                        <Grid container spacing={0} alignItems="flex-end" justify="flex-end">
+                            <Grid item><CircularProgress className={classes.inlineIcon}/></Grid>
+                            <Grid item><Typography>Refreshing your login...</Typography></Grid>
+                        </Grid>
+                    </Grid>
+                : null
             }
             {
-                refreshFailed ? <span id="refresh-failed">
-                    <Tooltip title="Could not refresh login, try logging out and logging in again">
-                        <>
-                        <Error style={{color:"red"}}/>&nbsp;Login {loginExpiryCount}
-                        </>
-                    </Tooltip>
-                </span> : null
+                refreshFailed ?
+                    <Grid item>
+                        <Grid container spacing={0} alignItems="flex-end" justify="flex-end" id="refresh-failed">
+                            <Grid item><Error style={{color:"red"}} className={classes.inlineIcon}/></Grid>
+                            <Grid item>
+                                <Tooltip title="Could not refresh login, try logging out and logging in again">
+                                    <Typography>Login {loginExpiryCount}</Typography>
+                                </Tooltip>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    : null
             }
             {
-                refreshed ? <span id="refresh-success">
-                    <CheckCircle style={{color:"green"}}/>&nbsp;Token refreshed
-                </span> : null
+                refreshed ?
+                    <Grid item id="refresh-success">
+                        <Grid container spacing={0} alignItems="center" justify="flex-end">
+                            <Grid item><CheckCircle style={{color:"green"}} className={classes.inlineIcon}/></Grid>
+                            <Grid item><Typography>Token refreshed</Typography></Grid>
+                        </Grid>
+                    </Grid>
+                : null
             }
-            <span>
-              You are logged in as <span className="username">{props.loginData.preferred_username ?? props.loginData.username}</span>
-            </span>
-            <span>
+
+            <Grid item>
               <Button
                   className="login-button"
                   variant="outlined"
@@ -148,8 +188,8 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
               >
                 Logout
               </Button>
-            </span>
-        </div>
+            </Grid>
+        </Grid>
     )
 }
 
