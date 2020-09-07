@@ -1,4 +1,12 @@
-declare class OAuthConfiguration {
+interface OAuthConfigurationIF {
+    clientId: string;
+    resource: string;
+    oAuthUri: string;
+    tokenUri: string;
+    adminClaimName: string;
+}
+declare const OAuthConfigurationIF: import("ts-interface-checker").Checker;
+declare class OAuthConfiguration implements OAuthConfigurationIF {
     clientId: string;
     resource: string;
     oAuthUri: string;
@@ -11,4 +19,5 @@ declare class OAuthConfiguration {
      */
     isAdmin(claimData: any): any;
 }
+export type { OAuthConfigurationIF };
 export default OAuthConfiguration;

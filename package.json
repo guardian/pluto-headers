@@ -29,8 +29,12 @@
     },
     "resolver": null,
     "transform": {
-      "^.+\\.[jt]sx?$": "ts-jest"
+      "^.+\\.[jt]sx?$": "ts-jest",
+      "^.+\\.js$": "ts-jest"
     },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(enzyme-cleanup)/)"
+    ],
     "testResultsProcessor": "jest-junit",
     "setupFiles": [
       "./jestSetup.jsx"
@@ -66,8 +70,9 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.0.1",
     "jest-cli": "^24.8.0",
-    "jest-fetch-mock": "^3.0.1",
+    "jest-fetch-mock": "^3.0.3",
     "jest-junit": "^4.0.0",
+    "jest-localstorage-mock": "^2.4.3",
     "jsonwebtoken": "^8.5.1",
     "moxios": "^0.4.0",
     "object.entries": "^1.1.1",

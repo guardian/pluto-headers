@@ -7,6 +7,8 @@ var reactRouterDom = require('react-router-dom');
 var core = require('@material-ui/core');
 var jwt = require('jsonwebtoken');
 var ArrowDropDownIcon = require('@material-ui/icons/ArrowDropDown');
+var icons = require('@material-ui/icons');
+var styles = require('@material-ui/core/styles');
 var axios = require('axios');
 var qs = require('query-string');
 
@@ -1173,39 +1175,235 @@ class OAuthConfiguration {
     }
 }
 
-const AppSwitcher = (props) => {
-    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-    const [isAdmin, setIsAdmin] = React.useState(false);
-    const [username, setUsername] = React.useState("");
-    const [loginData, setLoginData] = React.useState(null);
-    const [expired, setExpired] = React.useState(false);
-    const [checkExpiryTimer, setCheckExpiryTimer] = React.useState(undefined);
-    // config
-    const [menuSettings, setMenuSettings] = React.useState([]);
-    const [clientId, setClientId] = React.useState("");
-    const [resource, setResource] = React.useState("");
-    const [oAuthUri, setOAuthUri] = React.useState("");
-    const [adminClaimName, setAdminClaimName] = React.useState("");
+/**
+ * call out to the IdP to request a refresh of the login using the refresh token stored in the localstorage.
+ * on success, the updated token is stored in the local storage and the promise resolves
+ * on failure, the local storage is not touched and the promise rejects with an error string
+ * if the server returns a 500 or 503/504 error then it's assumed to be transient and the request will be retried
+ * after a 2s delay.
+ *
+ * this is NOT written as a conventional async function in order to utilise more fine-grained control of when the promise
+ * is resolved; i.e., it calls itself on a timer in order to retry so we must only resolve the promise once there has been
+ * a definitive success or failure of the operation which could be after multiple calls
+ * @param tokenUri server uri to make the refresh request to
+ * @returns a Promise
+ */
+const refreshLogin = (tokenUri) => new Promise((resolve, reject) => {
+    const refreshToken = localStorage.getItem("pluto:refresh-token");
+    if (!refreshToken) {
+        reject("No refresh token");
+    }
+    const postdata = {
+        grant_type: "refresh_token",
+        refresh_token: refreshToken
+    };
+    const content_elements = Object.keys(postdata).map((k) => k + "=" + encodeURIComponent(postdata[k]));
+    const body_content = content_elements.join("&");
+    const performRefresh = () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield fetch(tokenUri, {
+            method: "POST",
+            body: body_content,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        });
+        switch (response.status) {
+            case 200:
+                const content = yield response.json();
+                console.log("Server response: ", content);
+                localStorage.setItem("pluto:access-token", content.access_token);
+                if (content.refresh_token)
+                    localStorage.setItem("pluto:refresh-token", content.refresh_token);
+                resolve();
+                break;
+            case 403:
+            case 401:
+                console.log("Refresh was rejected with a forbidden error");
+                reject("Request forbidden");
+                break;
+            case 500:
+                console.log("Refresh was rejected due to a server error");
+                window.setTimeout(() => performRefresh(), 2000); //try again in 2s
+                break;
+            case 503:
+            case 504:
+                console.log("Authentication server not available");
+                window.setTimeout(() => performRefresh(), 2000); //try again in 2s
+                break;
+            default:
+                const errorbody = yield response.text();
+                console.log("Unexpected response from authentication server: ", response.status, errorbody);
+                reject("Unexpected response");
+                break;
+        }
+    });
+    performRefresh().catch(err => reject(err.toString()));
+});
+
+const useStyles = styles.makeStyles({
+    inlineIcon: {
+        padding: 0,
+        margin: "auto",
+        display: "inline-block",
+        marginRight: "0.2em",
+        maxWidth: "16px",
+        maxHeight: "16px",
+    }
+});
+const LoginComponent = (props) => {
+    var _a;
+    const [refreshInProgress, setRefreshInProgress] = React.useState(false);
+    const [refreshFailed, setRefreshFailed] = React.useState(false);
+    const [refreshed, setRefreshed] = React.useState(false);
+    const [loginExpiryCount, setLoginExpiryCount] = React.useState("");
+    const loginDataRef = React.useRef(props.loginData);
+    const tokenUriRef = React.useRef(props.tokenUri);
+    const overrideRefreshLoginRef = React.useRef(props.overrideRefreshLogin);
+    const classes = useStyles();
+    React.useEffect(() => {
+        var _a;
+        const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
+        try {
+            checkExpiryHandler();
+        }
+        catch (err) {
+            //ensure that we log errors but don't let it stop us returning the un-install hook
+            console.error("Could not check for expiry: ", err);
+        }
+        return (() => {
+            console.log("removing checkExpiryHandler");
+            window.clearInterval(intervalTimerId);
+        });
+    }, []);
+    React.useEffect(() => {
+        console.log("refreshFailed was toggled to ", refreshFailed);
+        if (refreshFailed) {
+            console.log("setting countdown handler");
+            const intervalTimerId = window.setInterval(updateCountdownHandler, 1000);
+            return (() => {
+                console.log("cleared countdown handler");
+                window.clearInterval(intervalTimerId);
+            });
+        }
+    }, [refreshFailed]);
+    /**
+     * called periodically every second once a refresh has failed to alert the user how long they have left
+     */
+    const updateCountdownHandler = () => {
+        const nowTime = new Date().getTime() / 1000; //assume time is in seconds
+        const expiry = loginDataRef.current.exp;
+        const timeToGo = expiry - nowTime;
+        if (timeToGo > 1) {
+            setLoginExpiryCount(`expires in ${Math.ceil(timeToGo)}s`);
+        }
+        else {
+            if (props.onLoginExpired)
+                props.onLoginExpired();
+            setLoginExpiryCount("has expired");
+        }
+    };
     /**
      * lightweight function that is called every minute to verify the state of the token
      * it returns a promise that resolves when the component state has been updated. In normal usage this
      * is ignored but it is used in testing to ensure that the component state is only checked after it has been set.
      */
     const checkExpiryHandler = () => {
-        if (loginData) {
+        if (loginDataRef.current) {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             //we know that it is not null due to above check
-            const expiry = loginData.exp;
-            const timeToGo = expiry ? expiry - nowTime : null;
-            if ((timeToGo && timeToGo <= 0) || !timeToGo) {
-                console.log("login has expired already");
-                setExpired(true);
+            const expiry = loginDataRef.current.exp;
+            const timeToGo = expiry - nowTime;
+            if (timeToGo <= 120) {
+                console.log("less than 2mins to expiry, attempting refresh...");
+                setRefreshInProgress(true);
+                let refreshedPromise;
+                if (overrideRefreshLoginRef.current) {
+                    refreshedPromise = overrideRefreshLoginRef.current(tokenUriRef.current);
+                }
+                else {
+                    refreshedPromise = refreshLogin(tokenUriRef.current);
+                }
+                refreshedPromise.then(() => {
+                    console.log("Login refreshed");
+                    setRefreshInProgress(false);
+                    setRefreshFailed(false);
+                    setRefreshed(true);
+                    if (props.onLoginRefreshed)
+                        props.onLoginRefreshed();
+                    window.setTimeout(() => setRefreshed(false), 5000); //show success message for 5s
+                }).catch(errString => {
+                    if (props.onLoginCantRefresh)
+                        props.onLoginCantRefresh(errString);
+                    setRefreshFailed(true);
+                    setRefreshInProgress(false);
+                    updateCountdownHandler();
+                    return;
+                });
             }
         }
         else {
             console.log("no login data present for expiry check");
         }
     };
+    return (React__default['default'].createElement(core.Grid, { container: true, className: "login-block", direction: "row", spacing: 2, alignItems: "center", justify: "flex-end" },
+        React__default['default'].createElement(core.Grid, { item: true },
+            React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-start", justify: "flex-end" },
+                React__default['default'].createElement(core.Grid, { item: true, style: { marginRight: "0.2em" } },
+                    React__default['default'].createElement(core.Typography, null, "You are logged in as")),
+                React__default['default'].createElement(core.Grid, { item: true },
+                    React__default['default'].createElement(icons.Person, null)),
+                React__default['default'].createElement(core.Grid, { item: true },
+                    React__default['default'].createElement(core.Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
+        refreshInProgress ?
+            React__default['default'].createElement(core.Grid, { item: true, id: "refresh-in-progress" },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
+                    React__default['default'].createElement(core.Grid, { item: true },
+                        React__default['default'].createElement(core.CircularProgress, { className: classes.inlineIcon })),
+                    React__default['default'].createElement(core.Grid, { item: true },
+                        React__default['default'].createElement(core.Typography, null, "Refreshing your login..."))))
+            : null,
+        refreshFailed ?
+            React__default['default'].createElement(core.Grid, { item: true },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end", id: "refresh-failed" },
+                    React__default['default'].createElement(core.Grid, { item: true },
+                        React__default['default'].createElement(icons.Error, { style: { color: "red" }, className: classes.inlineIcon })),
+                    React__default['default'].createElement(core.Grid, { item: true },
+                        React__default['default'].createElement(core.Tooltip, { title: "Could not refresh login, try logging out and logging in again" },
+                            React__default['default'].createElement(core.Typography, null,
+                                "Login ",
+                                loginExpiryCount)))))
+            : null,
+        refreshed ?
+            React__default['default'].createElement(core.Grid, { item: true, id: "refresh-success" },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "center", justify: "flex-end" },
+                    React__default['default'].createElement(core.Grid, { item: true },
+                        React__default['default'].createElement(icons.CheckCircle, { style: { color: "green" }, className: classes.inlineIcon })),
+                    React__default['default'].createElement(core.Grid, { item: true },
+                        React__default['default'].createElement(core.Typography, null, "Token refreshed"))))
+            : null,
+        React__default['default'].createElement(core.Grid, { item: true },
+            React__default['default'].createElement(core.Button, { className: "login-button", variant: "outlined", size: "small", onClick: () => {
+                    if (props.onLoggedOut) {
+                        props.onLoggedOut();
+                        return;
+                    }
+                    window.location.assign("/logout");
+                } }, "Logout"))));
+};
+
+const AppSwitcher = (props) => {
+    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+    const [isAdmin, setIsAdmin] = React.useState(false);
+    const [loginData, setLoginData] = React.useState(null);
+    const [expired, setExpired] = React.useState(false);
+    // config
+    const [menuSettings, setMenuSettings] = React.useState([]);
+    const [clientId, setClientId] = React.useState("");
+    const [resource, setResource] = React.useState("");
+    const [oAuthUri, setOAuthUri] = React.useState("");
+    const [adminClaimName, setAdminClaimName] = React.useState("");
+    const [tokenUri, setTokenUri] = React.useState("");
     const loadConfig = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const response = yield fetch("/meta/menu-config/menu.json");
@@ -1224,6 +1422,7 @@ const AppSwitcher = (props) => {
             setClientId(config.clientId);
             setResource(config.resource);
             setOAuthUri(config.oAuthUri);
+            setTokenUri(config.tokenUri);
             setAdminClaimName(config.adminClaimName);
             return config;
         }
@@ -1232,7 +1431,6 @@ const AppSwitcher = (props) => {
         }
     });
     const validateToken = (config) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a, _b;
         const token = window.localStorage.getItem("pluto:access-token");
         if (!token)
             return;
@@ -1246,8 +1444,6 @@ const AppSwitcher = (props) => {
                 props.onLoginValid(true, loginData);
             }
             setIsLoggedIn(true);
-            setUsername(loginData
-                ? (_b = (_a = loginData.preferred_username) !== null && _a !== void 0 ? _a : loginData.username) !== null && _b !== void 0 ? _b : "" : "");
             setIsAdmin(config.isAdmin(loginData));
         }
         catch (error) {
@@ -1256,7 +1452,6 @@ const AppSwitcher = (props) => {
                 props.onLoginValid(false);
             }
             setIsLoggedIn(false);
-            setUsername("");
             setIsAdmin(false);
             if (error.name === "TokenExpiredError") {
                 console.error("Token has already expired");
@@ -1268,7 +1463,6 @@ const AppSwitcher = (props) => {
         }
     });
     React.useEffect(() => {
-        setCheckExpiryTimer(window.setInterval(checkExpiryHandler, 60000));
         loadConfig()
             .then((config) => {
             validateToken(config);
@@ -1281,11 +1475,6 @@ const AppSwitcher = (props) => {
                 console.log("Could not load oauth configuration: ", err);
             }
         });
-        return () => {
-            if (checkExpiryTimer) {
-                window.clearInterval(checkExpiryTimer);
-            }
-        };
     }, []);
     const makeLoginUrl = () => {
         const currentUri = new URL(window.location.href);
@@ -1303,20 +1492,12 @@ const AppSwitcher = (props) => {
     const getLink = (text, href, adminOnly, index) => (React__default['default'].createElement("li", { key: index, style: {
             display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
         } }, hrefIsTheSameDeploymentRootPath(href) ? (React__default['default'].createElement(reactRouterDom.Link, { to: getDeploymentRootPathLink(href) }, text)) : (React__default['default'].createElement("a", { href: href }, text))));
-    return (React__default['default'].createElement(React__default['default'].Fragment, null, isLoggedIn ? (React__default['default'].createElement("div", { className: "app-switcher-container" },
+    return (React__default['default'].createElement(React__default['default'].Fragment, null, isLoggedIn && loginData ? (React__default['default'].createElement("div", { className: "app-switcher-container" },
         React__default['default'].createElement("ul", { className: "app-switcher" }, (menuSettings || []).map(({ type, text, href, adminOnly, content }, index) => type === "link" ? (getLink(text, href, adminOnly, index)) : (React__default['default'].createElement(MenuButton, { key: index, index: index, isAdmin: isAdmin, text: text, adminOnly: adminOnly, content: content })))),
-        React__default['default'].createElement("div", null,
-            React__default['default'].createElement("span", null,
-                "You are logged in as ",
-                React__default['default'].createElement("span", { className: "username" }, username)),
-            React__default['default'].createElement("span", null,
-                React__default['default'].createElement(core.Button, { className: "login-button", variant: "outlined", size: "small", onClick: () => {
-                        if (props.onLoggedOut) {
-                            props.onLoggedOut();
-                            return;
-                        }
-                        window.location.assign("/logout");
-                    } }, "Logout"))))) : (React__default['default'].createElement("div", { className: "app-switcher-container" },
+        React__default['default'].createElement(LoginComponent, { loginData: loginData, onLoggedOut: props.onLoggedOut, onLoginExpired: () => {
+                setExpired(true);
+                setIsLoggedIn(false);
+            }, tokenUri: tokenUri }))) : (React__default['default'].createElement("div", { className: "app-switcher-container" },
         React__default['default'].createElement("span", { className: "not-logged-in" },
             expired
                 ? "Your login has expired"

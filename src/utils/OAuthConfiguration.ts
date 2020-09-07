@@ -13,7 +13,7 @@ const {
     OAuthConfigurationIF
 } = createCheckers(OAuthConfigurationTI);
 
-class OAuthConfiguration {
+class OAuthConfiguration implements OAuthConfigurationIF {
     clientId: string;
     resource: string;
     oAuthUri: string;
@@ -41,4 +41,5 @@ class OAuthConfiguration {
     }
 }
 
+export type {OAuthConfigurationIF};
 export default OAuthConfiguration;

@@ -26,4 +26,6 @@ declare module "*.png" {
   export default content;
 }
 
+declare module "enzyme-cleanup";
+
 declare var deploymentRootPath: string;

@@ -11,6 +11,7 @@ import {
 import { MenuButton } from "../MenuButton/MenuButton";
 import OAuthConfiguration from "../../utils/OAuthConfiguration";
 import { VError } from "ts-interface-checker";
+import LoginComponent from "./LoginComponent";
 
 interface AppSwitcherProps {
   onLoggedIn?: () => void;
@@ -21,12 +22,8 @@ interface AppSwitcherProps {
 export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>("");
   const [loginData, setLoginData] = useState<JwtDataShape | null>(null);
   const [expired, setExpired] = useState<boolean>(false);
-  const [checkExpiryTimer, setCheckExpiryTimer] = useState<number | undefined>(
-    undefined
-  );
 
   // config
   const [menuSettings, setMenuSettings] = useState<AppSwitcherMenuSettings[]>(
@@ -36,27 +33,8 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
   const [resource, setResource] = useState<string>("");
   const [oAuthUri, setOAuthUri] = useState<string>("");
   const [adminClaimName, setAdminClaimName] = useState<string>("");
+  const [tokenUri, setTokenUri] = useState<string>("");
 
-  /**
-   * lightweight function that is called every minute to verify the state of the token
-   * it returns a promise that resolves when the component state has been updated. In normal usage this
-   * is ignored but it is used in testing to ensure that the component state is only checked after it has been set.
-   */
-  const checkExpiryHandler = () => {
-    if (loginData) {
-      const nowTime = new Date().getTime() / 1000; //assume time is in seconds
-      //we know that it is not null due to above check
-      const expiry = loginData.exp;
-      const timeToGo = expiry ? expiry - nowTime : null;
-
-      if ((timeToGo && timeToGo <= 0) || !timeToGo) {
-        console.log("login has expired already");
-        setExpired(true);
-      }
-    } else {
-      console.log("no login data present for expiry check");
-    }
-  };
 
   const loadConfig: () => Promise<OAuthConfiguration> = async () => {
     try {
@@ -78,6 +56,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       setClientId(config.clientId);
       setResource(config.resource);
       setOAuthUri(config.oAuthUri);
+      setTokenUri(config.tokenUri);
       setAdminClaimName(config.adminClaimName);
       return config;
     } else {
@@ -104,11 +83,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       }
 
       setIsLoggedIn(true);
-      setUsername(
-        loginData
-          ? loginData.preferred_username ?? loginData.username ?? ""
-          : ""
-      );
+
       setIsAdmin(config.isAdmin(loginData));
     } catch (error) {
       // Login valid callback if provided
@@ -117,7 +92,6 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       }
 
       setIsLoggedIn(false);
-      setUsername("");
       setIsAdmin(false);
 
       if (error.name === "TokenExpiredError") {
@@ -129,26 +103,24 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
     }
   };
 
-  useEffect(() => {
-    setCheckExpiryTimer(window.setInterval(checkExpiryHandler, 60000));
-
-    loadConfig()
-      .then((config) => {
-        validateToken(config);
-      })
-      .catch((err) => {
+  /**
+   * load in the oauth config and validate the loaded in token
+   */
+  const refresh = async () => {
+    try {
+      const config = await loadConfig();
+      await validateToken(config);
+    } catch(err) {
         if (err instanceof VError) {
           console.log("OAuth configuration was not valid: ", err);
         } else {
           console.log("Could not load oauth configuration: ", err);
         }
-      });
+    }
+  }
 
-    return () => {
-      if (checkExpiryTimer) {
-        window.clearInterval(checkExpiryTimer);
-      }
-    };
+  useEffect(() => {
+    refresh();
   }, []);
 
   const makeLoginUrl = () => {
@@ -193,7 +165,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
 
   return (
     <>
-      {isLoggedIn ? (
+      {isLoggedIn && loginData ? (
         <div className="app-switcher-container">
           <ul className="app-switcher">
             {(
@@ -213,28 +185,17 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
               )
             )}
           </ul>
-          <div>
-            <span>
-              You are logged in as <span className="username">{username}</span>
-            </span>
-            <span>
-              <Button
-                className="login-button"
-                variant="outlined"
-                size="small"
-                onClick={() => {
-                  if (props.onLoggedOut) {
-                    props.onLoggedOut();
-                    return;
-                  }
-
-                  window.location.assign("/logout");
-                }}
-              >
-                Logout
-              </Button>
-            </span>
-          </div>
+          <LoginComponent loginData={loginData}
+                          onLoggedOut={props.onLoggedOut}
+                          onLoginRefreshed={()=>{
+                            refresh();
+                          }}
+                          onLoginExpired={()=>{
+                            setExpired(true);
+                            setIsLoggedIn(false);
+                          }}
+                          tokenUri={tokenUri}
+          />
         </div>
       ) : (
         <div className="app-switcher-container">
