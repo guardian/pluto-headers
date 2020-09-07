@@ -10,6 +10,7 @@ interface BreadcrumbProps {
     masterId?: number;
     projectId?: number;
     commissionId?: number;
+    plutoCoreBaseUri?: string;
 }
 interface BreadcrumbState {
     hasError: boolean;
@@ -53,6 +54,7 @@ declare class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbStat
      * master load function that hands off to specific ones
      */
     loadData(): Promise<void>;
+    componentDidUpdate(prevProps: Readonly<BreadcrumbProps>, prevState: Readonly<BreadcrumbState>, snapshot?: any): void;
     componentDidMount(): void;
     render(): JSX.Element;
 }

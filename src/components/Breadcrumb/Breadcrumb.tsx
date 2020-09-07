@@ -16,6 +16,7 @@ interface BreadcrumbProps {
   masterId?: number;
   projectId?: number;
   commissionId?: number;
+  plutoCoreBaseUri?: string;
 }
 
 interface BreadcrumbState {
@@ -128,7 +129,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
     await this.setStatePromise({ loading: true });
     //I could do the whole type-registration thing and validate it for the data, but really we are only interested
     //in a field or two so I might as well do it manually.
-    const url = `/pluto-core/api/pluto/commission/${this.props.commissionId}`;
+    const url = `${this.props.plutoCoreBaseUri ?? "/pluto-core"}/api/pluto/commission/${this.props.commissionId}`;
 
     try {
       const serverContent = await this.plutoCoreLoad(url);
@@ -143,12 +144,12 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
 
   async loadProjectData(): Promise<void> {
     await this.setStatePromise({ loading: true });
-    const url = `/pluto-core/api/project/${this.props.projectId}`;
+    const url = `${this.props.plutoCoreBaseUri ?? "/pluto-core"}/api/project/${this.props.projectId}`;
 
     try {
       const serverContentProject = await this.plutoCoreLoad(url);
       if (serverContentProject.commissionId) {
-        const commissionUrl = `/pluto-core/api/pluto/commission/${serverContentProject.commissionId}`;
+        const commissionUrl = `${this.props.plutoCoreBaseUri ?? "/pluto-core"}/api/pluto/commission/${serverContentProject.commissionId}`;
         const serverContentComm = await this.plutoCoreLoad(commissionUrl);
         return this.setStatePromise({
           loading: false,
@@ -193,6 +194,10 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
     }
   }
 
+  componentDidUpdate(prevProps: Readonly<BreadcrumbProps>, prevState: Readonly<BreadcrumbState>, snapshot?: any) {
+    if(prevProps!=this.props) this.loadData();
+  }
+
   componentDidMount() {
     this.loadData();
   }
@@ -214,7 +219,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
                 src={iconCommission}
                 alt="Commission"
               />
-              <a href={`/pluto-core/commission/${this.props.commissionId ?? this.state.commissionId}`} className="breadcrumb-text">{this.state.commissionName}</a>
+              <a href={`${this.props.plutoCoreBaseUri ?? "/pluto-core"}/commission/${this.props.commissionId ?? this.state.commissionId}`} className="breadcrumb-text">{this.state.commissionName}</a>
               {
                 this.state.projectName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
               }
@@ -227,7 +232,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
                 src={iconProject}
                 alt="Project"
               />
-              <a href={`/pluto-core/project/${this.props.projectId ?? this.state.projectId}`} className="breadcrumb-text">{this.state.projectName}</a>
+              <a href={`${this.props.plutoCoreBaseUri ?? "/pluto-core"}/project/${this.props.projectId ?? this.state.projectId}`} className="breadcrumb-text">{this.state.projectName}</a>
               {
                 this.state.masterName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
               }

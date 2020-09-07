@@ -1252,13 +1252,12 @@ const LoginComponent = (props) => {
     useEffect(() => {
         var _a;
         const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
-        try {
-            checkExpiryHandler();
-        }
-        catch (err) {
-            //ensure that we log errors but don't let it stop us returning the un-install hook
-            console.error("Could not check for expiry: ", err);
-        }
+        // try {
+        //     checkExpiryHandler();
+        // } catch(err) {
+        //     //ensure that we log errors but don't let it stop us returning the un-install hook
+        //     console.error("Could not check for expiry: ", err);
+        // }
         return (() => {
             console.log("removing checkExpiryHandler");
             window.clearInterval(intervalTimerId);
@@ -1450,19 +1449,25 @@ const AppSwitcher = (props) => {
             }
         }
     });
-    useEffect(() => {
-        loadConfig()
-            .then((config) => {
-            validateToken(config);
-        })
-            .catch((err) => {
+    /**
+     * load in the oauth config and validate the loaded in token
+     */
+    const refresh = () => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const config = yield loadConfig();
+            yield validateToken(config);
+        }
+        catch (err) {
             if (err instanceof dist.VError) {
                 console.log("OAuth configuration was not valid: ", err);
             }
             else {
                 console.log("Could not load oauth configuration: ", err);
             }
-        });
+        }
+    });
+    useEffect(() => {
+        refresh();
     }, []);
     const makeLoginUrl = () => {
         const currentUri = new URL(window.location.href);
@@ -1482,7 +1487,9 @@ const AppSwitcher = (props) => {
         } }, hrefIsTheSameDeploymentRootPath(href) ? (React.createElement(Link, { to: getDeploymentRootPathLink(href) }, text)) : (React.createElement("a", { href: href }, text))));
     return (React.createElement(React.Fragment, null, isLoggedIn && loginData ? (React.createElement("div", { className: "app-switcher-container" },
         React.createElement("ul", { className: "app-switcher" }, (menuSettings || []).map(({ type, text, href, adminOnly, content }, index) => type === "link" ? (getLink(text, href, adminOnly, index)) : (React.createElement(MenuButton, { key: index, index: index, isAdmin: isAdmin, text: text, adminOnly: adminOnly, content: content })))),
-        React.createElement(LoginComponent, { loginData: loginData, onLoggedOut: props.onLoggedOut, onLoginExpired: () => {
+        React.createElement(LoginComponent, { loginData: loginData, onLoggedOut: props.onLoggedOut, onLoginRefreshed: () => {
+                refresh();
+            }, onLoginExpired: () => {
                 setExpired(true);
                 setIsLoggedIn(false);
             }, tokenUri: tokenUri }))) : (React.createElement("div", { className: "app-switcher-container" },
@@ -1708,11 +1715,12 @@ class Breadcrumb extends React.Component {
         });
     }
     loadCommissionData() {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             yield this.setStatePromise({ loading: true });
             //I could do the whole type-registration thing and validate it for the data, but really we are only interested
             //in a field or two so I might as well do it manually.
-            const url = `/pluto-core/api/pluto/commission/${this.props.commissionId}`;
+            const url = `${(_a = this.props.plutoCoreBaseUri) !== null && _a !== void 0 ? _a : "/pluto-core"}/api/pluto/commission/${this.props.commissionId}`;
             try {
                 const serverContent = yield this.plutoCoreLoad(url);
                 return this.setStatePromise({
@@ -1726,13 +1734,14 @@ class Breadcrumb extends React.Component {
         });
     }
     loadProjectData() {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             yield this.setStatePromise({ loading: true });
-            const url = `/pluto-core/api/project/${this.props.projectId}`;
+            const url = `${(_a = this.props.plutoCoreBaseUri) !== null && _a !== void 0 ? _a : "/pluto-core"}/api/project/${this.props.projectId}`;
             try {
                 const serverContentProject = yield this.plutoCoreLoad(url);
                 if (serverContentProject.commissionId) {
-                    const commissionUrl = `/pluto-core/api/pluto/commission/${serverContentProject.commissionId}`;
+                    const commissionUrl = `${(_b = this.props.plutoCoreBaseUri) !== null && _b !== void 0 ? _b : "/pluto-core"}/api/pluto/commission/${serverContentProject.commissionId}`;
                     const serverContentComm = yield this.plutoCoreLoad(commissionUrl);
                     return this.setStatePromise({
                         loading: false,
@@ -1781,11 +1790,15 @@ class Breadcrumb extends React.Component {
             }
         });
     }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps != this.props)
+            this.loadData();
+    }
     componentDidMount() {
         this.loadData();
     }
     render() {
-        var _a, _b;
+        var _a, _b, _c, _d;
         if (this.state.hasError) {
             return (React.createElement("div", { className: "breadcrumb-container" },
                 React.createElement("p", null, "Could not load location data")));
@@ -1794,11 +1807,11 @@ class Breadcrumb extends React.Component {
             return (React.createElement("div", { className: "breadcrumb-container" },
                 this.state.commissionName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
                     React.createElement("img", { className: "breadcrumb-icon", src: img, alt: "Commission" }),
-                    React.createElement("a", { href: `/pluto-core/commission/${(_a = this.props.commissionId) !== null && _a !== void 0 ? _a : this.state.commissionId}`, className: "breadcrumb-text" }, this.state.commissionName),
+                    React.createElement("a", { href: `${(_a = this.props.plutoCoreBaseUri) !== null && _a !== void 0 ? _a : "/pluto-core"}/commission/${(_b = this.props.commissionId) !== null && _b !== void 0 ? _b : this.state.commissionId}`, className: "breadcrumb-text" }, this.state.commissionName),
                     this.state.projectName == "" ? null : React.createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
                 this.state.projectName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
                     React.createElement("img", { className: "breadcrumb-icon", src: img$1, alt: "Project" }),
-                    React.createElement("a", { href: `/pluto-core/project/${(_b = this.props.projectId) !== null && _b !== void 0 ? _b : this.state.projectId}`, className: "breadcrumb-text" }, this.state.projectName),
+                    React.createElement("a", { href: `${(_c = this.props.plutoCoreBaseUri) !== null && _c !== void 0 ? _c : "/pluto-core"}/project/${(_d = this.props.projectId) !== null && _d !== void 0 ? _d : this.state.projectId}`, className: "breadcrumb-text" }, this.state.projectName),
                     this.state.masterName == "" ? null : React.createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
                 this.state.masterName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
                     React.createElement("img", { className: "breadcrumb-icon", src: img$2, alt: "Master" }),
