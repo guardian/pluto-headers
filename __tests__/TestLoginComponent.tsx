@@ -76,7 +76,7 @@ describe("LoginComponent", ()=> {
         expect(loginCantRefreshCb.callCount).toEqual(0);
         expect(loggedOutCb.callCount).toEqual(0);
         const updated = rendered.update();
-        expect(updated.find("#refresh-success").length).toEqual(1);
+        expect(updated.find("#refresh-success").length).toEqual(3);
 
         //the "success" message should disappear after 5s
         act(() => {
@@ -129,9 +129,8 @@ describe("LoginComponent", ()=> {
 
         const updated = rendered.update();
         expect(updated.find("#refresh-success").length).toEqual(0);
-        const failureblock = updated.find("#refresh-failed");
+        const failureblock = updated.find("div#refresh-failed");
         expect(failureblock.length).toEqual(1);
-        // console.log(failureblock.debug());
         expect(failureblock.text()).toContain("Login expires in 30s");
     });
 
@@ -167,7 +166,7 @@ describe("LoginComponent", ()=> {
             jest.advanceTimersByTime(60001);
         });
         const first_update = rendered.update();
-        expect(first_update.find("#refresh-in-progress").length).toEqual(1);
+        expect(first_update.find("div#refresh-in-progress").length).toEqual(1);
         expect(mockRefresh.calledOnceWith("https://fake-token-uri")).toBeTruthy();
 
         await act(()=>Promise.resolve());    //this allows other outstanding promises to resolve _first_, including the one that
@@ -181,7 +180,7 @@ describe("LoginComponent", ()=> {
         const second_update = rendered.update();
         expect(second_update.find("#refresh-in-progress").length).toEqual(0);
         expect(second_update.find("#refresh-success").length).toEqual(0);
-        const failureblock = second_update.find("#refresh-failed");
+        const failureblock = second_update.find("div#refresh-failed");
         expect(failureblock.length).toEqual(1);
         expect(failureblock.text()).toContain("Login has expired");
     });

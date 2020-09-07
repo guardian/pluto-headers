@@ -43,12 +43,12 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
 
     useEffect(()=>{
         const intervalTimerId = window.setInterval(checkExpiryHandler, props.checkInterval ?? 60000);
-        try {
-            checkExpiryHandler();
-        } catch(err) {
-            //ensure that we log errors but don't let it stop us returning the un-install hook
-            console.error("Could not check for expiry: ", err);
-        }
+        // try {
+        //     checkExpiryHandler();
+        // } catch(err) {
+        //     //ensure that we log errors but don't let it stop us returning the un-install hook
+        //     console.error("Could not check for expiry: ", err);
+        // }
 
         return (()=>{
             console.log("removing checkExpiryHandler")
@@ -113,6 +113,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                     setRefreshInProgress(false);
                     setRefreshFailed(false);
                     setRefreshed(true);
+
                     if(props.onLoginRefreshed) props.onLoginRefreshed();
                     window.setTimeout(()=>setRefreshed(false), 5000);   //show success message for 5s
                 }).catch(errString=>{

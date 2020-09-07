@@ -103,19 +103,24 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
     }
   };
 
-  useEffect(() => {
-
-    loadConfig()
-      .then((config) => {
-        validateToken(config);
-      })
-      .catch((err) => {
+  /**
+   * load in the oauth config and validate the loaded in token
+   */
+  const refresh = async () => {
+    try {
+      const config = await loadConfig();
+      await validateToken(config);
+    } catch(err) {
         if (err instanceof VError) {
           console.log("OAuth configuration was not valid: ", err);
         } else {
           console.log("Could not load oauth configuration: ", err);
         }
-      });
+    }
+  }
+
+  useEffect(() => {
+    refresh();
   }, []);
 
   const makeLoginUrl = () => {
@@ -182,6 +187,9 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
           </ul>
           <LoginComponent loginData={loginData}
                           onLoggedOut={props.onLoggedOut}
+                          onLoginRefreshed={()=>{
+                            refresh();
+                          }}
                           onLoginExpired={()=>{
                             setExpired(true);
                             setIsLoggedIn(false);
