@@ -17,6 +17,7 @@ interface AppSwitcherProps {
   onLoggedIn?: () => void;
   onLoggedOut?: () => void;
   onLoginValid?: (valid: boolean, jwtDataShape?: JwtDataShape) => void;
+  onLoginRedirectTo?: string;
 }
 
 export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
@@ -133,7 +134,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       client_id: clientId,
       resource: resource,
       redirect_uri: redirectUri,
-      state: currentUri.pathname,
+      state: props.onLoginRedirectTo ?? currentUri.pathname,
     };
 
     const encoded = Object.entries(args).map(
