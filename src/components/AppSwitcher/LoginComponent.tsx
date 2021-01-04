@@ -73,7 +73,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
      */
     const updateCountdownHandler = () => {
         const nowTime = new Date().getTime() / 1000; //assume time is in seconds
-        const expiry = loginDataRef.current.exp;
+        const expiry = loginDataRef.exp;
         const timeToGo = expiry - nowTime;
 
         if(timeToGo>1) {
