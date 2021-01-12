@@ -35,7 +35,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     const [refreshed, setRefreshed] = useState<boolean>(false);
     const [loginExpiryCount, setLoginExpiryCount] = useState<string>("");
 
-    const loginDataRef = useRef(props.loginData);
+    let loginDataRef = useRef(props.loginData);
     const tokenUriRef = useRef(props.tokenUri);
     const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
 
@@ -66,7 +66,11 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                 window.clearInterval(intervalTimerId);
             })
         }
-    }, [refreshFailed])
+    }, [refreshFailed]);
+
+    useEffect(()=>{
+      loginDataRef.current = props.loginData;
+    }, [props.loginData]);
 
     /**
      * called periodically every second once a refresh has failed to alert the user how long they have left
