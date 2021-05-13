@@ -1,7 +1,8 @@
 .app-switcher-container {
   display: flex;
   background-color: #dee2e3;
-  height: 30px;
+  min-height: 30px;
+  max-height: 46px;
   padding: 6px;
   border-bottom: 1px solid #d2d2d2;
   font-size: 14px;
@@ -10,6 +11,7 @@
 .app-switcher-container .username {
   font-weight: 700;
   font-size: 16px;
+  color: black; /*override the theme colour for text because we have a specfic background colour*/
 }
 
 .app-switcher-container .not-logged-in {
@@ -17,11 +19,14 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  color: black; /*override the theme colour for text because we have a specfic background colour*/
 }
 
 .app-switcher-container .login-button,
 .app-switcher-container .not-logged-in .logout-button {
   margin-left: 10px;
+  border-color: black;
+  color: black;
 }
 
 ul.app-switcher {
