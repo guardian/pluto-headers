@@ -26,6 +26,9 @@ const useStyles = makeStyles({
         marginRight: "0.2em",
         maxWidth: "16px",
         maxHeight: "16px",
+    },
+    textOnGrey: {
+        color: "black"
     }
 });
 
@@ -137,8 +140,9 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         <Grid container className="login-block" direction="row" spacing={2} alignItems="center" justify="flex-end">
             <Grid item>
                 <Grid container spacing={0} alignItems="flex-start" justify="flex-end">
-                    <Grid item style={{marginRight: "0.2em"}}><Typography>You are logged in as</Typography></Grid>
-                    <Grid item><Person/></Grid>
+                    <Grid item style={{marginRight: "0.2em"}}>
+                        <Typography className={classes.textOnGrey}>You are logged in as</Typography></Grid>
+                    <Grid item><Person className={classes.textOnGrey}/></Grid>
                     <Grid item><Typography className="username">{props.loginData.preferred_username ?? props.loginData.username}</Typography></Grid>
                 </Grid>
             </Grid>
