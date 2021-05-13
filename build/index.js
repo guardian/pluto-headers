@@ -1249,6 +1249,9 @@ const useStyles = styles.makeStyles({
         marginRight: "0.2em",
         maxWidth: "16px",
         maxHeight: "16px",
+    },
+    textOnGrey: {
+        color: "black"
     }
 });
 const LoginComponent = (props) => {
@@ -1352,9 +1355,9 @@ const LoginComponent = (props) => {
         React__default['default'].createElement(core.Grid, { item: true },
             React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-start", justify: "flex-end" },
                 React__default['default'].createElement(core.Grid, { item: true, style: { marginRight: "0.2em" } },
-                    React__default['default'].createElement(core.Typography, null, "You are logged in as")),
+                    React__default['default'].createElement(core.Typography, { className: classes.textOnGrey }, "You are logged in as")),
                 React__default['default'].createElement(core.Grid, { item: true },
-                    React__default['default'].createElement(icons.Person, null)),
+                    React__default['default'].createElement(icons.Person, { className: classes.textOnGrey })),
                 React__default['default'].createElement(core.Grid, { item: true },
                     React__default['default'].createElement(core.Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
         refreshInProgress ?
