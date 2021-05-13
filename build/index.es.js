@@ -60,7 +60,7 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z = ".app-switcher-container {\n  display: flex;\n  background-color: #dee2e3;\n  height: 30px;\n  padding: 6px;\n  border-bottom: 1px solid #d2d2d2;\n  font-size: 14px;\n}\n\n.app-switcher-container .username {\n  font-weight: 700;\n  font-size: 16px;\n}\n\n.app-switcher-container .not-logged-in {\n  width: 100%;\n  display: flex;\n  justify-content: flex-end;\n  align-items: center;\n}\n\n.app-switcher-container .login-button,\n.app-switcher-container .not-logged-in .logout-button {\n  margin-left: 10px;\n}\n\nul.app-switcher {\n  display: flex;\n  align-items: center;\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n  flex-grow: 1;\n}\n\nul.app-switcher li {\n  padding: 0 10px;\n  margin-bottom: 0;\n}\n\nul.app-switcher li a {\n  color: #5d5d5d;\n  text-decoration: none;\n}\n\nul.app-switcher li a:hover {\n  color: #181818;\n}\n\nul.app-switcher li a:focus {\n  color: #181818;\n  outline: none;\n}\n";
+var css_248z = ".app-switcher-container {\n  display: flex;\n  background-color: #dee2e3;\n  min-height: 30px;\n  max-height: 46px;\n  padding: 6px;\n  border-bottom: 1px solid #d2d2d2;\n  font-size: 14px;\n}\n\n.app-switcher-container .username {\n  font-weight: 700;\n  font-size: 16px;\n  color: black; /*override the theme colour for text because we have a specfic background colour*/\n}\n\n.app-switcher-container .not-logged-in {\n  width: 100%;\n  display: flex;\n  justify-content: flex-end;\n  align-items: center;\n  color: black; /*override the theme colour for text because we have a specfic background colour*/\n}\n\n.app-switcher-container .login-button,\n.app-switcher-container .not-logged-in .logout-button {\n  margin-left: 10px;\n  border-color: black;\n  color: black;\n}\n\nul.app-switcher {\n  display: flex;\n  align-items: center;\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n  flex-grow: 1;\n}\n\nul.app-switcher li {\n  padding: 0 10px;\n  margin-bottom: 0;\n}\n\nul.app-switcher li a {\n  color: #5d5d5d;\n  text-decoration: none;\n}\n\nul.app-switcher li a:hover {\n  color: #181818;\n}\n\nul.app-switcher li a:focus {\n  color: #181818;\n  outline: none;\n}\n";
 styleInject(css_248z);
 
 /**
@@ -1245,7 +1245,7 @@ const LoginComponent = (props) => {
     const [refreshFailed, setRefreshFailed] = useState(false);
     const [refreshed, setRefreshed] = useState(false);
     const [loginExpiryCount, setLoginExpiryCount] = useState("");
-    const loginDataRef = useRef(props.loginData);
+    let loginDataRef = useRef(props.loginData);
     const tokenUriRef = useRef(props.tokenUri);
     const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
     const classes = useStyles();
@@ -1274,6 +1274,9 @@ const LoginComponent = (props) => {
             });
         }
     }, [refreshFailed]);
+    useEffect(() => {
+        loginDataRef.current = props.loginData;
+    }, [props.loginData]);
     /**
      * called periodically every second once a refresh has failed to alert the user how long they have left
      */
@@ -1529,7 +1532,7 @@ function SvgGuardianWhite(props) {
   }, props), _ref, _ref2);
 }
 
-var css_248z$2 = ".header {\n  display: flex;\n  width: 100%;\n  background-color: #052962;\n}\n\n.content {\n  padding: 10px;\n  width: 100%;\n  height: 60px;\n}\n";
+var css_248z$2 = ".header {\n  display: flex;\n  width: 100%;\n  background-color: #052962;\n}\n\n.content {\n  padding: 10px;\n  width: 100%;\n  min-height: 60px;\n}\n";
 styleInject(css_248z$2);
 
 const Header = () => {
