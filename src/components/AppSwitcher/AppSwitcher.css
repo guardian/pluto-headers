@@ -1,6 +1,7 @@
 .app-switcher-container {
   display: flex;
   background-color: #dee2e3;
+  overflow: hidden;
   min-height: 30px;
   max-height: 46px;
   padding: 6px;
