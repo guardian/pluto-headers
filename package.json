@@ -1,6 +1,6 @@
 {
   "name": "pluto-headers",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "Header components for pluto",
   "main": "build/index.js",
   "module": "build/index.es.js",
