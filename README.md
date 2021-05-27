@@ -31,6 +31,38 @@ Since this is a react component library with dependencies such as react and mate
     git push --follow-tags
     ```
 
+# Update the other components that use this library
+
+A number of the prexit components use this library, and manually updating them all can be a drag.  To simplify this,
+a script is provided that can patch the package.json file and open a merge request on each component.
+
+You'll need python3 installed to run it.
+
+```bash
+cd scripts
+./rollout_updated_version.py --help
+./rollout_updated_version.py --token {gitlab-token} --all-my-repos
+```
+
+In order to run it, you'll need to create a gitlab API token under your username.  You can go this by going to your avatar
+at the top-right of the Gitlab window, selecting **Preferences** from the dropdown menu and then going to **Access Tokens**
+on the left-hand side of the screen.
+
+Create a name for the access token and tick "API" under "Scopes".
+
+Copy the presented string and save it somewhere secure (DON'T put it into this repo!!!!)
+
+You can then run the script, as above, which will:
+- iterate all of the Github projects you 'own'
+- try to find a package.json file in each of them
+- if a package.json file is found, download the current master version and try to find "pluto-headers" under "dependencies"
+- if found, parse the git string and extract the version number and compare it to the version specified in the local package.json
+for pluto-headers.
+- if they don't match, create a branch, update the package.json in the remote project to the version of pluto-headers that
+the script is running from, commit that and create a merge request.
+- if the project does not have 'package.json', or it doesn't import pluto-headers, etc., it will be left alone.
+
+
 # Local development
 
 - Build
