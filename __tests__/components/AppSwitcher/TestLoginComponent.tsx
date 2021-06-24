@@ -3,8 +3,7 @@ import LoginComponent from "../../../src/components/AppSwitcher/LoginComponent";
 import {mount, shallow} from "enzyme";
 import {JwtDataShape} from "../../../src/utils/DecodedProfile";
 import sinon from "sinon";
-jest.mock("../src/utils/OAuth2Helper");
-import {refreshLogin} from "../../../src/utils/OAuth2Helper";
+jest.mock("../../../src/utils/OAuth2Helper");
 import {act} from "react-dom/test-utils";
 
 describe("LoginComponent", ()=> {

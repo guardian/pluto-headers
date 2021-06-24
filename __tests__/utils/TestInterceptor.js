@@ -4,18 +4,16 @@ import sinon from "sinon";
 import { handleUnauthorized } from "../../src/utils/Interceptor";
 
 describe("handleUnauthorized", () => {
-  let rejectedCb;
+  let localaxios;
+
   beforeEach(() => {
+    localaxios = axios.create();
     moxios.install();
   });
+
   afterEach(() => {
     moxios.uninstall();
-    try {
-      axios.interceptors.response.eject(0);
-      axios.interceptors.response.eject(1);
-    } catch (e) {
-
-    }
+    localaxios = undefined;
   });
 
   test("it should execute onRejectedCb on failing to refresh token on 401 Unauthorized", (done) => {
@@ -29,7 +27,8 @@ describe("handleUnauthorized", () => {
           data: { message: "Bad Request" },
         },
       });
-      axios.interceptors.response.use(
+
+      localaxios.interceptors.response.use(
         (response) => response,
         (error) => {
           handleUnauthorized(
@@ -55,7 +54,7 @@ describe("handleUnauthorized", () => {
         }
       );
 
-      axios.interceptors.response.handlers[0].rejected({
+      localaxios.interceptors.response.handlers[0].rejected({
         response: {
           status: 401,
         },
@@ -79,7 +78,7 @@ describe("handleUnauthorized", () => {
     });
 
     return moxios.wait(() => {
-      axios.interceptors.response.use(
+      localaxios.interceptors.response.use(
         (response) => response,
         (error) => {
           handleUnauthorized(
@@ -97,7 +96,7 @@ describe("handleUnauthorized", () => {
         }
       );
 
-      axios.interceptors.response.handlers[1].rejected({
+      localaxios.interceptors.response.handlers[1].rejected({
         response: {
           status: 401,
         },
