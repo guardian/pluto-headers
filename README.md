@@ -2,15 +2,120 @@
 
 Pluto headers is used as a base with header components for all pluto apps.
 
-The components consists of
+The components are:
 
-- Header component with the purpose of being used as a web page header with a logo in the pluto applications.
-- AppSwitcher component used for displaying menu selections by configuration, show who you are logged in as and a log in / log out button.
-- Util interceptor for handling unauthorized requests in axios.
+## Header
+The "Header" is the static blue bar that sits across the top of all the pluto
+components and looks like this:
+![Header bar image](doc/Headerbar.png)
+
+Usage: 
+```jsx
+  <Header/>
+```
+## AppSwitcher
+The "AppSwitcher" is the menu bar which also provides log-in/log-out functionality:
+![App switcher image](doc/Appswitcher.png)
+
+The actual content from the menus is loaded from a file which is expected to be presented at
+`/meta/menu-config/menu.json`.
+
+This is provided by the pluto-start component and is over-ridden by runtime configuration in the 
+actual deployment.
+
+It's expected to take the form of an array of objects, like this:
+
+```json
+[
+  {
+    "type": "{link|submenu}",
+    "text": "Presented text",
+    "href": "https://link.location [only for the 'link'] type",
+    "content": [
+      //[only for the 'submenu' type]
+      {
+        "type": "link",
+        "text": "Presented text",
+        "href": "https://link.location"
+      }
+    ]
+  }
+]
+```
+
+The app switcher also loads in oauth configuration for the purpose of initiating
+the oauth login flow by sending the user to the IdP when you click the 'login" button.
+
+It supports callbacks to notify a parent of login/logout events
+
+Usage:
+```jsx 
+  <AppSwitcher
+    onLoggedIn={()=>alert("user logged in")}
+    onLoggedOut={()=>alert("user logged out")}
+    onLoginValid={(valid, jwtDataShape)=>alert(`login ${valid ? "was" : "was not"} valid. User profile data: ${jwtDataShape}`)}
+  />
+```
+
+
+## Breadcrumb
+![Breadcrumbs image](doc/Breadcrumb.png)
+
+The breadcrumb is a commission -> project -> master trail that is used at the top of pluto-core and
+pluto-deliverables pages to allow the user to directly jump to parent objects, even across apps.
+
+It performs REST requests to the relevant (pluto-core or pluto-deliverables) backend in order to
+determine the presentable information for a given deliverable or project.
+
+masterId?: number;
+projectId?: number;
+commissionId?: number;
+plutoCoreBaseUri?: string;
+
+Usage:
+```jsx
+  <Breadcrumb
+    masterId={optionalMasterIdNumber}
+    projectId={optionalProjectIdNumber}
+    commissionId={optionalCommissionIdNumber}
+   />
+```
+
+The optional `plutoCoreBaseUri` parameter allows you to override the relative base url of 
+pluto-core from the default value `/pluto-core`. It's not expected to be of any use in the "real world".
+
+## Utilities
+
+### Interceptor
+
+This provides an axios "interceptor" (callback placed in the response chain) which will
+automatically attempt to refresh the login token if a "permission denied" is received.
+
+### OAuth2Helper
+
+This provides the code necessary to request a token refresh using a provided "refresh token".
+
+### OAuthConfiguration
+
+This provides the interface prototypes for the json configuration that allows us to contact an oauth provider.
+It also provides the 'ti-interface-checker' generated code that allows us to verify correct data shape
+at runtime.
+
+### DecodedProfile
+
+This provides the interface prototype for the JWT-based user profile along with a proxy that simplifies
+finding data.
+
+### JwtHelpers
+
+This provides utility code that downloads the signing key, verifies the provided key
+and decodes the user profile.
 
 # React component library
 
-Since this is a react component library with dependencies such as react and material ui, it is required that these are used as peerDependencies, otherwise these would collide with the external applications dependencies that is using this react component library.
+Since this is a react component library with dependencies such as react and material ui, it is required 
+that these are used as peerDependencies, otherwise these would collide with the external applications 
+dependencies that is using this react component library.
 
 # Build and publish
 
