@@ -1,29 +1,34 @@
 import axios from "axios";
 import moxios from "moxios";
 import sinon from "sinon";
-import { handleUnauthorized } from "../src/utils/Interceptor";
+import { handleUnauthorized } from "../../src/utils/Interceptor";
 
 describe("handleUnauthorized", () => {
   let rejectedCb;
   beforeEach(() => {
-    rejectedCb = sinon.spy();
     moxios.install();
   });
   afterEach(() => {
-    rejectedCb = "";
     moxios.uninstall();
+    try {
+      axios.interceptors.response.eject(0);
+      axios.interceptors.response.eject(1);
+    } catch (e) {
+
+    }
   });
 
   test("it should execute onRejectedCb on failing to refresh token on 401 Unauthorized", (done) => {
-    moxios.stubRequest("/uri/token", {
-      status: 400,
-      response: {
-        count: 1,
-        data: { message: "Bad Request" },
-      },
-    });
+    let rejectedCb = sinon.spy();
 
     return moxios.wait(() => {
+      moxios.stubRequest("/uri/token", {
+        status: 400,
+        response: {
+          count: 1,
+          data: { message: "Bad Request" },
+        },
+      });
       axios.interceptors.response.use(
         (response) => response,
         (error) => {
@@ -32,9 +37,21 @@ describe("handleUnauthorized", () => {
             error,
             rejectedCb
           ).catch(() => {
-            expect(rejectedCb.calledOnce).toBeTruthy();
-            done();
-          });
+            try {
+              expect(rejectedCb.calledOnce).toBeTruthy();
+              done();
+            } catch(err) {
+              done.fail(err);
+            }
+          }).then(()=> {
+            try {
+              expect(rejectedCb.calledOnce).toBeTruthy();
+              done();
+            } catch(err) {
+              done.fail(err);
+            }
+          })
+          ;
         }
       );
 
@@ -52,6 +69,7 @@ describe("handleUnauthorized", () => {
   });
 
   test("it should not execute onRejectedCb on successfully refreshing token on 401 Unauthorized", (done) => {
+    const rejectedCb = sinon.spy();
     moxios.stubRequest("/uri/token", {
       status: 200,
       response: {
@@ -69,8 +87,12 @@ describe("handleUnauthorized", () => {
             error,
             rejectedCb
           ).then(() => {
-            expect(rejectedCb.notCalled).toBeTruthy();
-            done();
+            try {
+              expect(rejectedCb.notCalled).toBeTruthy();
+              done();
+            } catch(err) {
+              done.fail(err);
+            }
           });
         }
       );

@@ -1,4 +1,4 @@
-import { validateAndDecode } from "../src/utils/JwtHelpers.js";
+import { validateAndDecode } from "../../src/utils/JwtHelpers.js";
 
 describe("validateAndDecode", () => {
   it("should decode an example jwt", (done) => {

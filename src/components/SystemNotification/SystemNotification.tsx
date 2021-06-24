@@ -55,4 +55,4 @@ const SystemNotification: React.FC<{}> & { open: OpenFunc } = () => {
 SystemNotification.open = (kind: SystemNotifcationKind, message: string) =>
     openSystemNotification(kind, message);
 
-export default SystemNotification;
+export { SystemNotification };

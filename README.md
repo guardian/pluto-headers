@@ -125,10 +125,6 @@ dependencies that is using this react component library.
   yarn && yarn build
   ```
 
-- Remove the devDependencies that are the same as peerDependecies by removing them from package.json and do a yarn install. Otherwise the devDependencies will collide during local development with the external repository.
-
-  The hard way of doing this is to npm link these devDependencies from this repository to the external repository.
-
 - In external repository package.json, update pluto-headers dependency by adding a relative path to the root
 
   ```
@@ -140,6 +136,25 @@ dependencies that is using this react component library.
   yarn
   ```
 
+- In external repository, find the `node_modules` directory for pluto-headers that was copied, and delete it:
+   ```
+   rm -rf node_modules/pluto-headers/node_modules
+   ```
+  This removes extraneous copies of react, material-ui etc. which otherwise conflict with the component you were testing.
+
+  See https://www.claritician.com/how-to-create-a-local-react-typescript-library-that-i-can-use-across-my-react-projects
+  for more information about that - it recommends putting this in a  "postinstall" script but if you do this it deletes
+  the whole node_modules folder just after the install has created it, so you can't test or build.
+
+- Build the component you are testing on:
+   ```
+   yarn dev
+   sbt docker:publishLocal or docker build . -t guardianmultimedia/... or other thing to build the package
+   ```
+  
+   Then deploy it to your prexit-local environment by checking that you are asking for the correct container version
+   and deleting the current pod.
+  
 # Build and publish
 
 - Build

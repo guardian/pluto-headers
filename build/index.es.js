@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button } from '@material-ui/core';
+import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button, Snackbar } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { Person, Error as Error$1, CheckCircle } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import qs from 'query-string';
+import MuiAlert from '@material-ui/lab/Alert';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -1826,5 +1827,38 @@ class Breadcrumb extends React.Component {
     }
 }
 
-export { AppSwitcher, Breadcrumb, Header, handleUnauthorized };
+/**
+ * these values correspond to the material-ui palette labels, so are safe to use below with
+ * `severity={SystemNotificationKind.toString() as Color}`
+ */
+var SystemNotifcationKind;
+(function (SystemNotifcationKind) {
+    SystemNotifcationKind["Success"] = "success";
+    SystemNotifcationKind["Error"] = "error";
+    SystemNotifcationKind["Info"] = "info";
+    SystemNotifcationKind["Warning"] = "warning";
+})(SystemNotifcationKind || (SystemNotifcationKind = {}));
+let openSystemNotification; //allows us to access the `openSystemNotification` function from outside the component definition
+function Alert(props) {
+    return React.createElement(MuiAlert, Object.assign({ elevation: 6, variant: "filled" }, props));
+}
+const SystemNotification = () => {
+    const autoHideDuration = 4000;
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState("");
+    const [kind, setKind] = useState(SystemNotifcationKind.Info);
+    const close = () => {
+        setOpen(false);
+    };
+    openSystemNotification = (kind, message) => {
+        setKind(kind);
+        setMessage(message);
+        setOpen(true);
+    };
+    return (React.createElement(Snackbar, { open: open, autoHideDuration: autoHideDuration, onClose: close, anchorOrigin: { vertical: "top", horizontal: "right" } },
+        React.createElement(Alert, { severity: kind.toString() }, message)));
+};
+SystemNotification.open = (kind, message) => openSystemNotification(kind, message);
+
+export { AppSwitcher, Breadcrumb, Header, SystemNotifcationKind, SystemNotification, handleUnauthorized };
 //# sourceMappingURL=index.es.js.map
