@@ -117,6 +117,29 @@ Since this is a react component library with dependencies such as react and mate
 that these are used as peerDependencies, otherwise these would collide with the external applications 
 dependencies that is using this react component library.
 
+# Local development
+
+- Build
+
+  ```
+  yarn && yarn build
+  ```
+
+- Remove the devDependencies that are the same as peerDependecies by removing them from package.json and do a yarn install. Otherwise the devDependencies will collide during local development with the external repository.
+
+  The hard way of doing this is to npm link these devDependencies from this repository to the external repository.
+
+- In external repository package.json, update pluto-headers dependency by adding a relative path to the root
+
+  ```
+  "pluto-headers": "file:<relative-path-to-pluto-headers-root>"
+  ```
+
+- In external repository, install the added dependency
+  ```
+  yarn
+  ```
+
 # Build and publish
 
 - Build
@@ -166,27 +189,3 @@ for pluto-headers.
 - if they don't match, create a branch, update the package.json in the remote project to the version of pluto-headers that
 the script is running from, commit that and create a merge request.
 - if the project does not have 'package.json', or it doesn't import pluto-headers, etc., it will be left alone.
-
-
-# Local development
-
-- Build
-
-  ```
-  yarn && yarn build
-  ```
-
-- Remove the devDependencies that are the same as peerDependecies by removing them from package.json and do a yarn install. Otherwise the devDependencies will collide during local development with the external repository.
-
-  The hard way of doing this is to npm link these devDependencies from this repository to the external repository.
-
-- In external repository package.json, update pluto-headers dependency by adding a relative path to the root
-
-  ```
-  "pluto-headers": "file:<relative-path-to-pluto-headers-root>"
-  ```
-
-- In external repository, install the added dependency
-  ```
-  yarn
-  ```
