@@ -31,7 +31,6 @@ const OAuthContextProvider: React.FC<{
     const response = await fetch("/meta/oauth/config.json");
     switch (response.status) {
       case 200:
-        console.log("got response data");
         const content = await response.json();
 
         setClientId(content.clientId);
@@ -58,16 +57,7 @@ const OAuthContextProvider: React.FC<{
   };
 
   useEffect(() => {
-    //maybe not FIXME: need to figure a way of running this check once we have oauth data present
     loadOauthData();
-    // .then(()=>{
-    //     if(haveToken()) {
-    //         console.log("have pre-existing token");
-    //         setLastError(undefined);
-    //     } else {
-    //         setRedirectToLogin(true);
-    //     }
-    // })
   }, []);
 
   return (

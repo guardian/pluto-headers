@@ -1931,7 +1931,6 @@ const OAuthContextProvider = (props) => {
         const response = yield fetch("/meta/oauth/config.json");
         switch (response.status) {
             case 200:
-                console.log("got response data");
                 const content = yield response.json();
                 setClientId(content.clientId);
                 setResource(content.resource);
@@ -1952,16 +1951,7 @@ const OAuthContextProvider = (props) => {
         }
     });
     useEffect(() => {
-        //maybe not FIXME: need to figure a way of running this check once we have oauth data present
         loadOauthData();
-        // .then(()=>{
-        //     if(haveToken()) {
-        //         console.log("have pre-existing token");
-        //         setLastError(undefined);
-        //     } else {
-        //         setRedirectToLogin(true);
-        //     }
-        // })
     }, []);
     return (React.createElement(OAuthContext.Provider, { value: haveData
             ? {
@@ -1985,5 +1975,11 @@ function makeLoginUrl(oAuthContext) {
     return oAuthContext.oAuthUri + "?" + encoded.join("&");
 }
 
-export { AppSwitcher, Breadcrumb, Header, JwtData, OAuthContext, OAuthContextProvider, SystemNotifcationKind, SystemNotification, getRawToken, handleUnauthorized, loadInSigningKey, makeLoginUrl, validateAndDecode, verifyExistingLogin, verifyJwt };
+const UserContext = React.createContext({
+    profile: undefined,
+    updateProfile: (newValue) => { },
+});
+const UserContextProvider = UserContext.Provider;
+
+export { AppSwitcher, Breadcrumb, Header, JwtData, OAuthContext, OAuthContextProvider, SystemNotifcationKind, SystemNotification, UserContext, UserContextProvider, getRawToken, handleUnauthorized, loadInSigningKey, makeLoginUrl, validateAndDecode, verifyExistingLogin, verifyJwt };
 //# sourceMappingURL=index.es.js.map

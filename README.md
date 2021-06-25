@@ -140,6 +140,117 @@ This will show a green message if the content loads OK or an orange one if it do
 
 The message should auto-close in 3 seconds.
 
+## UserContext
+
+UserContext is a React context provider that can be used to make user login details available to arbitary componets without resorting
+to "prop drilling".  (For more information about Contexts in react, see https://reactjs.org/docs/context.html)
+
+In order to use it, you must position the "provider" as a parent component high-up in the tree; normally this meens
+putting it into your root component.
+
+In order to _populate_ it, however, you need to have a local state var to hold the current user profile information
+and you need to set/unset it in response to login and logout events.
+
+This can be done via the callbacks available from `<AppSwitcher>`.
+
+Here is an example of how to use it:
+
+index.tsx:
+
+```typescript jsx
+import React, {useState} from "react";
+import {UserContext, UserContextProvider, Header, AppSwitcher, JwtDataShape} from "pluto-headers";
+import {ThemeProvider} from "@material-ui/styles";
+import {CssBaseline} from "@material-ui/core";
+
+const indexComponent = () => {
+  const [userProfile, setUserProfile] = useState < JwtDataShape|undefined >(undefined);
+  
+  const setLogin = (isValid: boolean, profile: JwtDataShape) => {
+      if(isValid) {
+          setUserProfile(profile);
+      } else {
+          setUserProfile(undefined);
+      }
+  }
+  
+  return (
+          <div style={{width: "100vw", height: "100vh", overflow: "hidden"}}>
+            <ThemeProvider theme={theme}>
+              <CssBaseline/>
+              <Header/>
+              <AppSwitcher onLoginValid={setLogin}/>
+              <UserContextProvider value={{
+                  profile: userProfile,
+                  updateProfile: (newValue) => setUserProfile(newValue)
+              }}>
+                /*now comes your normal routing stuff - Switch, Route etc.*/
+                      <Switch>
+                              <Route></Route>
+                      </Switch>
+              </UserContextProvider>
+            </ThemeProvider>
+          </div>
+  )
+}
+```
+
+Now, with the setup above the contents of the `userProfile` state variable at the top level is available to _any_
+component that lives anywhere in the DOM tree below `<UserContextProvider>` (in this example, in any subcomponent that
+is availbel via react-router).  This is most convenient through a hook in a functional component, like so:
+
+examplecomponent.tsx:
+
+```typescript jsx
+import {useContext} from "react";
+import {UserContext} from "pluto-headers";
+import {Typography} from "@material-ui/core";
+
+const exampleComponent = () => {
+  const userContext = useContext(UserContext);
+
+  return (
+          <Typography>
+            {
+              userContext ? `You are ${userContext.profile.username}` : "You are not logged in"
+            }
+          </Typography>
+  )
+}
+```
+
+But you can also use context in a class-based component
+
+classbased.jsx:
+
+```jsx
+import React from "react";
+import {UserContext} from "pluto-headers";
+import {Typography} from "@material-ui/core";
+
+class ExampleClassComponent extends React.Component {
+    static contextType = UserContext;
+    
+    render() {
+        return (
+            <Typography>
+              {
+                this.context ? `You are ${this.context.profile.username}` : "You are not logged in"
+              }
+            </Typography>
+        )
+    }
+}
+```
+
+As you can see from the `index.tsx` sample above, the `profile` property of the context object is a `JwtDataShape`, which is defined in
+`utils/DecodedProfile.ts` - you can see the user profile information available there.
+
+## OAuthContext
+
+OAuthContext is a context provider like UserContext which provides details of the OAuth configuration.  This is needed
+if you want to have a login button in your app.  It's only useful for pluto-start and AppSwitcher, really.
+
 ## Utilities
 
 ### Interceptor

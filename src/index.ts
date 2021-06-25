@@ -9,3 +9,4 @@ export type {JwtDataShape} from "./utils/DecodedProfile";
 
 export { validateAndDecode, loadInSigningKey, getRawToken, verifyJwt, verifyExistingLogin } from "./utils/JwtHelpers";
 export {OAuthContext, OAuthContextProvider, makeLoginUrl, OAuthContextData} from "./components/Context/OAuthContext";
+export {UserContext, UserContextProvider} from "./components/Context/UserContext";

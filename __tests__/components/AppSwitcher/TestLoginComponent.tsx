@@ -1,7 +1,7 @@
 import React from "react";
 import LoginComponent from "../../../src/components/AppSwitcher/LoginComponent";
 import {mount, shallow} from "enzyme";
-import {JwtDataShape} from "../../../src/utils/DecodedProfile";
+import {JwtDataShape} from "../../../src";
 import sinon from "sinon";
 jest.mock("../../../src/utils/OAuth2Helper");
 import {act} from "react-dom/test-utils";

@@ -2,9 +2,9 @@ interface JwtDataShape {
     aud: string;
     iss: string;
     iat: number;
-    iat_moment: Date;
+    iat_moment?: Date;
     exp: number;
-    exp_moment: Date;
+    exp_moment?: Date;
     sub?: string;
     email?: string;
     first_name?: string;
