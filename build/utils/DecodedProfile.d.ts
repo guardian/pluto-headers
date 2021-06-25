@@ -1,11 +1,14 @@
-export interface JwtDataShape {
+interface JwtDataShape {
     aud: string;
     iss: string;
     iat: number;
+    iat_moment: Date;
     exp: number;
+    exp_moment: Date;
     sub?: string;
     email?: string;
     first_name?: string;
+    given_name?: string;
     family_name?: string;
     username?: string;
     preferred_username?: string;
@@ -16,4 +19,6 @@ export interface JwtDataShape {
     ver?: string;
     appid?: string;
 }
-export declare function JwtData(jwtData: object): JwtDataShape;
+declare function JwtData(jwtData: object): JwtDataShape;
+export type { JwtDataShape };
+export { JwtData };
