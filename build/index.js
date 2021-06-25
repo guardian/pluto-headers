@@ -11,6 +11,7 @@ var icons = require('@material-ui/icons');
 var styles = require('@material-ui/core/styles');
 var axios = require('axios');
 var qs = require('query-string');
+var MuiAlert = require('@material-ui/lab/Alert');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -19,6 +20,7 @@ var jwt__default = /*#__PURE__*/_interopDefaultLegacy(jwt);
 var ArrowDropDownIcon__default = /*#__PURE__*/_interopDefaultLegacy(ArrowDropDownIcon);
 var axios__default = /*#__PURE__*/_interopDefaultLegacy(axios);
 var qs__default = /*#__PURE__*/_interopDefaultLegacy(qs);
+var MuiAlert__default = /*#__PURE__*/_interopDefaultLegacy(MuiAlert);
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -1838,8 +1840,37 @@ class Breadcrumb extends React__default['default'].Component {
     }
 }
 
+(function (SystemNotifcationKind) {
+    SystemNotifcationKind["Success"] = "success";
+    SystemNotifcationKind["Error"] = "error";
+    SystemNotifcationKind["Info"] = "info";
+    SystemNotifcationKind["Warning"] = "warning";
+})(exports.SystemNotifcationKind || (exports.SystemNotifcationKind = {}));
+let openSystemNotification; //allows us to access the `openSystemNotification` function from outside the component definition
+function Alert(props) {
+    return React__default['default'].createElement(MuiAlert__default['default'], Object.assign({ elevation: 6, variant: "filled" }, props));
+}
+const SystemNotification = () => {
+    const autoHideDuration = 4000;
+    const [open, setOpen] = React.useState(false);
+    const [message, setMessage] = React.useState("");
+    const [kind, setKind] = React.useState(exports.SystemNotifcationKind.Info);
+    const close = () => {
+        setOpen(false);
+    };
+    openSystemNotification = (kind, message) => {
+        setKind(kind);
+        setMessage(message);
+        setOpen(true);
+    };
+    return (React__default['default'].createElement(core.Snackbar, { open: open, autoHideDuration: autoHideDuration, onClose: close, anchorOrigin: { vertical: "top", horizontal: "right" } },
+        React__default['default'].createElement(Alert, { severity: kind.toString() }, message)));
+};
+SystemNotification.open = (kind, message) => openSystemNotification(kind, message);
+
 exports.AppSwitcher = AppSwitcher;
 exports.Breadcrumb = Breadcrumb;
 exports.Header = Header;
+exports.SystemNotification = SystemNotification;
 exports.handleUnauthorized = handleUnauthorized;
 //# sourceMappingURL=index.js.map

@@ -1,4 +1,4 @@
-import {refreshLogin} from "../src/utils/OAuth2Helper";
+import {refreshLogin} from "../../src/utils/OAuth2Helper";
 import fetchMock from "jest-fetch-mock";
 
 describe("refreshLogin", ()=>{

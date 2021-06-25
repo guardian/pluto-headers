@@ -23,7 +23,7 @@ export default [
       },
     ],
     plugins: [
-      external(),
+      external({includeDependencies: true}),
       nodeResolve(),
       commonjs(),
       typescript({ useTsconfigDeclarationDir: true }),
