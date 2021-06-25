@@ -132,6 +132,9 @@ def update_plutoheaders_version(file:FileInformation, project_id:str, token:str,
     content = retrieve_file(file, project_id, token, branch_or_ref)
 
     parsed_packagejson = json.loads(content)
+    if "dependencies" not in parsed_packagejson:
+        logger.info("{0} has no listed dependencies".format(project_id))
+        return False, ""
     if "pluto-headers" in parsed_packagejson["dependencies"]:
         matches = matcher.match(parsed_packagejson["dependencies"]["pluto-headers"])
         if matches is not None:
