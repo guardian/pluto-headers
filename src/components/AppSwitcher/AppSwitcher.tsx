@@ -74,17 +74,21 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       const signingKey = await loadInSigningKey();
 
       const decodedData = await validateAndDecode(token, signingKey);
-      const loginData = JwtData(decodedData);
-      setLoginData(loginData);
+      if(decodedData) {
+        const loginData = JwtData(decodedData);
+        setLoginData(loginData);
 
-      // Login valid callback if provided
-      if (props.onLoginValid) {
-        props.onLoginValid(true, loginData);
+        // Login valid callback if provided
+        if (props.onLoginValid) {
+          props.onLoginValid(true, loginData);
+        }
+
+        setIsLoggedIn(true);
+
+        setIsAdmin(config.isAdmin(loginData));
+      } else {
+        throw "Got no user profile"
       }
-
-      setIsLoggedIn(true);
-
-      setIsAdmin(config.isAdmin(loginData));
     } catch (error) {
       // Login valid callback if provided
       if (props.onLoginValid) {
@@ -94,7 +98,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
       setIsLoggedIn(false);
       setIsAdmin(false);
 
-      if (error.name === "TokenExpiredError") {
+      if (error.hasOwnProperty("name") && error.name === "TokenExpiredError") {
         console.error("Token has already expired");
         setExpired(true);
       } else {

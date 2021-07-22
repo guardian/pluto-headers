@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button, Snackbar } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
+import { addMinutes, fromUnixTime } from 'date-fns';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { Person, Error as Error$1, CheckCircle } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
@@ -64,6 +65,53 @@ function styleInject(css, ref) {
 var css_248z = ".app-switcher-container {\n  display: flex;\n  background-color: #dee2e3;\n  overflow: hidden;\n  min-height: 30px;\n  max-height: 46px;\n  padding: 6px;\n  border-bottom: 1px solid #d2d2d2;\n  font-size: 14px;\n}\n\n.app-switcher-container .username {\n  font-weight: 700;\n  font-size: 16px;\n  color: black; /*override the theme colour for text because we have a specfic background colour*/\n}\n\n.app-switcher-container .not-logged-in {\n  width: 100%;\n  display: flex;\n  justify-content: flex-end;\n  align-items: center;\n  color: black; /*override the theme colour for text because we have a specfic background colour*/\n}\n\n.app-switcher-container .login-button,\n.app-switcher-container .not-logged-in .logout-button {\n  margin-left: 10px;\n  border-color: black;\n  color: black;\n}\n\nul.app-switcher {\n  display: flex;\n  align-items: center;\n  list-style-type: none;\n  margin: 0;\n  padding: 0;\n  flex-grow: 1;\n}\n\nul.app-switcher li {\n  padding: 0 10px;\n  margin-bottom: 0;\n}\n\nul.app-switcher li a {\n  color: #5d5d5d;\n  text-decoration: none;\n}\n\nul.app-switcher li a:hover {\n  color: #181818;\n}\n\nul.app-switcher li a:focus {\n  color: #181818;\n  outline: none;\n}\n";
 styleInject(css_248z);
 
+function utcTime(from) {
+    //see https://stackoverflow.com/a/61469549. `fromUnixTime` gives us a local time, but we want UTC.
+    const date = fromUnixTime(from);
+    return addMinutes(date, date.getTimezoneOffset());
+}
+function JwtData(jwtData) {
+    return new Proxy(jwtData, {
+        get(target, prop) {
+            var _a, _b, _c;
+            switch (prop) {
+                case "iat_moment":
+                    return utcTime(target.iat);
+                case "exp_moment":
+                    return utcTime(target.exp);
+                case "username":
+                    return (_a = target.preferred_username) !== null && _a !== void 0 ? _a : target.username;
+                case "first_name":
+                    return (_b = target.first_name) !== null && _b !== void 0 ? _b : target.given_name;
+                default:
+                    return (_c = target[prop]) !== null && _c !== void 0 ? _c : null;
+            }
+        },
+    });
+}
+
+/**
+ * perform the validation of the token via jsonwebtoken library.
+ * if validation fails then the returned promise is rejected
+ * if validation succeeds, then the promise only completes once the decoded content has been set into the state.
+ * @returns {Promise<object>} Decoded JWT content or rejects with an error
+ */
+function verifyJwt(token, signingKey, refreshToken) {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, signingKey, (err, decoded) => {
+            if (err) {
+                console.log("token: ", token);
+                console.log("signingKey: ", signingKey);
+                console.error("could not verify JWT: ", err);
+                reject(err);
+            }
+            window.localStorage.setItem("pluto:access-token", token); //it validates so save the token
+            if (refreshToken)
+                window.localStorage.setItem("pluto:refresh-token", refreshToken);
+            resolve(decoded);
+        });
+    });
+}
 /**
  * perform the validation of the token via jsonwebtoken library.
  * if validation fails then the returned promise is rejected
@@ -71,50 +119,55 @@ styleInject(css_248z);
  * @returns {Promise<object>} Decoded JWT content or rejects with an error
  */
 function validateAndDecode(token, signingKey, refreshToken) {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, signingKey, (err, decoded) => {
-      if (err) {
-        console.log("token: ", token);
-        console.log("signingKey: ", signingKey);
-        console.error("could not verify JWT: ", err);
-        reject(err);
-      }
-
-      window.localStorage.setItem("pluto:access-token", token); //it validates so save the token
-      if (refreshToken)
-        window.localStorage.setItem("pluto:refresh-token", refreshToken);
-      resolve(decoded);
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, signingKey, (err, decoded) => {
+            if (err) {
+                console.log("token: ", token);
+                console.log("signingKey: ", signingKey);
+                console.error("could not verify JWT: ", err);
+                reject(err);
+            }
+            window.localStorage.setItem("pluto:access-token", token); //it validates so save the token
+            if (refreshToken)
+                window.localStorage.setItem("pluto:refresh-token", refreshToken);
+            resolve(decoded);
+        });
     });
-  });
 }
-
 /**
  * gets the signing key from the server
  * @returns {Promise<string>} Raw content of the signing key in PEM format
  */
-async function loadInSigningKey() {
-  const result = await fetch("/meta/oauth/publickey.pem");
-  switch (result.status) {
-    case 200:
-      return result.text();
-    default:
-      console.error(
-        "could not retrieve signing key, server gave us ",
-        result.status
-      );
-      throw "Could not retrieve signing key";
-  }
+function loadInSigningKey() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield fetch("/meta/oauth/publickey.pem");
+        switch (result.status) {
+            case 200:
+                return result.text();
+            default:
+                console.error("could not retrieve signing key, server gave us ", result.status);
+                throw "Could not retrieve signing key";
+        }
+    });
 }
-
-function JwtData(jwtData) {
-    return new Proxy(jwtData, {
-        get(target, prop) {
-            var _a;
-            switch (prop) {
-                default:
-                    return (_a = target[prop]) !== null && _a !== void 0 ? _a : null;
-            }
-        },
+/**
+ * returns the raw JWT for passing to backend services
+ * @returns {string} the JWT, or null if it is not set.
+ */
+function getRawToken() {
+    return window.localStorage.getItem("pluto:access-token");
+}
+/**
+ * helper function that validates and decodes into a user profile a token already existing in the localstorage
+ */
+function verifyExistingLogin() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const token = getRawToken();
+        if (token) {
+            const signingKey = yield loadInSigningKey();
+            const jwtPayload = yield verifyJwt(token, signingKey);
+            return jwtPayload ? JwtData(jwtPayload) : undefined;
+        }
     });
 }
 
@@ -1431,14 +1484,19 @@ const AppSwitcher = (props) => {
         try {
             const signingKey = yield loadInSigningKey();
             const decodedData = yield validateAndDecode(token, signingKey);
-            const loginData = JwtData(decodedData);
-            setLoginData(loginData);
-            // Login valid callback if provided
-            if (props.onLoginValid) {
-                props.onLoginValid(true, loginData);
+            if (decodedData) {
+                const loginData = JwtData(decodedData);
+                setLoginData(loginData);
+                // Login valid callback if provided
+                if (props.onLoginValid) {
+                    props.onLoginValid(true, loginData);
+                }
+                setIsLoggedIn(true);
+                setIsAdmin(config.isAdmin(loginData));
             }
-            setIsLoggedIn(true);
-            setIsAdmin(config.isAdmin(loginData));
+            else {
+                throw "Got no user profile";
+            }
         }
         catch (error) {
             // Login valid callback if provided
@@ -1447,7 +1505,7 @@ const AppSwitcher = (props) => {
             }
             setIsLoggedIn(false);
             setIsAdmin(false);
-            if (error.name === "TokenExpiredError") {
+            if (error.hasOwnProperty("name") && error.name === "TokenExpiredError") {
                 console.error("Token has already expired");
                 setExpired(true);
             }
@@ -1860,5 +1918,68 @@ const SystemNotification = () => {
 };
 SystemNotification.open = (kind, message) => openSystemNotification(kind, message);
 
-export { AppSwitcher, Breadcrumb, Header, SystemNotifcationKind, SystemNotification, handleUnauthorized };
+const OAuthContext = React.createContext(undefined);
+const OAuthContextProvider = (props) => {
+    const [clientId, setClientId] = useState("");
+    const [resource, setResource] = useState("");
+    const [oAuthUri, setOAuthUri] = useState("");
+    const [tokenUri, setTokenUri] = useState("");
+    const [haveData, setHaveData] = useState(false);
+    const currentUri = new URL(window.location.href);
+    const redirectUrl = currentUri.protocol + "//" + currentUri.host + "/oauth2/callback";
+    const loadOauthData = () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield fetch("/meta/oauth/config.json");
+        switch (response.status) {
+            case 200:
+                const content = yield response.json();
+                setClientId(content.clientId);
+                setResource(content.resource);
+                setOAuthUri(content.oAuthUri);
+                setTokenUri(content.tokenUri);
+                setHaveData(true);
+                break;
+            case 404:
+                yield response.text(); //consume body and discard it
+                if (props.onError)
+                    props.onError("Metadata not found on server, please contact administrator"); //temporary until we have global snackbar
+                break;
+            default:
+                yield response.text(); //consume body and discard it
+                if (props.onError)
+                    props.onError(`Server returned a ${response.status} error trying to access meetadata`);
+                break;
+        }
+    });
+    useEffect(() => {
+        loadOauthData();
+    }, []);
+    return (React.createElement(OAuthContext.Provider, { value: haveData
+            ? {
+                clientId: clientId,
+                resource: resource,
+                oAuthUri: oAuthUri,
+                tokenUri: tokenUri,
+                redirectUri: redirectUrl,
+            }
+            : undefined }, props.children));
+};
+function makeLoginUrl(oAuthContext) {
+    const args = {
+        response_type: "code",
+        client_id: oAuthContext.clientId,
+        resource: oAuthContext.resource,
+        redirect_uri: oAuthContext.redirectUri,
+        state: "/",
+    };
+    const encoded = Object.entries(args).map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
+    return oAuthContext.oAuthUri + "?" + encoded.join("&");
+}
+
+const UserContext = React.createContext({
+    profile: undefined,
+    updateProfile: (newValue) => { },
+});
+const UserContextProvider = UserContext.Provider;
+
+export { AppSwitcher, Breadcrumb, Header, JwtData, OAuthContext, OAuthContextProvider, SystemNotifcationKind, SystemNotification, UserContext, UserContextProvider, getRawToken, handleUnauthorized, loadInSigningKey, makeLoginUrl, validateAndDecode, verifyExistingLogin, verifyJwt };
 //# sourceMappingURL=index.es.js.map
