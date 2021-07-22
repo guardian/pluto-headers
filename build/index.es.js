@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button, Snackbar } from '@material-ui/core';
+import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button, Snackbar, createMuiTheme, ThemeProvider } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import { addMinutes, fromUnixTime } from 'date-fns';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -1981,5 +1981,22 @@ const UserContext = React.createContext({
 });
 const UserContextProvider = UserContext.Provider;
 
-export { AppSwitcher, Breadcrumb, Header, JwtData, OAuthContext, OAuthContextProvider, SystemNotifcationKind, SystemNotification, UserContext, UserContextProvider, getRawToken, handleUnauthorized, loadInSigningKey, makeLoginUrl, validateAndDecode, verifyExistingLogin, verifyJwt };
+const defaultPlutoTheme = createMuiTheme({
+    typography: {
+        fontFamily: '"Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif',
+    },
+    palette: {
+        type: "dark",
+        background: {
+            paper: "#424242A0",
+        },
+    },
+});
+
+const PlutoThemeProvider = (props) => {
+    const updatedProps = Object.assign({}, { theme: defaultPlutoTheme }, props);
+    return React.createElement(ThemeProvider, { theme: updatedProps }, props.children);
+};
+
+export { AppSwitcher, Breadcrumb, Header, JwtData, OAuthContext, OAuthContextProvider, PlutoThemeProvider, SystemNotifcationKind, SystemNotification, UserContext, UserContextProvider, defaultPlutoTheme, getRawToken, handleUnauthorized, loadInSigningKey, makeLoginUrl, validateAndDecode, verifyExistingLogin, verifyJwt };
 //# sourceMappingURL=index.es.js.map

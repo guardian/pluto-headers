@@ -1989,15 +1989,34 @@ const UserContext = React__default['default'].createContext({
 });
 const UserContextProvider = UserContext.Provider;
 
+const defaultPlutoTheme = core.createMuiTheme({
+    typography: {
+        fontFamily: '"Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif',
+    },
+    palette: {
+        type: "dark",
+        background: {
+            paper: "#424242A0",
+        },
+    },
+});
+
+const PlutoThemeProvider = (props) => {
+    const updatedProps = Object.assign({}, { theme: defaultPlutoTheme }, props);
+    return React__default['default'].createElement(core.ThemeProvider, { theme: updatedProps }, props.children);
+};
+
 exports.AppSwitcher = AppSwitcher;
 exports.Breadcrumb = Breadcrumb;
 exports.Header = Header;
 exports.JwtData = JwtData;
 exports.OAuthContext = OAuthContext;
 exports.OAuthContextProvider = OAuthContextProvider;
+exports.PlutoThemeProvider = PlutoThemeProvider;
 exports.SystemNotification = SystemNotification;
 exports.UserContext = UserContext;
 exports.UserContextProvider = UserContextProvider;
+exports.defaultPlutoTheme = defaultPlutoTheme;
 exports.getRawToken = getRawToken;
 exports.handleUnauthorized = handleUnauthorized;
 exports.loadInSigningKey = loadInSigningKey;
