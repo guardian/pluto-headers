@@ -28,11 +28,11 @@ describe("DecodedProfile", () => {
     expect(prof.aud).toEqual("https://someservice.corp.int/callback");
     expect(prof.iss).toEqual("http://authserver.corp.int/adfs/services/trust");
 
-    expect(format(prof.iat_moment, "yyyy-MM-dd HH:mm:ss")).toEqual(
+    expect(prof.iat_moment ? format(prof.iat_moment, "yyyy-MM-dd HH:mm:ss") : "").toEqual(
       "2020-05-17 11:06:54"
     );
     expect(prof.exp).toEqual(1589717214);
-    expect(format(prof.exp_moment,"yyyy-MM-dd HH:mm:ss")).toEqual(
+    expect(prof.exp_moment ? format(prof.exp_moment,"yyyy-MM-dd HH:mm:ss") : "").toEqual(
       "2020-05-17 12:06:54"
     );
     expect(prof.sub).toEqual("jan_kowalski@corp.int");
