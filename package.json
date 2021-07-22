@@ -1,6 +1,6 @@
 {
   "name": "pluto-headers",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Header components for pluto",
   "main": "build/index.js",
   "module": "build/index.es.js",
@@ -45,12 +45,12 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "axios": "^0.21.1",
+    "date-fns": "^2.22.1",
     "jsonwebtoken": "^8.5.1",
     "query-string": "^6.13.1",
     "react": "^16.8.0 || ^17.0.0",
     "react-dom": "^16.8.0 || ^17.0.0",
-    "react-router-dom": "^5.2.0",
-    "date-fns": "^2.22.1"
+    "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
     "@material-ui/core": "^4.10.2",
