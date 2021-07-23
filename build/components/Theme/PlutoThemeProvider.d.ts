@@ -1,4 +1,7 @@
 import React from "react";
-import { ThemeProviderProps } from "@material-ui/core";
-declare const PlutoThemeProvider: React.FC<ThemeProviderProps>;
+interface PlutoThemeProviderProps {
+    userSettingsUrl?: string;
+    userSettingsKey?: string;
+}
+declare const PlutoThemeProvider: React.FC<PlutoThemeProviderProps>;
 export { PlutoThemeProvider };

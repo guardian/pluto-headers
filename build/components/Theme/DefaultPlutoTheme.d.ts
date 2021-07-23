@@ -1,2 +1,2 @@
-declare const defaultPlutoTheme: import("@material-ui/core").Theme;
+declare const defaultPlutoTheme: (dark: boolean) => import("@material-ui/core/styles").Theme;
 export { defaultPlutoTheme };

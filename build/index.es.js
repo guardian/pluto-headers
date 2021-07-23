@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button, Snackbar, createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button, Snackbar, ThemeProvider } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import { addMinutes, fromUnixTime } from 'date-fns';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { Person, Error as Error$1, CheckCircle } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, createTheme } from '@material-ui/core/styles';
 import axios from 'axios';
 import qs from 'query-string';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -1981,21 +1981,66 @@ const UserContext = React.createContext({
 });
 const UserContextProvider = UserContext.Provider;
 
-const defaultPlutoTheme = createMuiTheme({
-    typography: {
-        fontFamily: '"Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif',
-    },
-    palette: {
+const defaultPlutoTheme = (dark) => {
+    const palette = dark ? {
         type: "dark",
         background: {
             paper: "#424242A0",
+        }
+    } : {
+        type: "light",
+        background: {
+            paper: "#FFFFFFA0",
+        }
+    };
+    return createTheme({
+        typography: {
+            fontFamily: '"Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif',
         },
-    },
-});
+        palette: palette,
+    });
+};
 
 const PlutoThemeProvider = (props) => {
-    const updatedProps = Object.assign({}, { theme: defaultPlutoTheme }, props);
-    return React.createElement(ThemeProvider, { theme: updatedProps }, props.children);
+    var _a, _b;
+    const [loading, setLoading] = useState(true);
+    const [darkMode, setDarkmode] = useState(false);
+    const userSettingsUrl = (_a = props.userSettingsUrl) !== null && _a !== void 0 ? _a : "/userprefs/api";
+    const userSettingsKey = (_b = props.userSettingsKey) !== null && _b !== void 0 ? _b : "darkmode";
+    const loadUserPrefs = () => __awaiter(void 0, void 0, void 0, function* () {
+        setLoading(true);
+        const response = yield axios.get(`${userSettingsUrl}/getValue/${userSettingsKey}`, { headers: { "Accept": "text/plain" }, validateStatus: () => true });
+        switch (response.status) {
+            case 200:
+                setDarkmode(response.data == "true");
+                setLoading(false);
+                break;
+            case 500:
+                console.error("user preferences service returned a 500 error: ", response.data);
+                setLoading(false);
+                break;
+            case 502 | 503 | 504:
+                console.error("user preferences service is offline");
+                setLoading(false);
+                break;
+            case 403 | 401:
+                console.error("user token is invalid, refresh the page");
+                setLoading(false);
+                break;
+            default:
+                console.error("server returned unexpected ", response.status, " ", response.statusText, ": ", response.data);
+                setLoading(false);
+                break;
+        }
+    });
+    useEffect(() => {
+        loadUserPrefs()
+            .catch(err => {
+            console.error("loadUserPrefs failed: ", err);
+            setLoading(false);
+        });
+    }, []);
+    return loading ? React.createElement("div", null, "...") : React.createElement(ThemeProvider, { theme: defaultPlutoTheme(darkMode) }, props.children);
 };
 
 export { AppSwitcher, Breadcrumb, Header, JwtData, OAuthContext, OAuthContextProvider, PlutoThemeProvider, SystemNotifcationKind, SystemNotification, UserContext, UserContextProvider, defaultPlutoTheme, getRawToken, handleUnauthorized, loadInSigningKey, makeLoginUrl, validateAndDecode, verifyExistingLogin, verifyJwt };

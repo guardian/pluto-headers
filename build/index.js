@@ -1989,21 +1989,66 @@ const UserContext = React__default['default'].createContext({
 });
 const UserContextProvider = UserContext.Provider;
 
-const defaultPlutoTheme = core.createMuiTheme({
-    typography: {
-        fontFamily: '"Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif',
-    },
-    palette: {
+const defaultPlutoTheme = (dark) => {
+    const palette = dark ? {
         type: "dark",
         background: {
             paper: "#424242A0",
+        }
+    } : {
+        type: "light",
+        background: {
+            paper: "#FFFFFFA0",
+        }
+    };
+    return styles.createTheme({
+        typography: {
+            fontFamily: '"Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif',
         },
-    },
-});
+        palette: palette,
+    });
+};
 
 const PlutoThemeProvider = (props) => {
-    const updatedProps = Object.assign({}, { theme: defaultPlutoTheme }, props);
-    return React__default['default'].createElement(core.ThemeProvider, { theme: updatedProps }, props.children);
+    var _a, _b;
+    const [loading, setLoading] = React.useState(true);
+    const [darkMode, setDarkmode] = React.useState(false);
+    const userSettingsUrl = (_a = props.userSettingsUrl) !== null && _a !== void 0 ? _a : "/userprefs/api";
+    const userSettingsKey = (_b = props.userSettingsKey) !== null && _b !== void 0 ? _b : "darkmode";
+    const loadUserPrefs = () => __awaiter(void 0, void 0, void 0, function* () {
+        setLoading(true);
+        const response = yield axios__default['default'].get(`${userSettingsUrl}/getValue/${userSettingsKey}`, { headers: { "Accept": "text/plain" }, validateStatus: () => true });
+        switch (response.status) {
+            case 200:
+                setDarkmode(response.data == "true");
+                setLoading(false);
+                break;
+            case 500:
+                console.error("user preferences service returned a 500 error: ", response.data);
+                setLoading(false);
+                break;
+            case 502 | 503 | 504:
+                console.error("user preferences service is offline");
+                setLoading(false);
+                break;
+            case 403 | 401:
+                console.error("user token is invalid, refresh the page");
+                setLoading(false);
+                break;
+            default:
+                console.error("server returned unexpected ", response.status, " ", response.statusText, ": ", response.data);
+                setLoading(false);
+                break;
+        }
+    });
+    React.useEffect(() => {
+        loadUserPrefs()
+            .catch(err => {
+            console.error("loadUserPrefs failed: ", err);
+            setLoading(false);
+        });
+    }, []);
+    return loading ? React__default['default'].createElement("div", null, "...") : React__default['default'].createElement(core.ThemeProvider, { theme: defaultPlutoTheme(darkMode) }, props.children);
 };
 
 exports.AppSwitcher = AppSwitcher;
