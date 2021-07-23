@@ -1,10 +1,11 @@
-import React, {useState, useEffect, useRef} from "react";
-import {Button, Grid, Tooltip, Typography} from "@material-ui/core";
+import React, {useState, useEffect, useRef, useContext} from "react";
+import {Button, Grid, IconButton, Tooltip, Typography} from "@material-ui/core";
 import {JwtDataShape} from "../../utils/DecodedProfile";
 import {CircularProgress} from "@material-ui/core";
-import {Error, CheckCircle, Person} from "@material-ui/icons";
+import {Error, CheckCircle, Person, Brightness7, Brightness4} from "@material-ui/icons";
 import {refreshLogin} from "../../utils/OAuth2Helper";
 import {makeStyles} from "@material-ui/core/styles";
+import CustomisingThemeContext from "../Theme/CustomisingThemeContext";
 
 interface LoginComponentProps {
     refreshToken?: string;
@@ -29,6 +30,11 @@ const useStyles = makeStyles({
     },
     textOnGrey: {
         color: "black"
+    },
+    themeSwitcher: {
+        height: "36px",
+        width: "36px",
+        padding: "6px"
     }
 });
 
@@ -44,14 +50,10 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
 
     const classes = useStyles();
 
+    const themeContext = useContext(CustomisingThemeContext);
+
     useEffect(()=>{
         const intervalTimerId = window.setInterval(checkExpiryHandler, props.checkInterval ?? 60000);
-        // try {
-        //     checkExpiryHandler();
-        // } catch(err) {
-        //     //ensure that we log errors but don't let it stop us returning the un-install hook
-        //     console.error("Could not check for expiry: ", err);
-        // }
 
         return (()=>{
             console.log("removing checkExpiryHandler")
@@ -136,8 +138,10 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         }
     };
 
+    const toggleThemeMode = ()=>themeContext.changeDarkMode(!themeContext.darkMode);
+
     return (
-        <Grid container className="login-block" direction="row" spacing={2} alignItems="center" justify="flex-end">
+        <Grid container className="login-block" direction="row" spacing={1} alignItems="center" justify="flex-end">
             <Grid item>
                 <Grid container spacing={0} alignItems="flex-start" justify="flex-end">
                     <Grid item style={{marginRight: "0.2em"}}>
@@ -145,6 +149,13 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                     <Grid item><Person className={classes.textOnGrey}/></Grid>
                     <Grid item><Typography className="username">{props.loginData.preferred_username ?? props.loginData.username}</Typography></Grid>
                 </Grid>
+            </Grid>
+            <Grid item>
+                <IconButton onClick={toggleThemeMode} className={classes.themeSwitcher}>
+                    {
+                        themeContext.darkMode ? <Brightness7/> : <Brightness4/>
+                    }
+                </IconButton>
             </Grid>
             {
                 refreshInProgress ?

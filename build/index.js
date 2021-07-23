@@ -1296,6 +1296,9 @@ const refreshLogin = (tokenUri) => new Promise((resolve, reject) => {
     performRefresh().catch(err => reject(err.toString()));
 });
 
+const CustomisingThemeContext = React__default['default'].createContext({ darkMode: false, changeDarkMode: () => { } });
+const CustomisingThemeContextProvider = CustomisingThemeContext.Provider;
+
 const useStyles = styles.makeStyles({
     inlineIcon: {
         padding: 0,
@@ -1307,6 +1310,11 @@ const useStyles = styles.makeStyles({
     },
     textOnGrey: {
         color: "black"
+    },
+    themeSwitcher: {
+        height: "36px",
+        width: "36px",
+        padding: "6px"
     }
 });
 const LoginComponent = (props) => {
@@ -1319,15 +1327,10 @@ const LoginComponent = (props) => {
     const tokenUriRef = React.useRef(props.tokenUri);
     const overrideRefreshLoginRef = React.useRef(props.overrideRefreshLogin);
     const classes = useStyles();
+    const themeContext = React.useContext(CustomisingThemeContext);
     React.useEffect(() => {
         var _a;
         const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
-        // try {
-        //     checkExpiryHandler();
-        // } catch(err) {
-        //     //ensure that we log errors but don't let it stop us returning the un-install hook
-        //     console.error("Could not check for expiry: ", err);
-        // }
         return (() => {
             console.log("removing checkExpiryHandler");
             window.clearInterval(intervalTimerId);
@@ -1406,7 +1409,8 @@ const LoginComponent = (props) => {
             console.log("no login data present for expiry check");
         }
     };
-    return (React__default['default'].createElement(core.Grid, { container: true, className: "login-block", direction: "row", spacing: 2, alignItems: "center", justify: "flex-end" },
+    const toggleThemeMode = () => themeContext.changeDarkMode(!themeContext.darkMode);
+    return (React__default['default'].createElement(core.Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justify: "flex-end" },
         React__default['default'].createElement(core.Grid, { item: true },
             React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-start", justify: "flex-end" },
                 React__default['default'].createElement(core.Grid, { item: true, style: { marginRight: "0.2em" } },
@@ -1415,6 +1419,8 @@ const LoginComponent = (props) => {
                     React__default['default'].createElement(icons.Person, { className: classes.textOnGrey })),
                 React__default['default'].createElement(core.Grid, { item: true },
                     React__default['default'].createElement(core.Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
+        React__default['default'].createElement(core.Grid, { item: true },
+            React__default['default'].createElement(core.IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React__default['default'].createElement(icons.Brightness7, null) : React__default['default'].createElement(icons.Brightness4, null))),
         refreshInProgress ?
             React__default['default'].createElement(core.Grid, { item: true, id: "refresh-in-progress" },
                 React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
@@ -2048,7 +2054,8 @@ const PlutoThemeProvider = (props) => {
             setLoading(false);
         });
     }, []);
-    return loading ? React__default['default'].createElement("div", null, "...") : React__default['default'].createElement(core.ThemeProvider, { theme: defaultPlutoTheme(darkMode) }, props.children);
+    return loading ? React__default['default'].createElement("div", null, "...") : React__default['default'].createElement(core.ThemeProvider, { theme: defaultPlutoTheme(darkMode) },
+        React__default['default'].createElement(CustomisingThemeContext.Provider, { value: { darkMode: darkMode, changeDarkMode: setDarkmode } }, props.children));
 };
 
 exports.AppSwitcher = AppSwitcher;

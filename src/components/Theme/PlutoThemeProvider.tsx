@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {defaultPlutoTheme} from "./DefaultPlutoTheme";
 import {ThemeProvider, ThemeProviderProps} from "@material-ui/core";
 import axios from "axios";
+import CustomisingThemeContext from "./CustomisingThemeContext";
 
 interface PlutoThemeProviderProps {
     userSettingsUrl?: string;
@@ -51,9 +52,11 @@ const PlutoThemeProvider:React.FC<PlutoThemeProviderProps> = (props) => {
     }, []);
 
     return loading ? <div>...</div> : <ThemeProvider theme={defaultPlutoTheme(darkMode)}>
-        {
-            props.children
-        }
+        <CustomisingThemeContext.Provider value={{darkMode: darkMode, changeDarkMode: setDarkmode}}>
+            {
+                props.children
+            }
+        </CustomisingThemeContext.Provider>
     </ThemeProvider>
 }
 

@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect, createElement } from 'react';
+import React, { useState, useRef, useContext, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, Grid, Typography, CircularProgress, Tooltip, Button, Snackbar, ThemeProvider } from '@material-ui/core';
+import { Menu, MenuItem, Grid, Typography, IconButton, CircularProgress, Tooltip, Button, Snackbar, ThemeProvider } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import { addMinutes, fromUnixTime } from 'date-fns';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { Person, Error as Error$1, CheckCircle } from '@material-ui/icons';
+import { Person, Brightness7, Brightness4, Error as Error$1, CheckCircle } from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import axios from 'axios';
 import qs from 'query-string';
@@ -1283,6 +1283,9 @@ const refreshLogin = (tokenUri) => new Promise((resolve, reject) => {
     performRefresh().catch(err => reject(err.toString()));
 });
 
+const CustomisingThemeContext = React.createContext({ darkMode: false, changeDarkMode: () => { } });
+const CustomisingThemeContextProvider = CustomisingThemeContext.Provider;
+
 const useStyles = makeStyles({
     inlineIcon: {
         padding: 0,
@@ -1294,6 +1297,11 @@ const useStyles = makeStyles({
     },
     textOnGrey: {
         color: "black"
+    },
+    themeSwitcher: {
+        height: "36px",
+        width: "36px",
+        padding: "6px"
     }
 });
 const LoginComponent = (props) => {
@@ -1306,15 +1314,10 @@ const LoginComponent = (props) => {
     const tokenUriRef = useRef(props.tokenUri);
     const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
     const classes = useStyles();
+    const themeContext = useContext(CustomisingThemeContext);
     useEffect(() => {
         var _a;
         const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
-        // try {
-        //     checkExpiryHandler();
-        // } catch(err) {
-        //     //ensure that we log errors but don't let it stop us returning the un-install hook
-        //     console.error("Could not check for expiry: ", err);
-        // }
         return (() => {
             console.log("removing checkExpiryHandler");
             window.clearInterval(intervalTimerId);
@@ -1393,7 +1396,8 @@ const LoginComponent = (props) => {
             console.log("no login data present for expiry check");
         }
     };
-    return (React.createElement(Grid, { container: true, className: "login-block", direction: "row", spacing: 2, alignItems: "center", justify: "flex-end" },
+    const toggleThemeMode = () => themeContext.changeDarkMode(!themeContext.darkMode);
+    return (React.createElement(Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justify: "flex-end" },
         React.createElement(Grid, { item: true },
             React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-start", justify: "flex-end" },
                 React.createElement(Grid, { item: true, style: { marginRight: "0.2em" } },
@@ -1402,6 +1406,8 @@ const LoginComponent = (props) => {
                     React.createElement(Person, { className: classes.textOnGrey })),
                 React.createElement(Grid, { item: true },
                     React.createElement(Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
+        React.createElement(Grid, { item: true },
+            React.createElement(IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React.createElement(Brightness7, null) : React.createElement(Brightness4, null))),
         refreshInProgress ?
             React.createElement(Grid, { item: true, id: "refresh-in-progress" },
                 React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
@@ -2040,7 +2046,8 @@ const PlutoThemeProvider = (props) => {
             setLoading(false);
         });
     }, []);
-    return loading ? React.createElement("div", null, "...") : React.createElement(ThemeProvider, { theme: defaultPlutoTheme(darkMode) }, props.children);
+    return loading ? React.createElement("div", null, "...") : React.createElement(ThemeProvider, { theme: defaultPlutoTheme(darkMode) },
+        React.createElement(CustomisingThemeContext.Provider, { value: { darkMode: darkMode, changeDarkMode: setDarkmode } }, props.children));
 };
 
 export { AppSwitcher, Breadcrumb, Header, JwtData, OAuthContext, OAuthContextProvider, PlutoThemeProvider, SystemNotifcationKind, SystemNotification, UserContext, UserContextProvider, defaultPlutoTheme, getRawToken, handleUnauthorized, loadInSigningKey, makeLoginUrl, validateAndDecode, verifyExistingLogin, verifyJwt };
