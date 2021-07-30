@@ -1991,12 +1991,12 @@ const defaultPlutoTheme = (dark) => {
     const palette = dark ? {
         type: "dark",
         background: {
-            paper: "#424242A0",
+            paper: "#424242EA",
         }
     } : {
         type: "light",
         background: {
-            paper: "#FFFFFFA0",
+            paper: "#FFFFFFEA",
         }
     };
     return createTheme({

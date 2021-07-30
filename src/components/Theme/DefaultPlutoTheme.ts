@@ -5,12 +5,12 @@ const defaultPlutoTheme = (dark:boolean)=>{
     const palette = dark ? {
             type: "dark",
             background: {
-                paper: "#424242A0",
+                paper: "#424242EA",
             }
         } as PaletteOptions: {
             type: "light",
             background: {
-                paper: "#FFFFFFA0",
+                paper: "#FFFFFFEA",
             }
         } as PaletteOptions
 
