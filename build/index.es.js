@@ -1283,7 +1283,9 @@ const refreshLogin = (tokenUri) => new Promise((resolve, reject) => {
     performRefresh().catch(err => reject(err.toString()));
 });
 
-const CustomisingThemeContext = React.createContext({ darkMode: false, changeDarkMode: () => { } });
+const CustomisingThemeContext = React.createContext({
+    darkMode: !(localStorage.getItem("pluto-dark-mode") && localStorage.getItem("pluto-dark-mode") == "false"), changeDarkMode: () => { }
+});
 const CustomisingThemeContextProvider = CustomisingThemeContext.Provider;
 
 const useStyles = makeStyles({
@@ -1407,7 +1409,7 @@ const LoginComponent = (props) => {
                 React.createElement(Grid, { item: true },
                     React.createElement(Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
         React.createElement(Grid, { item: true },
-            React.createElement(IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React.createElement(Brightness7, null) : React.createElement(Brightness4, null))),
+            React.createElement(IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React.createElement(Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React.createElement(Brightness4, null))),
         refreshInProgress ?
             React.createElement(Grid, { item: true, id: "refresh-in-progress" },
                 React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
@@ -1996,7 +1998,7 @@ const defaultPlutoTheme = (dark) => {
     } : {
         type: "light",
         background: {
-            paper: "#FFFFFFEA",
+            paper: "#FBFBFBEA",
         }
     };
     return createTheme({
@@ -2008,46 +2010,13 @@ const defaultPlutoTheme = (dark) => {
 };
 
 const PlutoThemeProvider = (props) => {
-    var _a, _b;
-    const [loading, setLoading] = useState(true);
-    const [darkMode, setDarkmode] = useState(false);
-    const userSettingsUrl = (_a = props.userSettingsUrl) !== null && _a !== void 0 ? _a : "/userprefs/api";
-    const userSettingsKey = (_b = props.userSettingsKey) !== null && _b !== void 0 ? _b : "darkmode";
-    const loadUserPrefs = () => __awaiter(void 0, void 0, void 0, function* () {
-        setLoading(true);
-        const response = yield axios.get(`${userSettingsUrl}/getValue/${userSettingsKey}`, { headers: { "Accept": "text/plain" }, validateStatus: () => true });
-        switch (response.status) {
-            case 200:
-                setDarkmode(response.data == "true");
-                setLoading(false);
-                break;
-            case 500:
-                console.error("user preferences service returned a 500 error: ", response.data);
-                setLoading(false);
-                break;
-            case 502 | 503 | 504:
-                console.error("user preferences service is offline");
-                setLoading(false);
-                break;
-            case 403 | 401:
-                console.error("user token is invalid, refresh the page");
-                setLoading(false);
-                break;
-            default:
-                console.error("server returned unexpected ", response.status, " ", response.statusText, ": ", response.data);
-                setLoading(false);
-                break;
-        }
-    });
-    useEffect(() => {
-        loadUserPrefs()
-            .catch(err => {
-            console.error("loadUserPrefs failed: ", err);
-            setLoading(false);
-        });
-    }, []);
-    return loading ? React.createElement("div", null, "...") : React.createElement(ThemeProvider, { theme: defaultPlutoTheme(darkMode) },
-        React.createElement(CustomisingThemeContext.Provider, { value: { darkMode: darkMode, changeDarkMode: setDarkmode } }, props.children));
+    const [darkMode, setDarkmode] = useState(!(localStorage.getItem("pluto-dark-mode") && localStorage.getItem("pluto-dark-mode") == "false"));
+    const updateDarkMode = (newValue) => {
+        localStorage.setItem("pluto-dark-mode", newValue ? "true" : "false");
+        setDarkmode(newValue);
+    };
+    return React.createElement(ThemeProvider, { theme: defaultPlutoTheme(darkMode) },
+        React.createElement(CustomisingThemeContext.Provider, { value: { darkMode: darkMode, changeDarkMode: updateDarkMode } }, props.children));
 };
 
 export { AppSwitcher, Breadcrumb, Header, JwtData, OAuthContext, OAuthContextProvider, PlutoThemeProvider, SystemNotifcationKind, SystemNotification, UserContext, UserContextProvider, defaultPlutoTheme, getRawToken, handleUnauthorized, loadInSigningKey, makeLoginUrl, validateAndDecode, verifyExistingLogin, verifyJwt };

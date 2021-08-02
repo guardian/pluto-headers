@@ -153,7 +153,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             <Grid item>
                 <IconButton onClick={toggleThemeMode} className={classes.themeSwitcher}>
                     {
-                        themeContext.darkMode ? <Brightness7/> : <Brightness4/>
+                        themeContext.darkMode ? <Brightness7 style={{color: "rgba(0, 0, 0, 0.54)"}}/> : <Brightness4/>
                     }
                 </IconButton>
             </Grid>

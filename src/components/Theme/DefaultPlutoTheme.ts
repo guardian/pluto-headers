@@ -10,7 +10,7 @@ const defaultPlutoTheme = (dark:boolean)=>{
         } as PaletteOptions: {
             type: "light",
             background: {
-                paper: "#FFFFFFEA",
+                paper: "#FBFBFBEA",
             }
         } as PaletteOptions
 

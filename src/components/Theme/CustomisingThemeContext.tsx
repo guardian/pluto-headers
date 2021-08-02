@@ -5,7 +5,9 @@ interface CustomisingThemeContext {
     changeDarkMode: (newValue:boolean)=>void;
 }
 
-const CustomisingThemeContext = React.createContext<CustomisingThemeContext>({darkMode: false, changeDarkMode: ()=>{}});
+const CustomisingThemeContext = React.createContext<CustomisingThemeContext>({
+    darkMode:  !(localStorage.getItem("pluto-dark-mode") && localStorage.getItem("pluto-dark-mode")=="false"), changeDarkMode: ()=>{}
+});
 
 export const CustomisingThemeContextProvider = CustomisingThemeContext.Provider;
 export default CustomisingThemeContext;

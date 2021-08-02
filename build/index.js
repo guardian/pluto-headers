@@ -1296,7 +1296,9 @@ const refreshLogin = (tokenUri) => new Promise((resolve, reject) => {
     performRefresh().catch(err => reject(err.toString()));
 });
 
-const CustomisingThemeContext = React__default['default'].createContext({ darkMode: false, changeDarkMode: () => { } });
+const CustomisingThemeContext = React__default['default'].createContext({
+    darkMode: !(localStorage.getItem("pluto-dark-mode") && localStorage.getItem("pluto-dark-mode") == "false"), changeDarkMode: () => { }
+});
 const CustomisingThemeContextProvider = CustomisingThemeContext.Provider;
 
 const useStyles = styles.makeStyles({
@@ -1420,7 +1422,7 @@ const LoginComponent = (props) => {
                 React__default['default'].createElement(core.Grid, { item: true },
                     React__default['default'].createElement(core.Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
         React__default['default'].createElement(core.Grid, { item: true },
-            React__default['default'].createElement(core.IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React__default['default'].createElement(icons.Brightness7, null) : React__default['default'].createElement(icons.Brightness4, null))),
+            React__default['default'].createElement(core.IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React__default['default'].createElement(icons.Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React__default['default'].createElement(icons.Brightness4, null))),
         refreshInProgress ?
             React__default['default'].createElement(core.Grid, { item: true, id: "refresh-in-progress" },
                 React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
@@ -2004,7 +2006,7 @@ const defaultPlutoTheme = (dark) => {
     } : {
         type: "light",
         background: {
-            paper: "#FFFFFFEA",
+            paper: "#FBFBFBEA",
         }
     };
     return styles.createTheme({
@@ -2016,46 +2018,13 @@ const defaultPlutoTheme = (dark) => {
 };
 
 const PlutoThemeProvider = (props) => {
-    var _a, _b;
-    const [loading, setLoading] = React.useState(true);
-    const [darkMode, setDarkmode] = React.useState(false);
-    const userSettingsUrl = (_a = props.userSettingsUrl) !== null && _a !== void 0 ? _a : "/userprefs/api";
-    const userSettingsKey = (_b = props.userSettingsKey) !== null && _b !== void 0 ? _b : "darkmode";
-    const loadUserPrefs = () => __awaiter(void 0, void 0, void 0, function* () {
-        setLoading(true);
-        const response = yield axios__default['default'].get(`${userSettingsUrl}/getValue/${userSettingsKey}`, { headers: { "Accept": "text/plain" }, validateStatus: () => true });
-        switch (response.status) {
-            case 200:
-                setDarkmode(response.data == "true");
-                setLoading(false);
-                break;
-            case 500:
-                console.error("user preferences service returned a 500 error: ", response.data);
-                setLoading(false);
-                break;
-            case 502 | 503 | 504:
-                console.error("user preferences service is offline");
-                setLoading(false);
-                break;
-            case 403 | 401:
-                console.error("user token is invalid, refresh the page");
-                setLoading(false);
-                break;
-            default:
-                console.error("server returned unexpected ", response.status, " ", response.statusText, ": ", response.data);
-                setLoading(false);
-                break;
-        }
-    });
-    React.useEffect(() => {
-        loadUserPrefs()
-            .catch(err => {
-            console.error("loadUserPrefs failed: ", err);
-            setLoading(false);
-        });
-    }, []);
-    return loading ? React__default['default'].createElement("div", null, "...") : React__default['default'].createElement(core.ThemeProvider, { theme: defaultPlutoTheme(darkMode) },
-        React__default['default'].createElement(CustomisingThemeContext.Provider, { value: { darkMode: darkMode, changeDarkMode: setDarkmode } }, props.children));
+    const [darkMode, setDarkmode] = React.useState(!(localStorage.getItem("pluto-dark-mode") && localStorage.getItem("pluto-dark-mode") == "false"));
+    const updateDarkMode = (newValue) => {
+        localStorage.setItem("pluto-dark-mode", newValue ? "true" : "false");
+        setDarkmode(newValue);
+    };
+    return React__default['default'].createElement(core.ThemeProvider, { theme: defaultPlutoTheme(darkMode) },
+        React__default['default'].createElement(CustomisingThemeContext.Provider, { value: { darkMode: darkMode, changeDarkMode: updateDarkMode } }, props.children));
 };
 
 exports.AppSwitcher = AppSwitcher;
