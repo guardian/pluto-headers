@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, Grid, Typography, IconButton, CircularProgress, Tooltip, Button, Snackbar, ThemeProvider } from '@material-ui/core';
+import { Menu, MenuItem, Grid, Typography, IconButton, CircularProgress, Tooltip, Button, Link as Link$1, Snackbar, ThemeProvider } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import { addMinutes, fromUnixTime } from 'date-fns';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -1880,11 +1880,11 @@ class Breadcrumb extends React.Component {
             return (React.createElement("div", { className: "breadcrumb-container" },
                 this.state.commissionName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
                     React.createElement("img", { className: "breadcrumb-icon", src: img, alt: "Commission" }),
-                    React.createElement("a", { href: `${(_a = this.props.plutoCoreBaseUri) !== null && _a !== void 0 ? _a : "/pluto-core"}/commission/${(_b = this.props.commissionId) !== null && _b !== void 0 ? _b : this.state.commissionId}`, className: "breadcrumb-text" }, this.state.commissionName),
+                    React.createElement(Link$1, { href: `${(_a = this.props.plutoCoreBaseUri) !== null && _a !== void 0 ? _a : "/pluto-core"}/commission/${(_b = this.props.commissionId) !== null && _b !== void 0 ? _b : this.state.commissionId}`, className: "breadcrumb-text" }, this.state.commissionName),
                     this.state.projectName == "" ? null : React.createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
                 this.state.projectName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
                     React.createElement("img", { className: "breadcrumb-icon", src: img$1, alt: "Project" }),
-                    React.createElement("a", { href: `${(_c = this.props.plutoCoreBaseUri) !== null && _c !== void 0 ? _c : "/pluto-core"}/project/${(_d = this.props.projectId) !== null && _d !== void 0 ? _d : this.state.projectId}`, className: "breadcrumb-text" }, this.state.projectName),
+                    React.createElement(Link$1, { href: `${(_c = this.props.plutoCoreBaseUri) !== null && _c !== void 0 ? _c : "/pluto-core"}/project/${(_d = this.props.projectId) !== null && _d !== void 0 ? _d : this.state.projectId}`, className: "breadcrumb-text" }, this.state.projectName),
                     this.state.masterName == "" ? null : React.createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
                 this.state.masterName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
                     React.createElement("img", { className: "breadcrumb-icon", src: img$2, alt: "Master" }),
