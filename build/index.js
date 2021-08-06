@@ -1412,9 +1412,9 @@ const LoginComponent = (props) => {
         }
     };
     const toggleThemeMode = () => themeContext.changeDarkMode(!themeContext.darkMode);
-    return (React__default['default'].createElement(core.Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justify: "flex-end" },
+    return (React__default['default'].createElement(core.Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justifyContent: "flex-end" },
         React__default['default'].createElement(core.Grid, { item: true },
-            React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-start", justify: "flex-end" },
+            React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-start", justifyContent: "flex-end" },
                 React__default['default'].createElement(core.Grid, { item: true, style: { marginRight: "0.2em" } },
                     React__default['default'].createElement(core.Typography, { className: classes.textOnGrey }, "You are logged in as")),
                 React__default['default'].createElement(core.Grid, { item: true },
@@ -1425,7 +1425,7 @@ const LoginComponent = (props) => {
             React__default['default'].createElement(core.IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React__default['default'].createElement(icons.Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React__default['default'].createElement(icons.Brightness4, null))),
         refreshInProgress ?
             React__default['default'].createElement(core.Grid, { item: true, id: "refresh-in-progress" },
-                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justifyContent: "flex-end" },
                     React__default['default'].createElement(core.Grid, { item: true },
                         React__default['default'].createElement(core.CircularProgress, { className: classes.inlineIcon })),
                     React__default['default'].createElement(core.Grid, { item: true },
@@ -1433,7 +1433,7 @@ const LoginComponent = (props) => {
             : null,
         refreshFailed ?
             React__default['default'].createElement(core.Grid, { item: true },
-                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end", id: "refresh-failed" },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justifyContent: "flex-end", id: "refresh-failed" },
                     React__default['default'].createElement(core.Grid, { item: true },
                         React__default['default'].createElement(icons.Error, { style: { color: "red" }, className: classes.inlineIcon })),
                     React__default['default'].createElement(core.Grid, { item: true },
@@ -1444,7 +1444,7 @@ const LoginComponent = (props) => {
             : null,
         refreshed ?
             React__default['default'].createElement(core.Grid, { item: true, id: "refresh-success" },
-                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "center", justify: "flex-end" },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "center", justifyContent: "flex-end" },
                     React__default['default'].createElement(core.Grid, { item: true },
                         React__default['default'].createElement(icons.CheckCircle, { style: { color: "green" }, className: classes.inlineIcon })),
                     React__default['default'].createElement(core.Grid, { item: true },

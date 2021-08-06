@@ -141,9 +141,9 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     const toggleThemeMode = ()=>themeContext.changeDarkMode(!themeContext.darkMode);
 
     return (
-        <Grid container className="login-block" direction="row" spacing={1} alignItems="center" justify="flex-end">
+        <Grid container className="login-block" direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
             <Grid item>
-                <Grid container spacing={0} alignItems="flex-start" justify="flex-end">
+                <Grid container spacing={0} alignItems="flex-start" justifyContent="flex-end">
                     <Grid item style={{marginRight: "0.2em"}}>
                         <Typography className={classes.textOnGrey}>You are logged in as</Typography></Grid>
                     <Grid item><Person className={classes.textOnGrey}/></Grid>
@@ -160,7 +160,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             {
                 refreshInProgress ?
                     <Grid item id="refresh-in-progress">
-                        <Grid container spacing={0} alignItems="flex-end" justify="flex-end">
+                        <Grid container spacing={0} alignItems="flex-end" justifyContent="flex-end">
                             <Grid item><CircularProgress className={classes.inlineIcon}/></Grid>
                             <Grid item><Typography>Refreshing your login...</Typography></Grid>
                         </Grid>
@@ -170,7 +170,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             {
                 refreshFailed ?
                     <Grid item>
-                        <Grid container spacing={0} alignItems="flex-end" justify="flex-end" id="refresh-failed">
+                        <Grid container spacing={0} alignItems="flex-end" justifyContent="flex-end" id="refresh-failed">
                             <Grid item><Error style={{color:"red"}} className={classes.inlineIcon}/></Grid>
                             <Grid item>
                                 <Tooltip title="Could not refresh login, try logging out and logging in again">
@@ -184,7 +184,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             {
                 refreshed ?
                     <Grid item id="refresh-success">
-                        <Grid container spacing={0} alignItems="center" justify="flex-end">
+                        <Grid container spacing={0} alignItems="center" justifyContent="flex-end">
                             <Grid item><CheckCircle style={{color:"green"}} className={classes.inlineIcon}/></Grid>
                             <Grid item><Typography>Token refreshed</Typography></Grid>
                         </Grid>

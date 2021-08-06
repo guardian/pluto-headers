@@ -1399,9 +1399,9 @@ const LoginComponent = (props) => {
         }
     };
     const toggleThemeMode = () => themeContext.changeDarkMode(!themeContext.darkMode);
-    return (React.createElement(Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justify: "flex-end" },
+    return (React.createElement(Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justifyContent: "flex-end" },
         React.createElement(Grid, { item: true },
-            React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-start", justify: "flex-end" },
+            React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-start", justifyContent: "flex-end" },
                 React.createElement(Grid, { item: true, style: { marginRight: "0.2em" } },
                     React.createElement(Typography, { className: classes.textOnGrey }, "You are logged in as")),
                 React.createElement(Grid, { item: true },
@@ -1412,7 +1412,7 @@ const LoginComponent = (props) => {
             React.createElement(IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React.createElement(Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React.createElement(Brightness4, null))),
         refreshInProgress ?
             React.createElement(Grid, { item: true, id: "refresh-in-progress" },
-                React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
+                React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justifyContent: "flex-end" },
                     React.createElement(Grid, { item: true },
                         React.createElement(CircularProgress, { className: classes.inlineIcon })),
                     React.createElement(Grid, { item: true },
@@ -1420,7 +1420,7 @@ const LoginComponent = (props) => {
             : null,
         refreshFailed ?
             React.createElement(Grid, { item: true },
-                React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end", id: "refresh-failed" },
+                React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justifyContent: "flex-end", id: "refresh-failed" },
                     React.createElement(Grid, { item: true },
                         React.createElement(Error$1, { style: { color: "red" }, className: classes.inlineIcon })),
                     React.createElement(Grid, { item: true },
@@ -1431,7 +1431,7 @@ const LoginComponent = (props) => {
             : null,
         refreshed ?
             React.createElement(Grid, { item: true, id: "refresh-success" },
-                React.createElement(Grid, { container: true, spacing: 0, alignItems: "center", justify: "flex-end" },
+                React.createElement(Grid, { container: true, spacing: 0, alignItems: "center", justifyContent: "flex-end" },
                     React.createElement(Grid, { item: true },
                         React.createElement(CheckCircle, { style: { color: "green" }, className: classes.inlineIcon })),
                     React.createElement(Grid, { item: true },
