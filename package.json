@@ -25,13 +25,18 @@
     ],
     "verbose": true,
     "moduleNameMapper": {
-      "\\.(css|less|png|svg)$": "identity-obj-proxy"
+      "\\.png$": "<rootDir>/__tests__/imagemock.js",
+      "\\.(css|less|svg)$": "identity-obj-proxy"
     },
     "resolver": null,
     "transform": {
       "^.+\\.[jt]sx?$": "ts-jest",
       "^.+\\.js$": "ts-jest"
     },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "imagemock.js"
+    ],
     "transformIgnorePatterns": [
       "node_modules/(?!(enzyme-cleanup)/)"
     ],
