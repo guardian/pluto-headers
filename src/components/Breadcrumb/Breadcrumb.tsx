@@ -1,11 +1,11 @@
 import React from "react";
 import axios from "axios";
 import "./Breadcrumb.css";
-import iconCommission from "../../static/icon_commission.png";
-import iconProject from "../../static/icon_project.png";
-import iconMaster from "../../static/icon_master.png";
-import iconBreadcrumbArrow from "../../static/breadcrumb_arrow_lightgray.png";
+import IconCommission from "../../static/c.svg";
+import IconProject from "../../static/p.svg";
+import IconMaster from "../../static/m.svg";
 import {Link} from "@material-ui/core";
+import { ChevronRightRounded} from "@material-ui/icons";
 
 /**
  * only one of these needs to be set.  The others will be inferred from the data about it.
@@ -215,33 +215,25 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
         <div className="breadcrumb-container">
           {this.state.commissionName == "" ? null : (
             <div className="breadcrumb">
-              <img
-                className="breadcrumb-icon"
-                src={iconCommission}
-                alt="Commission"
-              />
+              <IconCommission style={{height: "40px", paddingRight: "0.2em"}}/>
               <Link href={`${this.props.plutoCoreBaseUri ?? "/pluto-core"}/commission/${this.props.commissionId ?? this.state.commissionId}`} className="breadcrumb-text">{this.state.commissionName}</Link>
               {
-                this.state.projectName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
+                this.state.projectName=="" ? null : <ChevronRightRounded style={{color: "#888888", height: "40px", width:"40px"}}/>
               }
             </div>
           )}
           {this.state.projectName == "" ? null : (
             <div className="breadcrumb">
-              <img
-                className="breadcrumb-icon"
-                src={iconProject}
-                alt="Project"
-              />
+              <IconProject style={{height: "40px", paddingRight: "0.2em"}}/>
               <Link href={`${this.props.plutoCoreBaseUri ?? "/pluto-core"}/project/${this.props.projectId ?? this.state.projectId}`} className="breadcrumb-text">{this.state.projectName}</Link>
               {
-                this.state.masterName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
+                this.state.masterName=="" ? null : <ChevronRightRounded style={{color: "#888888", height: "40px", width:"40px"}}/>
               }
             </div>
           )}
           {this.state.masterName == "" ? null : (
             <div className="breadcrumb">
-              <img className="breadcrumb-icon" src={iconMaster} alt="Master" />
+              <IconMaster style={{height: "40px", paddingRight: "0.2em"}}/>
               <p className="breadcrumb-text">{this.state.masterName}</p>
             </div>
           )}
