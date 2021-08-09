@@ -10,11 +10,10 @@ describe("Breadcrumb", ()=>{
     it("should load in commission data only if only commission id is set", (done) => {
         const rendered = shallow(<Breadcrumb commissionId={5}/>);
 
-        return moxios.wait(() => {
+        return moxios.wait(async () => {
             const request = moxios.requests.mostRecent()
             expect(request.config.url).toEqual("/pluto-core/api/pluto/commission/5");
-            request
-                .respondWith({
+            await request.respondWith({
                     status: 200,
                     response: {
                         "status": "ok",
@@ -24,31 +23,30 @@ describe("Breadcrumb", ()=>{
                         }
                     }
                 })
-                .then(() => {
-                    try {
-                        const container = rendered.find("div.breadcrumb-container");
-                        expect(container.length).toEqual(1);
-                        expect(container.children().length).toEqual(1);
-                        const crumb = container.childAt(0);
-                        const commText = crumb.find("a");
-                        expect(commText.text()).toEqual("My commission title");
-                        expect(commText.prop("href")).toEqual("/pluto-core/commission/5")
-                        done();
-                    } catch(err) {
-                        done.fail(err);
-                    }
-                })
+
+            try {
+                const container = rendered.find("div.breadcrumb-container");
+                expect(container.length).toEqual(1);
+                expect(container.children().length).toEqual(1);
+                const crumb = container.childAt(0);
+                console.log(crumb)
+                const commText = crumb.find("a");
+                expect(commText.text()).toEqual("My commission title");
+                expect(commText.prop("href")).toEqual("/pluto-core/commission/5")
+                done();
+            } catch(err) {
+                done.fail(err);
+            }
         })
     });
 
     it("should load in commission and project if only project id is set", (done) => {
         const rendered = shallow(<Breadcrumb projectId={5}/>);
 
-        return moxios.wait(() => {
+        return moxios.wait(async () => {
             const request = moxios.requests.mostRecent()
             expect(request.config.url).toEqual("/pluto-core/api/project/5");
-            request
-                .respondWith({
+            request.respondWith({
                     status: 200,
                     response: {
                         "status": "ok",
