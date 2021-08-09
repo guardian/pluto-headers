@@ -1296,6 +1296,11 @@ const refreshLogin = (tokenUri) => new Promise((resolve, reject) => {
     performRefresh().catch(err => reject(err.toString()));
 });
 
+const CustomisingThemeContext = React__default['default'].createContext({
+    darkMode: !(localStorage.getItem("pluto-dark-mode") && localStorage.getItem("pluto-dark-mode") == "false"), changeDarkMode: () => { }
+});
+const CustomisingThemeContextProvider = CustomisingThemeContext.Provider;
+
 const useStyles = styles.makeStyles({
     inlineIcon: {
         padding: 0,
@@ -1307,6 +1312,11 @@ const useStyles = styles.makeStyles({
     },
     textOnGrey: {
         color: "black"
+    },
+    themeSwitcher: {
+        height: "36px",
+        width: "36px",
+        padding: "6px"
     }
 });
 const LoginComponent = (props) => {
@@ -1319,15 +1329,10 @@ const LoginComponent = (props) => {
     const tokenUriRef = React.useRef(props.tokenUri);
     const overrideRefreshLoginRef = React.useRef(props.overrideRefreshLogin);
     const classes = useStyles();
+    const themeContext = React.useContext(CustomisingThemeContext);
     React.useEffect(() => {
         var _a;
         const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
-        // try {
-        //     checkExpiryHandler();
-        // } catch(err) {
-        //     //ensure that we log errors but don't let it stop us returning the un-install hook
-        //     console.error("Could not check for expiry: ", err);
-        // }
         return (() => {
             console.log("removing checkExpiryHandler");
             window.clearInterval(intervalTimerId);
@@ -1406,18 +1411,21 @@ const LoginComponent = (props) => {
             console.log("no login data present for expiry check");
         }
     };
-    return (React__default['default'].createElement(core.Grid, { container: true, className: "login-block", direction: "row", spacing: 2, alignItems: "center", justify: "flex-end" },
+    const toggleThemeMode = () => themeContext.changeDarkMode(!themeContext.darkMode);
+    return (React__default['default'].createElement(core.Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justifyContent: "flex-end" },
         React__default['default'].createElement(core.Grid, { item: true },
-            React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-start", justify: "flex-end" },
+            React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-start", justifyContent: "flex-end" },
                 React__default['default'].createElement(core.Grid, { item: true, style: { marginRight: "0.2em" } },
                     React__default['default'].createElement(core.Typography, { className: classes.textOnGrey }, "You are logged in as")),
                 React__default['default'].createElement(core.Grid, { item: true },
                     React__default['default'].createElement(icons.Person, { className: classes.textOnGrey })),
                 React__default['default'].createElement(core.Grid, { item: true },
                     React__default['default'].createElement(core.Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
+        React__default['default'].createElement(core.Grid, { item: true },
+            React__default['default'].createElement(core.IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React__default['default'].createElement(icons.Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React__default['default'].createElement(icons.Brightness4, null))),
         refreshInProgress ?
             React__default['default'].createElement(core.Grid, { item: true, id: "refresh-in-progress" },
-                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end" },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justifyContent: "flex-end" },
                     React__default['default'].createElement(core.Grid, { item: true },
                         React__default['default'].createElement(core.CircularProgress, { className: classes.inlineIcon })),
                     React__default['default'].createElement(core.Grid, { item: true },
@@ -1425,7 +1433,7 @@ const LoginComponent = (props) => {
             : null,
         refreshFailed ?
             React__default['default'].createElement(core.Grid, { item: true },
-                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justify: "flex-end", id: "refresh-failed" },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justifyContent: "flex-end", id: "refresh-failed" },
                     React__default['default'].createElement(core.Grid, { item: true },
                         React__default['default'].createElement(icons.Error, { style: { color: "red" }, className: classes.inlineIcon })),
                     React__default['default'].createElement(core.Grid, { item: true },
@@ -1436,7 +1444,7 @@ const LoginComponent = (props) => {
             : null,
         refreshed ?
             React__default['default'].createElement(core.Grid, { item: true, id: "refresh-success" },
-                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "center", justify: "flex-end" },
+                React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "center", justifyContent: "flex-end" },
                     React__default['default'].createElement(core.Grid, { item: true },
                         React__default['default'].createElement(icons.CheckCircle, { style: { color: "green" }, className: classes.inlineIcon })),
                     React__default['default'].createElement(core.Grid, { item: true },
@@ -1885,11 +1893,11 @@ class Breadcrumb extends React__default['default'].Component {
             return (React__default['default'].createElement("div", { className: "breadcrumb-container" },
                 this.state.commissionName == "" ? null : (React__default['default'].createElement("div", { className: "breadcrumb" },
                     React__default['default'].createElement("img", { className: "breadcrumb-icon", src: img, alt: "Commission" }),
-                    React__default['default'].createElement("a", { href: `${(_a = this.props.plutoCoreBaseUri) !== null && _a !== void 0 ? _a : "/pluto-core"}/commission/${(_b = this.props.commissionId) !== null && _b !== void 0 ? _b : this.state.commissionId}`, className: "breadcrumb-text" }, this.state.commissionName),
+                    React__default['default'].createElement(core.Link, { href: `${(_a = this.props.plutoCoreBaseUri) !== null && _a !== void 0 ? _a : "/pluto-core"}/commission/${(_b = this.props.commissionId) !== null && _b !== void 0 ? _b : this.state.commissionId}`, className: "breadcrumb-text" }, this.state.commissionName),
                     this.state.projectName == "" ? null : React__default['default'].createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
                 this.state.projectName == "" ? null : (React__default['default'].createElement("div", { className: "breadcrumb" },
                     React__default['default'].createElement("img", { className: "breadcrumb-icon", src: img$1, alt: "Project" }),
-                    React__default['default'].createElement("a", { href: `${(_c = this.props.plutoCoreBaseUri) !== null && _c !== void 0 ? _c : "/pluto-core"}/project/${(_d = this.props.projectId) !== null && _d !== void 0 ? _d : this.state.projectId}`, className: "breadcrumb-text" }, this.state.projectName),
+                    React__default['default'].createElement(core.Link, { href: `${(_c = this.props.plutoCoreBaseUri) !== null && _c !== void 0 ? _c : "/pluto-core"}/project/${(_d = this.props.projectId) !== null && _d !== void 0 ? _d : this.state.projectId}`, className: "breadcrumb-text" }, this.state.projectName),
                     this.state.masterName == "" ? null : React__default['default'].createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
                 this.state.masterName == "" ? null : (React__default['default'].createElement("div", { className: "breadcrumb" },
                     React__default['default'].createElement("img", { className: "breadcrumb-icon", src: img$2, alt: "Master" }),
@@ -1989,15 +1997,47 @@ const UserContext = React__default['default'].createContext({
 });
 const UserContextProvider = UserContext.Provider;
 
+const defaultPlutoTheme = (dark) => {
+    const palette = dark ? {
+        type: "dark",
+        background: {
+            paper: "#424242EA",
+        }
+    } : {
+        type: "light",
+        background: {
+            paper: "#FBFBFBEA",
+        }
+    };
+    return styles.createTheme({
+        typography: {
+            fontFamily: '"Guardian Text Sans Web","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif',
+        },
+        palette: palette,
+    });
+};
+
+const PlutoThemeProvider = (props) => {
+    const [darkMode, setDarkmode] = React.useState(!(localStorage.getItem("pluto-dark-mode") && localStorage.getItem("pluto-dark-mode") == "false"));
+    const updateDarkMode = (newValue) => {
+        localStorage.setItem("pluto-dark-mode", newValue ? "true" : "false");
+        setDarkmode(newValue);
+    };
+    return React__default['default'].createElement(core.ThemeProvider, { theme: defaultPlutoTheme(darkMode) },
+        React__default['default'].createElement(CustomisingThemeContext.Provider, { value: { darkMode: darkMode, changeDarkMode: updateDarkMode } }, props.children));
+};
+
 exports.AppSwitcher = AppSwitcher;
 exports.Breadcrumb = Breadcrumb;
 exports.Header = Header;
 exports.JwtData = JwtData;
 exports.OAuthContext = OAuthContext;
 exports.OAuthContextProvider = OAuthContextProvider;
+exports.PlutoThemeProvider = PlutoThemeProvider;
 exports.SystemNotification = SystemNotification;
 exports.UserContext = UserContext;
 exports.UserContextProvider = UserContextProvider;
+exports.defaultPlutoTheme = defaultPlutoTheme;
 exports.getRawToken = getRawToken;
 exports.handleUnauthorized = handleUnauthorized;
 exports.loadInSigningKey = loadInSigningKey;

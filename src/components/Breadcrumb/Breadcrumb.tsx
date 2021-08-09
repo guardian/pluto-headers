@@ -5,6 +5,7 @@ import iconCommission from "../../static/icon_commission.png";
 import iconProject from "../../static/icon_project.png";
 import iconMaster from "../../static/icon_master.png";
 import iconBreadcrumbArrow from "../../static/breadcrumb_arrow_lightgray.png";
+import {Link} from "@material-ui/core";
 
 /**
  * only one of these needs to be set.  The others will be inferred from the data about it.
@@ -219,7 +220,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
                 src={iconCommission}
                 alt="Commission"
               />
-              <a href={`${this.props.plutoCoreBaseUri ?? "/pluto-core"}/commission/${this.props.commissionId ?? this.state.commissionId}`} className="breadcrumb-text">{this.state.commissionName}</a>
+              <Link href={`${this.props.plutoCoreBaseUri ?? "/pluto-core"}/commission/${this.props.commissionId ?? this.state.commissionId}`} className="breadcrumb-text">{this.state.commissionName}</Link>
               {
                 this.state.projectName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
               }
@@ -232,7 +233,7 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
                 src={iconProject}
                 alt="Project"
               />
-              <a href={`${this.props.plutoCoreBaseUri ?? "/pluto-core"}/project/${this.props.projectId ?? this.state.projectId}`} className="breadcrumb-text">{this.state.projectName}</a>
+              <Link href={`${this.props.plutoCoreBaseUri ?? "/pluto-core"}/project/${this.props.projectId ?? this.state.projectId}`} className="breadcrumb-text">{this.state.projectName}</Link>
               {
                 this.state.masterName=="" ? null : <img className="breadcrumb-arrow" src={iconBreadcrumbArrow} alt=">"/>
               }

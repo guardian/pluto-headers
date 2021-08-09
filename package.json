@@ -25,13 +25,18 @@
     ],
     "verbose": true,
     "moduleNameMapper": {
-      "\\.(css|less|png|svg)$": "identity-obj-proxy"
+      "\\.png$": "<rootDir>/__tests__/imagemock.js",
+      "\\.(css|less|svg)$": "identity-obj-proxy"
     },
     "resolver": null,
     "transform": {
       "^.+\\.[jt]sx?$": "ts-jest",
       "^.+\\.js$": "ts-jest"
     },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "imagemock.js"
+    ],
     "transformIgnorePatterns": [
       "node_modules/(?!(enzyme-cleanup)/)"
     ],
@@ -41,7 +46,7 @@
     ]
   },
   "peerDependencies": {
-    "@material-ui/core": "^4.10.2",
+    "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "axios": "^0.21.1",
@@ -53,7 +58,7 @@
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
-    "@material-ui/core": "^4.10.2",
+    "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@rollup/plugin-commonjs": "^14.0.0",
