@@ -1,10 +1,10 @@
 import React, { useState, useRef, useContext, useEffect, createElement } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, MenuItem, Grid, Typography, IconButton, CircularProgress, Tooltip, Button, Link as Link$1, Snackbar, ThemeProvider } from '@material-ui/core';
+import { Menu, MenuItem, Grid, Typography, Tooltip, IconButton, CircularProgress, Button, Link as Link$1, Snackbar, ThemeProvider } from '@material-ui/core';
 import jwt from 'jsonwebtoken';
 import { addMinutes, fromUnixTime } from 'date-fns';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { Person, Brightness7, Brightness4, Error as Error$1, CheckCircle, ChevronRightRounded } from '@material-ui/icons';
+import { Person, Brightness7, Brightness4, HelpOutline, Error as Error$1, CheckCircle, ChevronRightRounded } from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import axios from 'axios';
 import qs from 'query-string';
@@ -1300,7 +1300,7 @@ const useStyles = makeStyles({
     textOnGrey: {
         color: "black"
     },
-    themeSwitcher: {
+    iconButton: {
         height: "36px",
         width: "36px",
         padding: "6px"
@@ -1399,6 +1399,7 @@ const LoginComponent = (props) => {
         }
     };
     const toggleThemeMode = () => themeContext.changeDarkMode(!themeContext.darkMode);
+    const openDocs = () => window.open("https://docs.google.com/document/d/1QG9mOu_HDBoGqQs7Dly0sxifk4w9vaJiDiWdi3Uk1a8", "_blank");
     return (React.createElement(Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justifyContent: "flex-end" },
         React.createElement(Grid, { item: true },
             React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-start", justifyContent: "flex-end" },
@@ -1409,7 +1410,12 @@ const LoginComponent = (props) => {
                 React.createElement(Grid, { item: true },
                     React.createElement(Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
         React.createElement(Grid, { item: true },
-            React.createElement(IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React.createElement(Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React.createElement(Brightness4, null))),
+            React.createElement(Tooltip, { title: "Switch dark/light theme" },
+                React.createElement(IconButton, { onClick: toggleThemeMode, className: classes.iconButton }, themeContext.darkMode ? React.createElement(Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React.createElement(Brightness4, null)))),
+        React.createElement(Grid, { item: true },
+            React.createElement(Tooltip, { title: "Open pluto guide" },
+                React.createElement(IconButton, { onClick: openDocs, className: classes.iconButton },
+                    React.createElement(HelpOutline, { style: { color: themeContext.darkMode ? "rgba(0,0,0,0.54)" : "inherit" } })))),
         refreshInProgress ?
             React.createElement(Grid, { item: true, id: "refresh-in-progress" },
                 React.createElement(Grid, { container: true, spacing: 0, alignItems: "flex-end", justifyContent: "flex-end" },

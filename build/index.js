@@ -1313,7 +1313,7 @@ const useStyles = styles.makeStyles({
     textOnGrey: {
         color: "black"
     },
-    themeSwitcher: {
+    iconButton: {
         height: "36px",
         width: "36px",
         padding: "6px"
@@ -1412,6 +1412,7 @@ const LoginComponent = (props) => {
         }
     };
     const toggleThemeMode = () => themeContext.changeDarkMode(!themeContext.darkMode);
+    const openDocs = () => window.open("https://docs.google.com/document/d/1QG9mOu_HDBoGqQs7Dly0sxifk4w9vaJiDiWdi3Uk1a8", "_blank");
     return (React__default['default'].createElement(core.Grid, { container: true, className: "login-block", direction: "row", spacing: 1, alignItems: "center", justifyContent: "flex-end" },
         React__default['default'].createElement(core.Grid, { item: true },
             React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-start", justifyContent: "flex-end" },
@@ -1422,7 +1423,12 @@ const LoginComponent = (props) => {
                 React__default['default'].createElement(core.Grid, { item: true },
                     React__default['default'].createElement(core.Typography, { className: "username" }, (_a = props.loginData.preferred_username) !== null && _a !== void 0 ? _a : props.loginData.username)))),
         React__default['default'].createElement(core.Grid, { item: true },
-            React__default['default'].createElement(core.IconButton, { onClick: toggleThemeMode, className: classes.themeSwitcher }, themeContext.darkMode ? React__default['default'].createElement(icons.Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React__default['default'].createElement(icons.Brightness4, null))),
+            React__default['default'].createElement(core.Tooltip, { title: "Switch dark/light theme" },
+                React__default['default'].createElement(core.IconButton, { onClick: toggleThemeMode, className: classes.iconButton }, themeContext.darkMode ? React__default['default'].createElement(icons.Brightness7, { style: { color: "rgba(0, 0, 0, 0.54)" } }) : React__default['default'].createElement(icons.Brightness4, null)))),
+        React__default['default'].createElement(core.Grid, { item: true },
+            React__default['default'].createElement(core.Tooltip, { title: "Open pluto guide" },
+                React__default['default'].createElement(core.IconButton, { onClick: openDocs, className: classes.iconButton },
+                    React__default['default'].createElement(icons.HelpOutline, { style: { color: themeContext.darkMode ? "rgba(0,0,0,0.54)" : "inherit" } })))),
         refreshInProgress ?
             React__default['default'].createElement(core.Grid, { item: true, id: "refresh-in-progress" },
                 React__default['default'].createElement(core.Grid, { container: true, spacing: 0, alignItems: "flex-end", justifyContent: "flex-end" },
