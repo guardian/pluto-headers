@@ -4,7 +4,7 @@ import { Menu, MenuItem, Grid, Typography, IconButton, CircularProgress, Tooltip
 import jwt from 'jsonwebtoken';
 import { addMinutes, fromUnixTime } from 'date-fns';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { Person, Brightness7, Brightness4, Error as Error$1, CheckCircle } from '@material-ui/icons';
+import { Person, Brightness7, Brightness4, Error as Error$1, CheckCircle, ChevronRightRounded } from '@material-ui/icons';
 import { makeStyles, createTheme } from '@material-ui/core/styles';
 import axios from 'axios';
 import qs from 'query-string';
@@ -1701,13 +1701,65 @@ const handleUnauthorized = (plutoConfig, error, failureCallback) => __awaiter(vo
 var css_248z$3 = "@font-face {\n    font-family: \"gnm-font-sans-reg\";\n    src: url(\"/static/Guardian-Ag-Sans-1-Web-Reg.woff\") format('woff');\n}\n\n@font-face {\n    font-family: \"gnm-font-sans-bold\";\n    src: url(\"/static/Guardian-Ag-Sans-1-Web-Bold.woff\") format('woff');\n}\n\n@font-face {\n    font-family: \"gnm-font-egyp-reg\";\n    src: url(\"/static/Guardian-Egyp-Web-Regular.woff\") format('woff');\n}\n\n@font-face {\n    font-family: \"gnm-font-egyp-bold\";\n    src: url(\"/static/Guardian-Egyp-Web-Semibold.woff\") format('woff');\n}\n\ndiv.breadcrumb-container {\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-start;\n    align-items: center;\n    align-content: flex-start;\n}\n\ndiv.breadcrumb {\n    font-family: \"gnm-font-egyp-bold\", Georgia, serif !important;\n    font-size: 1.8rem;\n    display: flex;\n    flex: 1;\n    align-items: center;\n    flex-direction: row;\n    max-width: 400px;\n    min-width: 150px;\n    margin-right: 0.6em;\n}\n\n.breadcrumb-icon {\n    width: 40px;\n    height: 40px;\n    padding-right: 0.2em;\n}\n\n.breadcrumb img.breadcrumb-arrow {\n    margin-left: auto;\n    width: 12px;\n    height: 20px;\n}\n\n.breadcrumb-text {\n    font-weight: 400;\n    margin-bottom: 0;\n    line-height: 1em;\n\n}";
 styleInject(css_248z$3);
 
-const img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gcJCS8ezAp65AAABalJREFUWMPFWGtQlFUYfs53212uctdNHCUugmHeuASCYBYZWZmSZt4GLcfGxqkGb+NMVJpZ+UerEZ3RnIxJs0bBIm8BU+AFlRFRFrkpwSKwCMjiXr/v9CsKdoFvNxafn++cc77nfOec933eh1BK4SioRNF6/Q5tLL6BlqsadNe3wNjZA6vBDADgVAKUvl7wCVFj7KwITEiZhsBpoYQwxOFvEUcI9jS105uHf4PmxyJYeo0AQyAazUPO4ZQCJEmC4KFC5JK5iF6VBo8n/MmIEnyk6z5ekv1tRu0vl8CyLKwmM5wBpxQgWkWEvZSAxOxVu1V+Xlv+N8HavBJamJUDKkpOExsIVsGD5TmkfrkeT6bHE6cIShYrCjftp7V5FyGaLXAFGIFDxOI5mLNzLWE4Vj5BS68Rp5fvpG0VdRDNVrgSLM8haGY40o9sJbybwnYTAwOi2YL8FTtp2816l5MDANFiRWt5LX5dvYtKFuvwBC9s/IrqbjZANFkwWhBNZrSW16JwUw4dkuDt3PO04WwZrEYzRhtWoxk1p0pQfaKY2r2Dj9q7rh5N2DDTUXLq+ChMnDcTQTPC4RUcAMUYDwCAsbMHxk499FoddLfuou70RXRoGocuAAB4NyVWXvx6ndLX80A/gufe3UfrCy7JPlp1fBSSd6yBb0SwrPG3jp5D8daDslJQ+MLZSP1iPek74q46La3NL5FNbtq6BXjl2IeyyTl2Hy3QnCjGw7/aKABwAFB55AwYloUoSsMuEL4wCQnbV9jeIYMJtfmleFDdBIZnMen5GATNCHMu9bAsKo+cRcL25eAkqwjNiSJZyVjh5Y6kTzJt4nptB04t+Qjdd+/3xdor6rEgd7tzD8ZkQdUPv+OZrcvAtJbXUMkkL99NXfsiFN7uNvHibQf7kQOAtht1gBNKqa9YGIxor2yQuKaSSkgyF5qUFmtPSKCxsNwmbnrYi6ItB8C7KQEAuqp7jsksEDSXVoK7X6aBvQw+EEpfT/hHTrCJt9+oA5Xsb/B27gXnH4vZgpYrVYTprG2WNcFD7Q8QW+Ghb+lwWfLurGkGY+zUyxqs8vG0f6ENrqs6hgc9YOTmPjKIHOJUguvKn8FkKxYGg6nb/p92D/J1XYEmBAyr4GWN1Tfr7MYDp4fCmWZIbovAKAe5WwPR29qJnqZ2m7ibv7fd9DMSUPl5gvEJVcue0HCmzG48eUcmvIIDR5ygT9h4MOr4KLBKeRe94lABqJ167Rbog4yC3Zi1cRH8p0yE4KECK/BQ+XkhaEYYnl6bbrdEDnm8KgXGxUym5P61O/RkRrbsxijmvQzEvJ/h8N/Q3b6H42lZ8hsqjsWivE8pEzQ9lAieKtkTr+79CTV5JS5X2G4B3giInsQwIAQRi+eAFTh5toco4dyGvbj0WS7MeoO8DKDtwLV9P8uXWwKPiEUp/0p+vbaDfpe4AdQqOrRLhbc7wl6djfGJT8EvaiJUvp7gVApY9AY80nWjtbwG9y5cR8OZMkgOrM3wHFZe/uaaW8CYWX2SvyhrP60++QdE4+h1c4Plvsg35iLp40zSr6uL3/bmcwzL4XGDFTjEZS0lNm2n0sfzfMrnb4MV+MdIjkfqnncgeLrZ74vDXk4kEa8lQW75G2lyUcueRcgLsWRIZyF511tkXGzkqJJkFTyCk6MxO3s1Gdb6YDgW6Yc3E3VcpEul1H8fxfjEaKTlfEAIyzhgv1lFFG85QO+c/NNlPg0r8Jj8egqSd6yxS06egZlfSos250A0WUbM7WIVPDiBR+qe9QiZH+ecgdlPrHbpQ0p3fV9XfawIhGWcNjRZgYckSZiybB7iNi8lCi/34TWrIya6XttBKw4VQHO80GkTfWrmfLiP9R1ZE92mHksU7RV1kvZyFbRXNOSBphEGXRf+WYsQAlWAD/wmB0MdF0nHxUYiIDqEcUZ5/w3p5l1GD9gwWAAAAABJRU5ErkJggg==";
+function _extends$1() { _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$1.apply(this, arguments); }
 
-const img$1 = "data:image/png;base64,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";
+var _ref$1 = /*#__PURE__*/createElement("circle", {
+  cx: 64,
+  cy: 64,
+  r: 64,
+  fill: "#951b55"
+});
 
-const img$2 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gcJCSoVJq9XKQAABVVJREFUWMPNmVtsVFUUhv+9z2XmnM6lnbZSKy0WpKChtWUoI2IDITGAgq2W2qqNIAImPvigAUkjYIhgRImG4ANEhPCAQlQQ8Ub0QRCl5VKohBBsuUittS0D0+nczm37ABan57SlY1tmJfMwOXvO/vZae/17rzWEMYZBGzOgXD7JYud+gnLxGPTOizC6/WBqBABABAnUkQ4uMw9iXgnsE2dCyC0iIHTQU5HBAOr+Kyz08w5E6veAKSGAUDA12v8Egh1gBojNAdlXBXn6InBp95AhBTSCHce79q3xRk9/A3AcmBpDIkYEO6BrsBfNh6v8zXeoI33l/waMNHzJAnuWA7oOpiUGZpqUtwG8gNSqjbA/+DhJCJDpKgK7l7Now34wXcFwGOFESFMr4a5YR0D52wdksRD8W2qY2nIaTBseuB7jBIh5XniW7CRElE2PTWnFNAVXt9YwpaVx+OEAQFehXjoF/0cLGdPVgQEDu15hWstvwBDtt9tSLS0K9XIDunavYP0Chn/dxaJnDg4oHcMCqUYRadiHyLHPmCWgEew4Hti3emTC2hekriLweS2MkH+ZCbBr/1ovmIE7boaO4IH1W+KyWGtvZp0bZoEZes84/u4JEEYXgkvNjvtQVyaubq6A1t4Ee8EcSMXlEMZMBnWkA1oMautZhA5vR/T0gRsecGRA9lXBNnEW+FHjQKVUGJEAlKZfEDz4PrS282ZpoTwyaw+B8+QSwhhD1xerWPjorjghdle9C9n3jOUiu/auhuSrhpD9QJ+OCB5YDyK5kDJjGQgvWodUCePqpnKorWdNQp5S+gKc898ghGkq2lZNYizaHTeoP8ChtGjjt7i2Y6nZi7IbWWsbCa/8cZIxzaw/oR8/hPbXOUhTqyFk32+Wr2t/QutoBhEkCLlFIJxg4SIGrb0JeqAN1JFh+R7xXq81uRKB2nLG4JXzR0AYQ28B0jovQTu0DdQ1yvTi4HfvofvgB7f2a1Y+Ml773gTZuakM6uWTPd/lqVVwV2+M95Tk6tO7saYjoMql44M+a1k4EL+YtvOWmx299DRyM3F6ZUQf4q1AuVBPqNbeNDQaFg1aTE5MZzz+oxQDnoJ//w5qdPuRrKaH/KBsBM/cQZsSAUUyGyGghLclL6BgB6UOT9LycSnpoPyo+5IXMGs8qDjWd6PaSrrwShDzShi1jX8EVtcsIacQrrI1kIrmm55JJZVImfkSwPHg0nPhnFcLPmuCaZxj9quw3/y9MGYy3BXrTMJMOAGpNZsheZ/sde3SYMsvBS/kFhMiuRgLdsZDFJchZcZS68XlFELIKUSk7hOIYx+CY9bLluPsk2aD8+QgeuoryN6nIE9faJmp0uRyiGOKETmx91Z4HRkQRhdQCkIgT1mApMpmXoRUsuDWhVW/3so63noYzNCSQ/54AXetqj9BnZlTKABwqdlEKqkEEcQ7DyfYIE+rAXVmTomrSZzzah8FFZIgvHY4564gpqKJpqT94H56Q5/X85EKbWr1RhC707oulorLiOStAO4AJBFskH3PwV4wh/TfmzE0+Lc+z2IX6wA1NkKes0HML4Vn8TYCyvXf+gDlkbZkO7Hl+UAEaUQuBGL+dKQt2mqCswa8uSLP0p1EKn5iWPWR8CLkkkp4Fm8nfe39gRuYp/azwJ7XAS02ZG0RwouAYL/RwCycm1gDM25bhq+PDX79dnOk7lMwygEJghJeBAwD8rRn4XhsJaH9VHSDAuypEa63svDhjxGu2514E730RXDurKFtoptLOAPqlUZDaT4K5UI9UdvOwQh2Av++ixBwrkzwWRMhjvMxMc8HIaeAJvI3xD/McB4leLuGsAAAAABJRU5ErkJggg==";
+var _ref2$1 = /*#__PURE__*/createElement("path", {
+  d: "M35.38 63.67C35.38 42.86 48.72 31 68.27 31c7.48 0 14.72.92 18.86 2.3v17.95H79l-3.37-13.34a14.77 14.77 0 00-6.09-.91c-10.24 0-15.88 8-15.88 24.72 0 16.9 6.79 24.15 19.33 24.15 6.67 0 11-1.49 14.72-3.68v5.29c-4.26 5-11 9-22.2 9-20.01-.03-30.13-13.25-30.13-32.81z",
+  fill: "#fff"
+});
 
-const img$3 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAUCAYAAAC58NwRAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gcJCCAXM4y0uAAAAU9JREFUKM+Nkz+KIkEUh79nN4UeoBH8m0nnYp3AE5gLbeI5Zm7gATQ22GQPoCBl1l5ADHZZMNVATAqx30Y2M2O3Mw8KquD73qMe/LherzqbzXS73aqq8t0Joih6u1wuHI9HROSt0+m886Iq/X4fYwzee5xzOOf0lSCqSpqmul6v8d5jjMFay3A4lCIhBLDWCpBLaZoCaJEUPi4/lcKPD2utiIiuVqtSKfw6cjAYCFAqiWrxUna7XS6JCN1ulyRJpFQAcM7pZrMhyzIAWq3Wv0oZfLvd2O/3PBqKCL1e70/hBO89i8VCT6cT9/sdYwyj0Yg4jqXyHVyr1ZhOp7/iOH7+dBGcJAn1ej1fa6UMrlarT3AuFMGTyeQJBgi998zncz2fzy87Pypot9ufOo/HYxqNhpTmIYoigiDI4WazKa/yQJZlv5fL5d/D4bD5SUT/A3usFchwG8zQAAAAAElFTkSuQmCC";
+function SvgC(props) {
+  return /*#__PURE__*/createElement("svg", _extends$1({
+    viewBox: "0 0 128 128"
+  }, props), _ref$1, _ref2$1);
+}
+
+function _extends$2() { _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$2.apply(this, arguments); }
+
+var _ref$2 = /*#__PURE__*/createElement("circle", {
+  cx: 64,
+  cy: 64,
+  r: 64,
+  fill: "#224583"
+});
+
+var _ref2$2 = /*#__PURE__*/createElement("path", {
+  d: "M71.76 93.45a28.51 28.51 0 01-11.15-2.07V109l8.28 2.53v4.6H35.42v-4.6l7.13-2.53V39l-7.24-2.88v-4.31l22.88-3.45 2.19.46v6.67h.69A25.23 25.23 0 0179.24 28c12 0 22.08 8.05 22.08 30.71 0 24.05-13.11 34.74-29.56 34.74zM69.23 37.9a16.93 16.93 0 00-8.62 2.42v44.16a12.41 12.41 0 008 2.42c8.62 0 13.91-6.67 13.91-25.88.05-17.48-4.78-23.12-13.29-23.12z",
+  fill: "#fff"
+});
+
+function SvgP(props) {
+  return /*#__PURE__*/createElement("svg", _extends$2({
+    viewBox: "0 0 128 128"
+  }, props), _ref$2, _ref2$2);
+}
+
+function _extends$3() { _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$3.apply(this, arguments); }
+
+var _ref$3 = /*#__PURE__*/createElement("circle", {
+  cx: 64,
+  cy: 64,
+  r: 64,
+  fill: "#e6711b"
+});
+
+var _ref2$3 = /*#__PURE__*/createElement("path", {
+  d: "M20.73 87.94V41.59l-7.48-2.41v-4.37L36 31.36l2.3.46v6.78h.58c5.65-4.48 11.52-7.6 19.8-7.6 7.13 0 11.73 2.19 14.26 7.71h.46C79.15 34.23 85.59 31 93.75 31 104.33 31 110 36.3 110 47.92v40l7.13 2.53V95H86.28v-4.53l6-2.53V50.56c0-7-3.22-9.66-8.74-9.66a21.89 21.89 0 00-9.43 2.42v44.62l6 2.53V95H50.63v-4.53l6.21-2.53V50.56c0-7-2.88-9.66-8.4-9.66a20.41 20.41 0 00-9.77 2.42v44.62l5.86 2.53V95H13.6v-4.53z",
+  fill: "#fff"
+});
+
+function SvgM(props) {
+  return /*#__PURE__*/createElement("svg", _extends$3({
+    viewBox: "0 0 128 128"
+  }, props), _ref$3, _ref2$3);
+}
 
 class Breadcrumb extends React.Component {
     constructor(props) {
@@ -1879,15 +1931,15 @@ class Breadcrumb extends React.Component {
         else {
             return (React.createElement("div", { className: "breadcrumb-container" },
                 this.state.commissionName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
-                    React.createElement("img", { className: "breadcrumb-icon", src: img, alt: "Commission" }),
+                    React.createElement(SvgC, { style: { height: "40px", paddingRight: "0.2em" } }),
                     React.createElement(Link$1, { href: `${(_a = this.props.plutoCoreBaseUri) !== null && _a !== void 0 ? _a : "/pluto-core"}/commission/${(_b = this.props.commissionId) !== null && _b !== void 0 ? _b : this.state.commissionId}`, className: "breadcrumb-text" }, this.state.commissionName),
-                    this.state.projectName == "" ? null : React.createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
+                    this.state.projectName == "" ? null : React.createElement(ChevronRightRounded, { style: { color: "#888888", height: "40px", width: "40px" } }))),
                 this.state.projectName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
-                    React.createElement("img", { className: "breadcrumb-icon", src: img$1, alt: "Project" }),
+                    React.createElement(SvgP, { style: { height: "40px", paddingRight: "0.2em" } }),
                     React.createElement(Link$1, { href: `${(_c = this.props.plutoCoreBaseUri) !== null && _c !== void 0 ? _c : "/pluto-core"}/project/${(_d = this.props.projectId) !== null && _d !== void 0 ? _d : this.state.projectId}`, className: "breadcrumb-text" }, this.state.projectName),
-                    this.state.masterName == "" ? null : React.createElement("img", { className: "breadcrumb-arrow", src: img$3, alt: ">" }))),
+                    this.state.masterName == "" ? null : React.createElement(ChevronRightRounded, { style: { color: "#888888", height: "40px", width: "40px" } }))),
                 this.state.masterName == "" ? null : (React.createElement("div", { className: "breadcrumb" },
-                    React.createElement("img", { className: "breadcrumb-icon", src: img$2, alt: "Master" }),
+                    React.createElement(SvgM, { style: { height: "40px", paddingRight: "0.2em" } }),
                     React.createElement("p", { className: "breadcrumb-text" }, this.state.masterName)))));
         }
     }

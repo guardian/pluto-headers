@@ -14,6 +14,8 @@ frontend:
   artifacts:
     paths:
       - build/index.js
+      - build/index.es.js
+      - build/index.d.ts
     reports:
       junit: junit.xml
   tags:
