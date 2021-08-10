@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef, useContext} from "react";
 import {Button, Grid, IconButton, Tooltip, Typography} from "@material-ui/core";
 import {JwtDataShape} from "../../utils/DecodedProfile";
 import {CircularProgress} from "@material-ui/core";
-import {Error, CheckCircle, Person, Brightness7, Brightness4} from "@material-ui/icons";
+import {Error, CheckCircle, Person, Brightness7, Brightness4, HelpOutline} from "@material-ui/icons";
 import {refreshLogin} from "../../utils/OAuth2Helper";
 import {makeStyles} from "@material-ui/core/styles";
 import CustomisingThemeContext from "../Theme/CustomisingThemeContext";
@@ -31,7 +31,7 @@ const useStyles = makeStyles({
     textOnGrey: {
         color: "black"
     },
-    themeSwitcher: {
+    iconButton: {
         height: "36px",
         width: "36px",
         padding: "6px"
@@ -139,7 +139,10 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     };
 
     const toggleThemeMode = ()=>themeContext.changeDarkMode(!themeContext.darkMode);
-
+    const openDocs = ()=> window.open(
+        "https://docs.google.com/document/d/1QG9mOu_HDBoGqQs7Dly0sxifk4w9vaJiDiWdi3Uk1a8",
+        "_blank"
+    )
     return (
         <Grid container className="login-block" direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
             <Grid item>
@@ -151,11 +154,20 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                 </Grid>
             </Grid>
             <Grid item>
-                <IconButton onClick={toggleThemeMode} className={classes.themeSwitcher}>
-                    {
-                        themeContext.darkMode ? <Brightness7 style={{color: "rgba(0, 0, 0, 0.54)"}}/> : <Brightness4/>
-                    }
-                </IconButton>
+                <Tooltip title="Switch dark/light theme">
+                    <IconButton onClick={toggleThemeMode} className={classes.iconButton}>
+                        {
+                            themeContext.darkMode ? <Brightness7 style={{color: "rgba(0, 0, 0, 0.54)"}}/> : <Brightness4/>
+                        }
+                    </IconButton>
+                </Tooltip>
+            </Grid>
+            <Grid item>
+                <Tooltip title="Open pluto guide">
+                    <IconButton onClick={openDocs} className={classes.iconButton}>
+                        <HelpOutline style={{color: themeContext.darkMode ? "rgba(0,0,0,0.54)" : "inherit" }}/>
+                    </IconButton>
+                </Tooltip>
             </Grid>
             {
                 refreshInProgress ?
