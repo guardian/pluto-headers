@@ -90,6 +90,49 @@ Usage:
 The optional `plutoCoreBaseUri` parameter allows you to override the relative base url of 
 pluto-core from the default value `/pluto-core`. It's not expected to be of any use in the "real world".
 
+## Icons
+![](src/static/w.svg)
+![Commission](src/static/c.svg) ![Project](src/static/p.svg)
+![Master](src/static/m.svg)
+<img src="src/static/w.svg" width="64" height="64" alt="Working Group">
+
+The icons used in the Breadcrumb are available as separate SVG icons, which can be imported into your components.
+
+In order to make this work, you'll need to set up your module bundler to import and transpile SVG images correctly.
+Our webpack configuration looks like this:
+
+```javascript
+var config = {
+  module: {
+        rules: [
+          {
+            test: /\.svg$/i,
+            use: [
+              {
+                loader: 'url-loader',
+                options: {
+                  generator: (content) => svgToMiniDataUri(content.toString()),
+                },
+              },
+            ],
+          }
+        ]
+    }
+}
+```
+
+With url-loader set up as above, you can use the icon in a component like so:
+
+```typescript jsx
+import IconWorkingGroup from "pluto-headers/src/static/w.svg";
+
+return <div>
+  <img src={IconWorkingGroup} alt="W" style={{width: "32px", height: "32px"}}/>
+</div>
+```
+
+You should always specify a fixed width and height because the raw images render very large
+
 ## SystemNotification
 ![System notification image](doc/SystemNotification.png)
 
