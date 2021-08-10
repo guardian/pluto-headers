@@ -91,10 +91,10 @@ The optional `plutoCoreBaseUri` parameter allows you to override the relative ba
 pluto-core from the default value `/pluto-core`. It's not expected to be of any use in the "real world".
 
 ## Icons
-![](src/static/w.svg)
-![Commission](src/static/c.svg) ![Project](src/static/p.svg)
-![Master](src/static/m.svg)
 <img src="src/static/w.svg" width="64" height="64" alt="Working Group">
+<img src="src/static/c.svg" width="64" height="64" alt="Commission">
+<img src="src/static/p.svg" width="64" height="64" alt="Project">
+<img src="src/static/m.svg" width="64" height="64" alt="Master">
 
 The icons used in the Breadcrumb are available as separate SVG icons, which can be imported into your components.
 
