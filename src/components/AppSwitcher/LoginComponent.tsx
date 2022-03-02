@@ -56,18 +56,14 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         const intervalTimerId = window.setInterval(checkExpiryHandler, props.checkInterval ?? 60000);
 
         return (()=>{
-            console.log("removing checkExpiryHandler")
             window.clearInterval(intervalTimerId);
         })
     }, []);
 
     useEffect(()=>{
-        console.log("refreshFailed was toggled to ", refreshFailed);
         if(refreshFailed) {
-            console.log("setting countdown handler");
             const intervalTimerId = window.setInterval(updateCountdownHandler, 1000);
             return (()=>{
-                console.log("cleared countdown handler");
                 window.clearInterval(intervalTimerId);
             })
         }

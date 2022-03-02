@@ -225,7 +225,6 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
   }
 
   async loadMasterData(): Promise<void> {
-    await this.loadProjectData();
     await this.setStatePromise({ loading: true });
     const url = `/deliverables/api/asset/${this.props.masterId}`;
 
@@ -246,14 +245,16 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
    */
   async loadData() {
     if (this.props.masterId) {
-      this.loadMasterData();  //don't break here; we want project/commission id too
+      await this.loadMasterData();  //don't break here; we want project/commission id too
     }
 
     if (this.props.projectId) {
       return this.loadProjectData();
     } else if (this.props.commissionId) {
       return this.loadCommissionData();
-    } else {
+    }
+
+    if(!this.props.projectId && !this.props.commissionId && !this.props.masterId) {
       console.error(
         "Breadcrumb component has no master, project nor commission id."
       );
