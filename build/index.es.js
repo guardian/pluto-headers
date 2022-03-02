@@ -1321,17 +1321,13 @@ const LoginComponent = (props) => {
         var _a;
         const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
         return (() => {
-            console.log("removing checkExpiryHandler");
             window.clearInterval(intervalTimerId);
         });
     }, []);
     useEffect(() => {
-        console.log("refreshFailed was toggled to ", refreshFailed);
         if (refreshFailed) {
-            console.log("setting countdown handler");
             const intervalTimerId = window.setInterval(updateCountdownHandler, 1000);
             return (() => {
-                console.log("cleared countdown handler");
                 window.clearInterval(intervalTimerId);
             });
         }
@@ -1767,6 +1763,17 @@ function SvgM(props) {
   }, props), _ref$3, _ref2$3);
 }
 
+function file_basename(str) {
+    const xtractor = new RegExp("\/([^\/]*)$");
+    const result = xtractor.exec(str);
+    if (result) {
+        return result[1];
+    }
+    else {
+        return str;
+    }
+}
+
 class Breadcrumb extends React.Component {
     constructor(props) {
         super(props);
@@ -1797,6 +1804,49 @@ class Breadcrumb extends React.Component {
         return new Promise((resolve, reject) => this.setState(newState, () => resolve()));
     }
     /**
+     * Handles an error object returned from axios. This will handle regular HTTP error codes and retry or return a rejected
+     * response as appropriate
+     * @param response err.response, where err is the error object from axios
+     * @param url the url that was called
+     * @param defaultValue return this value if the error was a 404 Not Found
+     * @param cb callback that is invoked after a delay, in order to retry the operation. This is passed standard `resolve`
+     * and `reject` parameters from an enclosing Promise.
+     */
+    handleAxiosError(response, url, defaultValue, cb) {
+        switch (response.status) {
+            case 404:
+                return defaultValue;
+            case 503:
+            case 504:
+                console.info(`${url} is not responding, retrying...`);
+                return new Promise((resolve, reject) => {
+                    window.setTimeout(() => cb(resolve, reject), 2000);
+                });
+        }
+    }
+    plutoDeliverablesLoad(url) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield axios.get(url);
+                if (response.data) {
+                    return response.data;
+                }
+                else {
+                    return undefined;
+                }
+            }
+            catch (err) {
+                if (err.response) {
+                    return this.handleAxiosError(err.response, url, undefined, (resolve, reject) => {
+                        this.plutoDeliverablesLoad(url)
+                            .then((result) => resolve(result))
+                            .catch((err) => reject(err));
+                    });
+                }
+            }
+        });
+    }
+    /**
      * generic function to load in data from either project or commission endpoints in pluto-core
      * @param url url to load
      */
@@ -1819,30 +1869,20 @@ class Breadcrumb extends React.Component {
                 }
             }
             catch (err) {
-                if (err.response) {
-                    switch (err.response.status) {
-                        case 404:
-                            console.info("No data existed for the url ", url);
-                            return {
-                                title: "(none)",
-                            };
-                        case 503:
-                        case 504:
-                            console.info("pluto-core is not responding, retrying...");
-                            return new Promise((resolve, reject) => {
-                                window.setTimeout(() => {
-                                    this.plutoCoreLoad(url)
-                                        .then((result) => resolve(result))
-                                        .catch((err) => reject(err));
-                                }, 2000);
-                            });
-                    }
+                if (err.response) { //the exception is an axios error
+                    return this.handleAxiosError(err.response, url, {
+                        title: "(none)",
+                    }, (resolve, reject) => {
+                        this.plutoCoreLoad(url)
+                            .then((result) => resolve(result))
+                            .catch((err) => reject(err));
+                    });
                 }
-                throw "Could not load pluto-core data";
+                else { //something else bad happened
+                    console.error(err);
+                    throw "Could not load pluto-core data";
+                }
             }
-            return {
-                title: "(none)",
-            }; //we shouldn't get here but the compiler wants a return
         });
     }
     loadCommissionData() {
@@ -1898,8 +1938,17 @@ class Breadcrumb extends React.Component {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.setStatePromise({ loading: true });
             const url = `/deliverables/api/asset/${this.props.masterId}`;
-            console.log("loadMasterData not implemented yet");
-            return this.setStatePromise({ loading: false, hasError: true });
+            try {
+                const deliverableData = yield this.plutoDeliverablesLoad(url);
+                return this.setStatePromise({
+                    loading: false,
+                    masterName: deliverableData ? `${deliverableData.type_string} ${file_basename(deliverableData.filename)}` : "(no master)"
+                });
+            }
+            catch (err) {
+                console.error("Could not load deliverables data: ", err);
+                return this.setStatePromise({ loading: false, hasError: true });
+            }
         });
     }
     /**
@@ -1908,15 +1957,15 @@ class Breadcrumb extends React.Component {
     loadData() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.props.masterId) {
-                return this.loadMasterData();
+                yield this.loadMasterData(); //don't break here; we want project/commission id too
             }
-            else if (this.props.projectId) {
+            if (this.props.projectId) {
                 return this.loadProjectData();
             }
             else if (this.props.commissionId) {
                 return this.loadCommissionData();
             }
-            else {
+            if (!this.props.projectId && !this.props.commissionId && !this.props.masterId) {
                 console.error("Breadcrumb component has no master, project nor commission id.");
             }
         });

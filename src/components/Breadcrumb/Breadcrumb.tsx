@@ -1,11 +1,12 @@
 import React from "react";
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 import "./Breadcrumb.css";
 import IconCommission from "../../static/c.svg";
 import IconProject from "../../static/p.svg";
 import IconMaster from "../../static/m.svg";
 import {Link} from "@material-ui/core";
 import { ChevronRightRounded} from "@material-ui/icons";
+import {file_basename} from "./helperfuncs";
 
 /**
  * only one of these needs to be set.  The others will be inferred from the data about it.
@@ -35,6 +36,30 @@ interface UsefulServerData {
   commissionId?: number;
   title: string;
   workingGroupId?: number;
+}
+
+interface BaseDeliverable {
+  id: bigint;
+  type: number | null;
+  filename: string;
+  size: bigint;
+  access_dt: string;
+  modified_dt: string;
+  changed_dt: string;
+  job_id: string | null;
+  online_item_id: string | null;
+  nearline_item_id: string | null;
+  archive_item_id: string | null;
+  has_ongoing_job: boolean | null;
+  status: bigint;
+  type_string: string | null;
+  version: bigint | null;
+  duration: string | null;
+  size_string: string;
+  status_string: string;
+  atom_id: string | null;
+  absolute_path: string | null;
+  linked_to_lowres: boolean | null;
 }
 
 class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
@@ -78,6 +103,50 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
   }
 
   /**
+   * Handles an error object returned from axios. This will handle regular HTTP error codes and retry or return a rejected
+   * response as appropriate
+   * @param response err.response, where err is the error object from axios
+   * @param url the url that was called
+   * @param defaultValue return this value if the error was a 404 Not Found
+   * @param cb callback that is invoked after a delay, in order to retry the operation. This is passed standard `resolve`
+   * and `reject` parameters from an enclosing Promise.
+   */
+  handleAxiosError(response:AxiosResponse, url:string, defaultValue:any, cb:(resolve: (value?: unknown) => void, reject: (reason?: any) => void)=>void) {
+    switch (response.status) {
+      case 404:
+        return defaultValue;
+      case 503:
+      case 504:
+        console.info(`${url} is not responding, retrying...`);
+
+        return new Promise((resolve, reject) => {
+          window.setTimeout(() => cb(resolve, reject), 2000);
+        });
+      default:
+        break;
+    }
+  }
+
+  async plutoDeliverablesLoad(url: string):Promise<BaseDeliverable|undefined> {
+    try {
+      const response = await axios.get(url);
+      if(response.data) {
+        return response.data as BaseDeliverable;
+      } else {
+        return undefined;
+      }
+    } catch(err) {
+      if(err.response) {
+        return this.handleAxiosError(err.response, url, undefined, (resolve, reject)=>{
+          this.plutoDeliverablesLoad(url)
+              .then((result)=>resolve(result))
+              .catch((err)=>reject(err));
+        })
+      }
+    }
+  }
+
+  /**
    * generic function to load in data from either project or commission endpoints in pluto-core
    * @param url url to load
    */
@@ -96,34 +165,19 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
         };
       }
     } catch (err) {
-      if (err.response) {
-        switch (err.response.status) {
-          case 404:
-            console.info("No data existed for the url ", url);
-            return {
-              title: "(none)",
-            };
-          case 503:
-          case 504:
-            console.info("pluto-core is not responding, retrying...");
-
-            return new Promise((resolve, reject) => {
-              window.setTimeout(() => {
-                this.plutoCoreLoad(url)
-                    .then((result) => resolve(result))
-                    .catch((err) => reject(err));
-              }, 2000);
-            });
-          default:
-            break;
-        }
+      if (err.response) { //the exception is an axios error
+        return this.handleAxiosError(err.response, url, {
+          title: "(none)",
+        }, (resolve,reject)=>{
+            this.plutoCoreLoad(url)
+                .then((result) => resolve(result))
+                .catch((err) => reject(err));
+        })
+      } else {  //something else bad happened
+        console.error(err);
+        throw "Could not load pluto-core data";
       }
-      throw "Could not load pluto-core data";
-      console.error(err);
     }
-    return {
-      title: "(none)",
-    }; //we shouldn't get here but the compiler wants a return
   }
 
   async loadCommissionData(): Promise<void> {
@@ -174,8 +228,16 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
     await this.setStatePromise({ loading: true });
     const url = `/deliverables/api/asset/${this.props.masterId}`;
 
-    console.log("loadMasterData not implemented yet");
-    return this.setStatePromise({ loading: false, hasError: true });
+    try {
+      const deliverableData = await this.plutoDeliverablesLoad(url);
+      return this.setStatePromise({
+        loading: false,
+        masterName: deliverableData ? `${deliverableData.type_string} ${file_basename(deliverableData.filename)}` : "(no master)"
+      });
+    } catch(err) {
+      console.error("Could not load deliverables data: ", err);
+      return this.setStatePromise({loading: false, hasError: true});
+    }
   }
 
   /**
@@ -183,12 +245,16 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
    */
   async loadData() {
     if (this.props.masterId) {
-      return this.loadMasterData();
-    } else if (this.props.projectId) {
+      await this.loadMasterData();  //don't break here; we want project/commission id too
+    }
+
+    if (this.props.projectId) {
       return this.loadProjectData();
     } else if (this.props.commissionId) {
       return this.loadCommissionData();
-    } else {
+    }
+
+    if(!this.props.projectId && !this.props.commissionId && !this.props.masterId) {
       console.error(
         "Breadcrumb component has no master, project nor commission id."
       );
