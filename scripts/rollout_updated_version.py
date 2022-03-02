@@ -18,15 +18,20 @@ logger.level = logging.INFO
 
 
 class ProjectInformation(object):
-    def __init__(self, id:int, name:str, namespaced_name:str):
+    def __init__(self, id:int, name:str, namespaced_name:str, default_branch:str):
         self.id = id
         self.name = name
         self.namespaced_name = namespaced_name
+        self.default_branch = default_branch
 
     @staticmethod
     def from_server_json(jsoncontent:dict):
         try:
-            return ProjectInformation(jsoncontent["id"], jsoncontent["name"], jsoncontent["name_with_namespace"])
+            return ProjectInformation(jsoncontent["id"],
+                                      jsoncontent["name"],
+                                      jsoncontent["name_with_namespace"],
+                                      jsoncontent["default_branch"]
+                                      )
         except KeyError as e:
             logger.error("Could not create project information from server response, was missing {0}".format(e))
             raise ValueError("Incorrect json content")
@@ -43,7 +48,12 @@ class FileInformation(object):
     @staticmethod
     def from_server_json(jsoncontent:dict):
         try:
-            return FileInformation(jsoncontent["id"], jsoncontent["mode"], jsoncontent["name"], jsoncontent["path"], jsoncontent["type"])
+            return FileInformation(jsoncontent["id"],
+                                   jsoncontent["mode"],
+                                   jsoncontent["name"],
+                                   jsoncontent["path"],
+                                   jsoncontent["type"]
+                                   )
         except KeyError as e:
             logger.error("Could not create file information from server response, was missing {0}".format(e))
             raise ValueError("Incorrect json content")
@@ -101,7 +111,7 @@ def find_packagejson(project_id:str, token:str, page_size:int=100) -> List[FileI
     return results
 
 
-def retrieve_file(file:FileInformation, project_id:str, token:str, branch_or_ref:str="master") -> str:
+def retrieve_file(file:FileInformation, project_id:str, token:str, branch_or_ref:str) -> str:
     url = "https://gitlab.com/api/v4/projects/{project_id}/repository/files/{filepath}?ref={branch}".format(
         project_id=urllib.parse.quote(project_id, safe=''),
         filepath=urllib.parse.quote(file.path, safe=''),
@@ -126,7 +136,7 @@ def retrieve_file(file:FileInformation, project_id:str, token:str, branch_or_ref
         raise ValueError("Incorrect encoding")
 
 
-def update_plutoheaders_version(file:FileInformation, project_id:str, token:str, to_version:str, branch_or_ref:str="master") -> (bool, str):
+def update_plutoheaders_version(file:FileInformation, project_id:str, token:str, to_version:str, branch_or_ref:str) -> (bool, str):
     # matcher = re.compile(r"""^(\s+"pluto-headers":\s+"[\w\d:/-]+)#([\w\d\.]+)".""")
     matcher = re.compile(r"""^([\w\d:/.-]+)#([\w\d\.]+)$""")
     content = retrieve_file(file, project_id, token, branch_or_ref)
@@ -156,7 +166,7 @@ def update_plutoheaders_version(file:FileInformation, project_id:str, token:str,
         return False, ""
 
 
-def create_branch(project_id:str, token:str, branch_name:str, source_ref:str="master"):
+def create_branch(project_id:str, token:str, branch_name:str, source_ref:str):
     url = "https://gitlab.com/api/v4/projects/{project_id}/repository/branches?branch={b}&ref={s}".format(
         project_id=project_id,
         b=urllib.parse.quote(branch_name, safe=''),
@@ -196,7 +206,7 @@ def push_file(file:FileInformation, project_id:str, token:str, branch_name:str, 
     logger.info(f"Updated {file.path} in branch {branch_name}")
 
 
-def create_merge_request(project_id:str, token:str, title:str, description:str, branch_name:str, target_branch:str="master"):
+def create_merge_request(project_id:str, token:str, title:str, description:str, branch_name:str, target_branch:str):
     url = f"https://gitlab.com/api/v4/projects/{project_id}/merge_requests"
     request_content = {
         "source_branch": branch_name,
@@ -232,14 +242,14 @@ def find_wanted_version()->str:
     return "v" + package_json_conntent["version"]
 
 
-def process_repo(repo_id:str, token: str, wanted_version:str, dry_run:bool):
+def process_repo(repo_id:str, token: str, wanted_version:str, default_branch:str, dry_run:bool):
     hits = find_packagejson(repo_id, token)
     for h in hits:
         logger.info("Found file {0} - {1}".format(h.id, h.path))
-        did_update, maybe_content = update_plutoheaders_version(h, repo_id, token, wanted_version)
+        did_update, maybe_content = update_plutoheaders_version(h, repo_id, token, wanted_version, default_branch)
         if did_update:
             if dry_run:
-                logger.info(f"Changes would be made to {h.path}")
+                logger.info(f"Changes would be made to {h.path} targeting branch {default_branch}")
                 break
             desc = f"""
             Updates pluto-headers to {wanted_version}.
@@ -247,9 +257,9 @@ def process_repo(repo_id:str, token: str, wanted_version:str, dry_run:bool):
             This merge request was created automatically by rollout_updated_version in the pluto-headers repo.
             """.lstrip()
             new_branch_name = f"plutoheaders-{wanted_version}"
-            create_branch(repo_id, token, new_branch_name)
+            create_branch(repo_id, token, new_branch_name, default_branch)
             push_file(h, repo_id, token, new_branch_name, f"Updating pluto-headers to {wanted_version}", maybe_content)
-            create_merge_request(repo_id, token, "Update pluto-headers version", desc, new_branch_name)
+            create_merge_request(repo_id, token, "Update pluto-headers version", desc, new_branch_name, default_branch)
         else:
             logger.info(f"No updates required for {repo_id}")
 
@@ -258,9 +268,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Creates merge requests on all other prexit components for an update of this component")
     parser.add_argument("--token",type=str,dest="token", help="gitlab api token")
     parser.add_argument("--repo",type=str,dest="repo", help="numeric id of the repo to act on")
-    parser.add_argument("--list-repos", dest="list_repo", action=argparse.BooleanOptionalAction, default=False)
-    parser.add_argument("--all-my-repos", dest="all_repo", action=argparse.BooleanOptionalAction, default=False)
-    parser.add_argument("--dry-run", dest="dry_run", help="Don't make any commits to the repos", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--list-repos", dest="list_repo", action="store_true", default=False)   #BooleanOptionalAction is only py3.9+
+    parser.add_argument("--all-my-repos", dest="all_repo", action="store_true", default=False)
+    parser.add_argument("--dry-run", dest="dry_run", help="Don't make any commits to the repos", action="store_true", default=False)
     args = parser.parse_args()
 
     wanted_version = find_wanted_version()
@@ -268,16 +278,16 @@ if __name__ == "__main__":
     if args.list_repo:
         projects = find_owned_projects(args.token)
         for p in projects:
-            logger.info("Found project {0} - {1}".format(p.id, p.namespaced_name))
+            logger.info("Found project {0} - {1} [{2}]".format(p.id, p.namespaced_name, p.default_branch))
         exit(0)
 
     if args.all_repo:
         projects = find_owned_projects(args.token)
         for p in projects:
-            logger.info("Found project {0} - {1}".format(p.id, p.namespaced_name))
-            process_repo(str(p.id), args.token, wanted_version, args.dry_run)
+            logger.info("Found project {0} - {1} with default branch {2}".format(p.id, p.namespaced_name, p.default_branch))
+            process_repo(str(p.id), args.token, wanted_version, p.default_branch, args.dry_run)
     elif args.repo:
-        process_repo(args.repo, args.token, wanted_version,  args.dry_run)
+        process_repo(args.repo, args.token, wanted_version,p.default_branch, args.dry_run)
     else:
         print("You must specify either --list-repos, --repo {repo-id} or --all-my-repos.\n"+
               "To find a repo-id, run with the --list-repos option.\n"+
