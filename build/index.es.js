@@ -1321,17 +1321,13 @@ const LoginComponent = (props) => {
         var _a;
         const intervalTimerId = window.setInterval(checkExpiryHandler, (_a = props.checkInterval) !== null && _a !== void 0 ? _a : 60000);
         return (() => {
-            console.log("removing checkExpiryHandler");
             window.clearInterval(intervalTimerId);
         });
     }, []);
     useEffect(() => {
-        console.log("refreshFailed was toggled to ", refreshFailed);
         if (refreshFailed) {
-            console.log("setting countdown handler");
             const intervalTimerId = window.setInterval(updateCountdownHandler, 1000);
             return (() => {
-                console.log("cleared countdown handler");
                 window.clearInterval(intervalTimerId);
             });
         }
@@ -1940,7 +1936,6 @@ class Breadcrumb extends React.Component {
     }
     loadMasterData() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.loadProjectData();
             yield this.setStatePromise({ loading: true });
             const url = `/deliverables/api/asset/${this.props.masterId}`;
             try {
@@ -1962,7 +1957,7 @@ class Breadcrumb extends React.Component {
     loadData() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.props.masterId) {
-                this.loadMasterData(); //don't break here; we want project/commission id too
+                yield this.loadMasterData(); //don't break here; we want project/commission id too
             }
             if (this.props.projectId) {
                 return this.loadProjectData();
@@ -1970,7 +1965,7 @@ class Breadcrumb extends React.Component {
             else if (this.props.commissionId) {
                 return this.loadCommissionData();
             }
-            else {
+            if (!this.props.projectId && !this.props.commissionId && !this.props.masterId) {
                 console.error("Breadcrumb component has no master, project nor commission id.");
             }
         });
