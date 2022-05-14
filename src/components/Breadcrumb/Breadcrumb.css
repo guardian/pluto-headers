@@ -35,7 +35,6 @@ div.breadcrumb {
     align-items: center;
     flex-direction: row;
     max-width: inherit !important;
-    min-width: 150px;
     margin-right: 0.6em;
 }
 
