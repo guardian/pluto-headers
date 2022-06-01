@@ -1,6 +1,6 @@
 import React, {useContext} from "react";
 import fetchMock from "jest-fetch-mock";
-import {OAuthContext, OAuthContextProvider} from "../../../src";
+import {generateCodeChallenge, OAuthContext, OAuthContextProvider} from "../../../src/components/Context/OAuthContext";
 import {mount} from "enzyme";
 import {act} from "react-dom/test-utils";
 import sinon from "sinon";
@@ -96,6 +96,43 @@ describe("makeLoginUrl", ()=>{
         };
 
         const result = makeLoginUrl(sampleData);
-        expect(result).toEqual("some-oauth-uri?response_type=code&client_id=some-client&resource=some-resource&redirect_uri=https%3A%2F%2Fsome-redirect%2Furi&state=%2F");
-    })
+        const removeRandomPart = /code_challenge=[a-fA-F0-9]{16,}&/;
+        const resultToTest = result.replace(removeRandomPart, "");
+
+        expect(resultToTest).toEqual("some-oauth-uri?response_type=code&client_id=some-client&redirect_uri=https%3A%2F%2Fsome-redirect%2Furi&state=%2F&resource=some-resource");
+        expect(removeRandomPart.test(result)).toBeTruthy();
+    });
+
+    it("should not include the resource parameter if it's not given", ()=>{
+        const sampleData:OAuthContextData = {
+            clientId: "some-client",
+            oAuthUri: "some-oauth-uri",
+            tokenUri: "some-token-uri",
+            redirectUri: "https://some-redirect/uri"
+        };
+
+        const result = makeLoginUrl(sampleData);
+        const removeRandomPart = /&code_challenge=[a-fA-F0-9]{16,}/;
+        const resultToTest = result.replace(removeRandomPart, "");
+
+        expect(resultToTest).toEqual("some-oauth-uri?response_type=code&client_id=some-client&redirect_uri=https%3A%2F%2Fsome-redirect%2Furi&state=%2F");
+        expect(removeRandomPart.test(result)).toBeTruthy();
+    });
+
+    it("should include the scope parameter if it is given", ()=>{
+        const sampleData:OAuthContextData = {
+            clientId: "some-client",
+            oAuthUri: "some-oauth-uri",
+            scope: "https://graph.microsoft.com/openid",
+            tokenUri: "some-token-uri",
+            redirectUri: "https://some-redirect/uri"
+        };
+
+        const result = makeLoginUrl(sampleData);
+        const removeRandomPart = /code_challenge=[a-fA-F0-9]{16,}&/;
+        const resultToTest = result.replace(removeRandomPart, "");
+
+        expect(resultToTest).toEqual("some-oauth-uri?response_type=code&client_id=some-client&redirect_uri=https%3A%2F%2Fsome-redirect%2Furi&state=%2F&scope=https%3A%2F%2Fgraph.microsoft.com%2Fopenid");
+        expect(removeRandomPart.test(result)).toBeTruthy();
+    });
 })
