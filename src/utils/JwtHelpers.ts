@@ -1,26 +1,58 @@
 import jwt, {JwtPayload} from "jsonwebtoken";
 import {JwtData, JwtDataShape} from "./DecodedProfile";
-
+import {OAuthContextData} from "../components/Context/OAuthContext";
+import {jwksFromUri} from "./jwks";
 /**
  * perform the validation of the token via jsonwebtoken library.
  * if validation fails then the returned promise is rejected
  * if validation succeeds, then the promise only completes once the decoded content has been set into the state.
  * @returns {Promise<object>} Decoded JWT content or rejects with an error
  */
-function verifyJwt(token: string, signingKey: string, refreshToken?: string) {
+function verifyJwt(oauthConfig: OAuthContextData, token: string, refreshToken?: string) {
+  /**
+   * "insert" function for the JWT library to obtain a signing key for verification.
+   *  Either gets the contents of the configurations `jwksUri` for JWKS verification or loads a static signing key
+   * as given by the configuration
+   * @param header JwtHeader provided by the library
+   * @param callback callback function provided by the library
+   */
+  const getKey:jwt.GetPublicKeyOrSecret = (header, callback) => {
+    console.log(oauthConfig);
+    console.log(header);
+    if(oauthConfig.jwksUri && header.kid) { //if we have a jwksUri, then use that
+      // const client = jwksRSA({
+      //   jwksUri: oauthConfig.jwksUri,
+      // });
+      // client.getSigningKey(header.kid, (err:Error, key: { getPublicKey: () => string | Buffer | { key: string | Buffer; passphrase: string; } | undefined; }) => {
+      //   callback(err, key?.getPublicKey())
+      // })
+
+      jwksFromUri(header.kid, header.alg, oauthConfig.jwksUri)
+          .then(rawKey=>{
+            callback(null, new Buffer(rawKey))
+          })
+          .catch(err=>callback(err, undefined))
+
+    } else {  //otherwise, fall back to a static signing key
+      console.log("Falling back to static key verification. Either oauthConfig.jwksUri is not set, or the JWT has no 'kid' parameter")
+      loadInSigningKey()
+          .then(key=>callback(null, key))
+          .catch(err=>callback(err, ""))
+    }
+  }
+
   return new Promise<JwtPayload | undefined>((resolve, reject) => {
-    jwt.verify(token, signingKey, (err, decoded) => {
+    jwt.verify(token, getKey, (err, decoded) => {
       if (err) {
         console.log("token: ", token);
-        console.log("signingKey: ", signingKey);
         console.error("could not verify JWT: ", err);
         reject(err);
+      } else {
+        window.localStorage.setItem("pluto:access-token", token); //it validates so save the token
+        if (refreshToken)
+          window.localStorage.setItem("pluto:refresh-token", refreshToken);
+        resolve(decoded);
       }
-
-      window.localStorage.setItem("pluto:access-token", token); //it validates so save the token
-      if (refreshToken)
-        window.localStorage.setItem("pluto:refresh-token", refreshToken);
-      resolve(decoded);
     });
   });
 }
@@ -78,11 +110,10 @@ function getRawToken() {
 /**
  * helper function that validates and decodes into a user profile a token already existing in the localstorage
  */
-async function verifyExistingLogin(): Promise<JwtDataShape | undefined> {
+async function verifyExistingLogin(oAuthData:OAuthContextData): Promise<JwtDataShape | undefined> {
   const token = getRawToken();
   if (token) {
-    const signingKey = await loadInSigningKey();
-    const jwtPayload = await verifyJwt(token, signingKey);
+    const jwtPayload = await verifyJwt(oAuthData, token);
     return jwtPayload ? JwtData(jwtPayload) : undefined;
   }
 }

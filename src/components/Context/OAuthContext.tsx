@@ -8,15 +8,28 @@ interface OAuthContextData {
   oAuthUri: string;
   tokenUri: string;
   redirectUri: string;
+  jwksUri?: string;
 }
 
 const OAuthContext = React.createContext<OAuthContextData | undefined>(
   undefined
 );
 
+/**
+ * Creates an OAuthContextProvider. This will load in the configuration from the expected path /meta/oauth/config.json
+ * and propagate that data to all child components.
+ * Properties:
+ *  - onError - takes a string description of the error and returns nothing
+ *  - onLoaded - called when the data has been successfully loaded. Passed a copy of the context data and returns nothing. Use this
+ *              to verify a pre-existing token on initial load.
+ *  - children - use this as a child container
+ * @param props
+ * @constructor
+ */
 const OAuthContextProvider: React.FC<{
   children: React.ReactFragment;
   onError?: (desc: string) => void;
+  onLoaded?: (config:OAuthContextData) => void;
 }> = (props) => {
   const [clientId, setClientId] = useState("");
   const [resource, setResource] = useState(undefined);
@@ -24,6 +37,7 @@ const OAuthContextProvider: React.FC<{
   const [tokenUri, setTokenUri] = useState("");
   const [scope, setScope] = useState(undefined);
   const [haveData, setHaveData] = useState(false);
+  const [jwksUri, setJwksUri] = useState<string|undefined>(undefined);
 
   const currentUri = new URL(window.location.href);
   const redirectUrl =
@@ -40,7 +54,11 @@ const OAuthContextProvider: React.FC<{
         setOAuthUri(content.oAuthUri);
         setTokenUri(content.tokenUri);
         setScope(content.scope);
+        setJwksUri(content.jwksUri);
         setHaveData(true);
+        if(props.onLoaded) {
+          props.onLoaded(makeContext())
+        }
         break;
       case 404:
         await response.text(); //consume body and discard it
@@ -63,18 +81,21 @@ const OAuthContextProvider: React.FC<{
     loadOauthData();
   }, []);
 
+  const makeContext = () => ({
+    clientId: clientId,
+        resource: resource,
+        oAuthUri: oAuthUri,
+        tokenUri: tokenUri,
+        redirectUri: redirectUrl,
+        scope: scope,
+        jwksUri: jwksUri
+  })
+
   return (
     <OAuthContext.Provider
       value={
         haveData
-          ? {
-              clientId: clientId,
-              resource: resource,
-              oAuthUri: oAuthUri,
-              tokenUri: tokenUri,
-              redirectUri: redirectUrl,
-              scope: scope,
-            }
+          ? makeContext()
           : undefined
       }
     >
