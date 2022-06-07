@@ -26,6 +26,7 @@ describe("UserContext", ()=>{
         const rendered = mount(<div>
             <UserContextProvider value={{
             profile: fakeProfile,
+                isAdmin: ()=>false,
                 updateProfile: (newValue) => {}
             }}>
                 <ExampleComponent/>
@@ -39,6 +40,7 @@ describe("UserContext", ()=>{
         const rendered = mount(<div>
             <UserContextProvider value={{
                 profile: undefined,
+                isAdmin: ()=>false,
                 updateProfile: (newValue) => {}
             }}>
                 <ExampleComponent/>

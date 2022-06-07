@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { red } from "@material-ui/core/colors";
+import OAuthConfiguration from "../../utils/OAuthConfiguration";
+import {UserContext} from "./UserContext";
 
 interface OAuthContextData {
   clientId: string;
@@ -9,6 +11,7 @@ interface OAuthContextData {
   tokenUri: string;
   redirectUri: string;
   jwksUri?: string;
+  adminClaimName?: string;
 }
 
 const OAuthContext = React.createContext<OAuthContextData | undefined>(
@@ -32,10 +35,11 @@ const OAuthContextProvider: React.FC<{
   onLoaded?: (config:OAuthContextData) => void;
 }> = (props) => {
   const [clientId, setClientId] = useState("");
-  const [resource, setResource] = useState(undefined);
+  const [resource, setResource] = useState<string|undefined>(undefined);
   const [oAuthUri, setOAuthUri] = useState("");
   const [tokenUri, setTokenUri] = useState("");
-  const [scope, setScope] = useState(undefined);
+  const [scope, setScope] = useState<string|undefined>(undefined);
+  const [adminClaimName, setAdminClaimName] = useState<string>("");
   const [haveData, setHaveData] = useState(false);
   const [jwksUri, setJwksUri] = useState<string|undefined>(undefined);
 
@@ -47,14 +51,16 @@ const OAuthContextProvider: React.FC<{
     const response = await fetch("/meta/oauth/config.json");
     switch (response.status) {
       case 200:
-        const content = await response.json();
+        const data = await response.json();
+        const config = new OAuthConfiguration(data); //validates the configuration and throws a VError if it fails
 
-        setClientId(content.clientId);
-        setResource(content.resource);
-        setOAuthUri(content.oAuthUri);
-        setTokenUri(content.tokenUri);
-        setScope(content.scope);
-        setJwksUri(content.jwksUri);
+        setClientId(config.clientId);
+        setResource(config.resource);
+        setOAuthUri(config.oAuthUri);
+        setTokenUri(config.tokenUri);
+        setScope(config.scope);
+        setJwksUri(config.jwksUri);
+        setAdminClaimName(config.adminClaimName);
         setHaveData(true);
         if(props.onLoaded) {
           props.onLoaded(makeContext())
@@ -88,7 +94,8 @@ const OAuthContextProvider: React.FC<{
         tokenUri: tokenUri,
         redirectUri: redirectUrl,
         scope: scope,
-        jwksUri: jwksUri
+        jwksUri: jwksUri,
+    adminClaimName: adminClaimName,
   })
 
   return (
@@ -142,6 +149,12 @@ function makeLoginUrl(oAuthContext: OAuthContextData) {
   return oAuthContext.oAuthUri + "?" + encoded.join("&");
 }
 
+function isAdmin(oAuthContext:OAuthContextData, userProfile:UserContext) {
+  if(userProfile.profile && oAuthContext.adminClaimName) {
+    const maybeValue = userProfile.profile.hasOwnProperty(oAuthContext.adminClaimName);
+    return maybeValue && userProfile.profile.get(oAuthContext.adminClaimName).toLowerCase() == "true"
+  }
+}
 export type { OAuthContextData };
 
-export {OAuthContext, OAuthContextProvider, makeLoginUrl, generateCodeChallenge};
+export {OAuthContext, OAuthContextProvider, makeLoginUrl, generateCodeChallenge, isAdmin};

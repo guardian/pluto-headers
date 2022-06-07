@@ -1,22 +1,21 @@
 import React, {useState, useEffect, useRef, useContext} from "react";
 import {Button, Grid, IconButton, Tooltip, Typography} from "@material-ui/core";
-import {JwtDataShape} from "../../utils/DecodedProfile";
 import {CircularProgress} from "@material-ui/core";
 import {Error, CheckCircle, Person, Brightness7, Brightness4, HelpOutline} from "@material-ui/icons";
 import {refreshLogin} from "../../utils/OAuth2Helper";
 import {makeStyles} from "@material-ui/core/styles";
 import CustomisingThemeContext from "../Theme/CustomisingThemeContext";
+import {OAuthContext} from "../Context/OAuthContext";
+import {UserContext} from "../Context/UserContext";
 
 interface LoginComponentProps {
     refreshToken?: string;
     checkInterval?:number;
-    loginData: JwtDataShape;
     onLoginRefreshed?: ()=>void;
     onLoginCantRefresh?: (reason:string)=>void;
     onLoginExpired: ()=>void;
     onLoggedOut?: ()=>void;
     overrideRefreshLogin?: (tokenUri:string)=>Promise<void>;    //only used for testing
-    tokenUri: string;
 }
 
 const useStyles = makeStyles({
@@ -44,11 +43,12 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     const [refreshed, setRefreshed] = useState<boolean>(false);
     const [loginExpiryCount, setLoginExpiryCount] = useState<string>("");
 
-    let loginDataRef = useRef(props.loginData);
-    const tokenUriRef = useRef(props.tokenUri);
     const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
 
     const classes = useStyles();
+
+    const oAuthContext = useContext(OAuthContext);
+    const userContext = useContext(UserContext);
 
     const themeContext = useContext(CustomisingThemeContext);
 
@@ -69,23 +69,25 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         }
     }, [refreshFailed]);
 
-    useEffect(()=>{
-      loginDataRef.current = props.loginData;
-    }, [props.loginData]);
+    // useEffect(()=>{
+    //   loginDataRef.current = props.loginData;
+    // }, [props.loginData]);
 
     /**
      * called periodically every second once a refresh has failed to alert the user how long they have left
      */
     const updateCountdownHandler = () => {
-        const nowTime = new Date().getTime() / 1000; //assume time is in seconds
-        const expiry = loginDataRef.current.exp;
-        const timeToGo = expiry - nowTime;
+        if(userContext.profile) {
+            const nowTime = new Date().getTime() / 1000; //assume time is in seconds
+            const expiry = userContext.profile.exp;
+            const timeToGo = expiry - nowTime;
 
-        if(timeToGo>1) {
-            setLoginExpiryCount(`expires in ${Math.ceil(timeToGo)}s`);
-        } else {
-            if(props.onLoginExpired) props.onLoginExpired();
-            setLoginExpiryCount("has expired");
+            if (timeToGo > 1) {
+                setLoginExpiryCount(`expires in ${Math.ceil(timeToGo)}s`);
+            } else {
+                if (props.onLoginExpired) props.onLoginExpired();
+                setLoginExpiryCount("has expired");
+            }
         }
     }
 
@@ -95,10 +97,10 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
      * is ignored but it is used in testing to ensure that the component state is only checked after it has been set.
      */
     const checkExpiryHandler = () => {
-        if (loginDataRef.current) {
+        if (userContext.profile && oAuthContext) {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             //we know that it is not null due to above check
-            const expiry = loginDataRef.current.exp;
+            const expiry = userContext.profile.exp;
             const timeToGo = expiry - nowTime;
 
             if (timeToGo <= 120) {
@@ -108,9 +110,9 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                 let refreshedPromise;
 
                 if(overrideRefreshLoginRef.current){
-                    refreshedPromise = overrideRefreshLoginRef.current(tokenUriRef.current);
+                    refreshedPromise = overrideRefreshLoginRef.current(oAuthContext.tokenUri);
                 }  else {
-                    refreshedPromise = refreshLogin(tokenUriRef.current);
+                    refreshedPromise = refreshLogin(oAuthContext, userContext);
                 }
 
                 refreshedPromise.then(()=>{
@@ -146,7 +148,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                     <Grid item style={{marginRight: "0.2em"}}>
                         <Typography className={classes.textOnGrey}>You are logged in as</Typography></Grid>
                     <Grid item><Person className={classes.textOnGrey}/></Grid>
-                    <Grid item><Typography className="username">{props.loginData.preferred_username ?? props.loginData.username}</Typography></Grid>
+                    <Grid item><Typography className="username">{userContext.profile?.preferred_username ?? userContext.profile?.username}</Typography></Grid>
                 </Grid>
             </Grid>
             <Grid item>

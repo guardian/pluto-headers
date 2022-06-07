@@ -44,6 +44,7 @@ function JwtData(jwtData: object) {
           return (<any>target)[prop] ?? null;
       }
     },
+
   });
 }
 

@@ -1,3 +1,5 @@
+import {importJWK, JWK as joseJWK} from "jose";
+
 interface JWKS {
     keys: JWK[];
 }
@@ -26,26 +28,41 @@ function digestFor(algorithm: string):string {
     }
 }
 
-export async function jwksFromUri(kid:string, algorithm: string, baseUrl:string) {
+export async function jwksFromUri(kid: string, algorithm: string, baseUrl:string) {
     const rawDataResponse = await fetch(baseUrl);
     if(rawDataResponse.status!=200) throw `Could not download JWKS from ${baseUrl}`;
-    if(!algorithm.startsWith("RS")) throw `Only RSA keys are supported at present`;
 
     const jwks = await rawDataResponse.json() as JWKS;
-
-    //find the matching key
     const matches = jwks.keys.filter(k=>k.kid==kid);
+
     if(matches.length==0) {
         throw `No verification found for key ID "${kid}"`
     } else {
-        const k = matches[0] as JsonWebKey;
-        const algo:RsaHashedImportParams = {
-            hash: digestFor(algorithm),
-            name: "RSA-PSS",
-        }
-        console.log(algo);
-        const cryptoKey = await crypto.subtle.importKey("jwk", k, algo, true, ["verify"]);
-        const rawKey = await crypto.subtle.exportKey("spki", cryptoKey) as ArrayBuffer;
-
+        const k = matches[0] as joseJWK;
+        return await importJWK(k);
     }
 }
+
+// export async function jwksFromUri(kid:string, algorithm: string, baseUrl:string) {
+//     const rawDataResponse = await fetch(baseUrl);
+//     if(rawDataResponse.status!=200) throw `Could not download JWKS from ${baseUrl}`;
+//     if(!algorithm.startsWith("RS")) throw `Only RSA keys are supported at present`;
+//
+//     const jwks = await rawDataResponse.json() as JWKS;
+//
+//     //find the matching key
+//     const matches = jwks.keys.filter(k=>k.kid==kid);
+//     if(matches.length==0) {
+//         throw `No verification found for key ID "${kid}"`
+//     } else {
+//         const k = matches[0] as JsonWebKey;
+//         const algo:RsaHashedImportParams = {
+//             hash: digestFor(algorithm),
+//             name: "RSA-PSS",
+//         }
+//         console.log(algo);
+//         const cryptoKey = await crypto.subtle.importKey("jwk", k, algo, true, ["verify"]);
+//         const rawKey = await crypto.subtle.exportKey("spki", cryptoKey) as ArrayBuffer;
+//
+//     }
+// }
