@@ -143,7 +143,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         if(userContext.profile) {
             return userContext.profile.preferred_username ?? userContext.profile.username ?? userContext.profile.email
         } else {
-            return "(not found)"
+            return "(unknown)"
         }
     }
 

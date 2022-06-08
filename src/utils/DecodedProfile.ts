@@ -20,6 +20,7 @@ interface JwtDataShapeIF {
   auth_time?: string;
   ver?: string;
   appid?: string;
+  roles?: string[];
 }
 
 type JwtDataShape = JwtDataShapeIF & { [key: string]:any };

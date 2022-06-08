@@ -150,7 +150,18 @@ function makeLoginUrl(oAuthContext: OAuthContextData) {
 }
 
 function isAdmin(oAuthContext:OAuthContextData|undefined, userProfile:UserContext) {
-  if(userProfile.profile && oAuthContext?.adminClaimName) {
+  if(userProfile.profile && userProfile.profile.roles && oAuthContext?.adminClaimName) { //new style - use the "roles" list
+    const matches = userProfile.profile.roles.filter(r=>r===oAuthContext.adminClaimName);
+    if(matches.length>0) {
+      console.log(`User is an admin, roles ${userProfile.profile.roles} match admin claim ${oAuthContext.adminClaimName}`);
+      return true;
+    } else {
+      console.log(`User is not an admin, roles ${userProfile.profile.roles} do not match admin claim ${oAuthContext.adminClaimName}`);
+      return false;
+    }
+  }
+
+  if(userProfile.profile && oAuthContext?.adminClaimName) { //old style - existence of group claim
     const maybeValue = userProfile.profile.hasOwnProperty(oAuthContext.adminClaimName);
     return maybeValue && userProfile.profile[oAuthContext.adminClaimName].toLowerCase() == "true"
   } else {
