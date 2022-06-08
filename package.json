@@ -1,5 +1,5 @@
 {
-  "name": "@guardianmultimedia/pluto-headers",
+  "name": "@guardian/pluto-headers",
   "version": "1.6.4",
   "description": "Header components for pluto",
   "repository": "git://github.com/guardian/pluto-headers",
@@ -38,7 +38,7 @@
       "/node_modules/",
       "imagemock.js"
     ],
-    "transformIgnoreP§atterns": [
+    "transformIgnorePatterns": [
       "node_modules/(?!(enzyme-cleanup)/)"
     ],
     "testResultsProcessor": "jest-junit",
