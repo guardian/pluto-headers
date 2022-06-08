@@ -1,5 +1,8 @@
 import {refreshLogin} from "../../src/utils/OAuth2Helper";
 import fetchMock from "jest-fetch-mock";
+import {OAuthContextData, UserContext} from "../../build";
+import sinon from "sinon";
+import {JWTPayload} from "jose";
 
 describe("refreshLogin", ()=>{
     beforeEach(()=>{
@@ -13,19 +16,47 @@ describe("refreshLogin", ()=>{
             refresh_token: "some-new-refresh-token"
         }));
 
-        localStorage.setItem("pluto:refresh-token","some-old-refresh-token");
-        await refreshLogin("https://fake-token-uri/endpoint");
+        const oauthconfig:OAuthContextData = {
+            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri/endpoint"
+        }
 
-        expect(localStorage.getItem("pluto:access-token")).toEqual("some-access-token");
-        expect(localStorage.getItem("pluto:refresh-token")).toEqual("some-new-refresh-token");
+        const mockUpdateProfile = sinon.spy();
+        const mockVerifyToken = sinon.stub();
+        mockVerifyToken.returns(new Promise<JWTPayload>((resolve, reject)=>{
+            resolve({})
+        }));
+
+        const userContext:UserContext = {
+            updateProfile: mockUpdateProfile,
+            profile: undefined
+
+        }
+        localStorage.setItem("pluto:refresh-token","some-old-refresh-token");
+        await refreshLogin(oauthconfig, userContext, mockVerifyToken);
+
+        //the browser storage is now set in verifyToken, which has been stubbed out on this test
+        expect(mockUpdateProfile.callCount).toEqual(1);
+        expect(mockVerifyToken.callCount).toEqual(1);
     });
 
     it("should reject with Request forbidden if the server returns a 403", async ()=>{
         fetchMock.mockReturnValue(Promise.resolve(new Response(JSON.stringify({"status":"forbidden"}),{status:403})));
 
         localStorage.setItem("pluto:refresh-token","some-old-refresh-token");
+        const oauthconfig:OAuthContextData = {
+            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri/endpoint"
+        }
+
+        const mockUpdateProfile = sinon.spy();
+
+        const userContext:UserContext = {
+            updateProfile: mockUpdateProfile,
+            profile: undefined
+
+        }
+
         try {
-            await refreshLogin("https://fake-token-uri/endpoint");
+            await refreshLogin(oauthconfig, userContext);
             throw "Promise did not reject as expected"
         } catch(err) {
             if(err==="Request forbidden") {
@@ -40,8 +71,20 @@ describe("refreshLogin", ()=>{
         fetchMock.mockReturnValue(Promise.resolve(new Response(JSON.stringify({"status":"coffee"}),{status:418})));
 
         localStorage.setItem("pluto:refresh-token","some-old-refresh-token");
+        const oauthconfig:OAuthContextData = {
+            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri/endpoint"
+        }
+
+        const mockUpdateProfile = sinon.spy();
+
+        const userContext:UserContext = {
+            updateProfile: mockUpdateProfile,
+            profile: undefined
+
+        }
+
         try {
-            await refreshLogin("https://fake-token-uri/endpoint");
+            await refreshLogin(oauthconfig, userContext);
             throw "Promise did not reject as expected"
         } catch(err) {
             if(err==="Unexpected response") {
@@ -67,8 +110,19 @@ describe("refreshLogin", ()=>{
             {status: 200}
         ]);
 
+        const oauthconfig:OAuthContextData = {
+            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri/endpoint"
+        }
+
+        const mockUpdateProfile = sinon.spy();
+
+        const userContext:UserContext = {
+            updateProfile: mockUpdateProfile,
+            profile: undefined
+        }
+
         localStorage.setItem("pluto:refresh-token","some-old-refresh-token");
-        await refreshLogin("https://fake-token-uri/endpoint");
+        await refreshLogin(oauthconfig, userContext);
         expect(localStorage.getItem("pluto:access-token")).toEqual("some-access-token");
         expect(localStorage.getItem("pluto:refresh-token")).toEqual("some-new-refresh-token");
     })

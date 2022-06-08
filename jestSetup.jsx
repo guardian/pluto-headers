@@ -15,3 +15,9 @@ window.crypto = {
         return nodeCrypto.randomFillSync(buffer);
     }
 }
+
+// ensure that global TextEncoder is present, needed to Jose to avoid breaking on ReferenceError: TextEncoder is not defined
+const { TextEncoder, TextDecoder } = require('util');
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;

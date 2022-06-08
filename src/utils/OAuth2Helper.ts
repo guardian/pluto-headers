@@ -2,7 +2,9 @@ import {OAuthContextData} from "../components/Context/OAuthContext";
 import {verifyJwt} from "./JwtHelpers";
 import {UserContext} from "../components/Context/UserContext";
 import {JwtData} from "./DecodedProfile";
+import {JWTPayload} from "jose";
 
+type VerifyFunction = (oauthConfig: OAuthContextData,     token: string,     refreshToken?: string | undefined) => Promise<JWTPayload>
 /**
  * call out to the IdP to request a refresh of the login using the refresh token stored in the localstorage.
  * on success, the updated token is stored in the local storage and the promise resolves
@@ -16,9 +18,11 @@ import {JwtData} from "./DecodedProfile";
  * @param oAuthConfig OAuthContextData giving the server configuration, so we have the refresh url
  * @param userContext UserContext object giving the present user profile. We use the `update` method on this to update the profile once
  * login refresh is completed
+ * @param alternateVerifyFunction Function to verify the token. Used only in testing.
  * @returns a Promise
  */
-export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext)=>Promise<void> = (oAuthConfig, userContext) => new Promise((resolve,reject)=>{
+export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext, alternateVerifyFunction?:VerifyFunction)=>Promise<void> =
+    (oAuthConfig, userContext, alternateVerifyFunction) => new Promise((resolve,reject)=>{
     const refreshToken = localStorage.getItem("pluto:refresh-token");
     if(!refreshToken) {
         reject("No refresh token");
@@ -42,17 +46,17 @@ export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext
                 "Content-Type": "application/x-www-form-urlencoded",
             },
         });
+
+        const verifyFunction = alternateVerifyFunction ?? verifyJwt;
         switch (response.status) {
             case 200:
                 try {
                     const content = await response.json();
                     console.log("Server response: ", content);
-                    const result = await verifyJwt(oAuthConfig, content.id_token ?? content.access_token, content.refresh_token);
+                    const result = await verifyFunction(oAuthConfig, content.id_token ?? content.access_token, content.refresh_token);
                     const updatedProfile = JwtData(result);
                     userContext.updateProfile(updatedProfile);
 
-                    // localStorage.setItem("pluto:access-token", content.id_token ?? content.access_token);
-                    // if (content.refresh_token) localStorage.setItem("pluto:refresh-token", content.refresh_token);
                     resolve();
                 } catch(err) {
                     reject(err);

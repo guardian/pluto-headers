@@ -139,8 +139,6 @@ function makeLoginUrl(oAuthContext: OAuthContextData) {
   if(oAuthContext.resource && oAuthContext.resource != "") {
     encoded.push(`resource=${encodeURIComponent(oAuthContext.resource)}`);
   }
-  console.log(oAuthContext.scope);
-  console.log(encodeURIComponent(oAuthContext.scope ?? ""));
 
   if(oAuthContext.scope && oAuthContext.scope != "") {
     encoded.push(`scope=${encodeURIComponent(oAuthContext.scope)}`)

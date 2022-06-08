@@ -35,7 +35,8 @@ describe("OAuthContextProvider", ()=>{
             clientId: "some-client",
             tokenUri: "some-token",
             oAuthUri: "some-uri",
-            resource: "some-resource"
+            resource: "some-resource",
+            adminClaimName: "iamyourfather"
         };
 
         const errorCb = sinon.spy();
