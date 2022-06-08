@@ -149,12 +149,16 @@ function makeLoginUrl(oAuthContext: OAuthContextData) {
   return oAuthContext.oAuthUri + "?" + encoded.join("&");
 }
 
-function isAdmin(oAuthContext:OAuthContextData, userProfile:UserContext) {
-  if(userProfile.profile && oAuthContext.adminClaimName) {
+function isAdmin(oAuthContext:OAuthContextData|undefined, userProfile:UserContext) {
+  if(userProfile.profile && oAuthContext?.adminClaimName) {
     const maybeValue = userProfile.profile.hasOwnProperty(oAuthContext.adminClaimName);
-    return maybeValue && userProfile.profile.get(oAuthContext.adminClaimName).toLowerCase() == "true"
+    return maybeValue && userProfile.profile[oAuthContext.adminClaimName].toLowerCase() == "true"
+  } else {
+    console.warn("Can't check admin status because user profile is not loaded or oAuth config incomplete");
+    return false;
   }
 }
+
 export type { OAuthContextData };
 
 export {OAuthContext, OAuthContextProvider, makeLoginUrl, generateCodeChallenge, isAdmin};

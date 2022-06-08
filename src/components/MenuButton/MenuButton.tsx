@@ -8,6 +8,7 @@ import {
 } from "../../utils/AppLinks";
 import "./MenuButton.css";
 import {UserContext} from "../Context/UserContext";
+import {isAdmin, OAuthContext} from "../Context/OAuthContext";
 
 interface MenuButtonProps {
   index: number;
@@ -28,12 +29,14 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
     setAnchorEl(null);
   };
 
+  const oAuthContext = useContext(OAuthContext);
   const userContext = useContext(UserContext);
 
+  const displayAdmin = ()=>isAdmin(oAuthContext, userContext)
   return (
     <li
       style={{
-        display: adminOnly ? (userContext.isAdmin() ? "inherit" : "none") : "inherit",
+        display: adminOnly ? ( displayAdmin() ? "inherit" : "none") : "inherit",
       }}
     >
       <button
@@ -74,7 +77,7 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
                 key={`${index}-menu-item`}
                 style={{
                   display: adminOnly
-                    ? userContext.isAdmin()
+                    ? displayAdmin()
                       ? "inherit"
                       : "none"
                     : "inherit",
@@ -94,7 +97,7 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
             <MenuItem
               key={`${index}-menu-item`}
               style={{
-                display: adminOnly ? (userContext.isAdmin() ? "inherit" : "none") : "inherit",
+                display: adminOnly ? (displayAdmin() ? "inherit" : "none") : "inherit",
               }}
               onClick={() => {
                 closeMenu();
