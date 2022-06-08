@@ -1,10 +1,10 @@
 import React, {useContext} from "react";
 import fetchMock from "jest-fetch-mock";
-import {OAuthContext, OAuthContextProvider} from "../../../src/components/Context/OAuthContext";
+import {OAuthContext, OAuthContextProvider} from "../../../src";
 import {mount} from "enzyme";
 import {act} from "react-dom/test-utils";
 import sinon from "sinon";
-import {makeLoginUrl, OAuthContextData} from "../../../build";
+import {makeLoginUrl, OAuthContextData} from "../../../src";
 
 describe("OAuthContextProvider", ()=>{
     beforeEach(()=>{
