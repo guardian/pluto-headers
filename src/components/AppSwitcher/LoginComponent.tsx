@@ -69,9 +69,6 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         }
     }, [refreshFailed]);
 
-    // useEffect(()=>{
-    //   loginDataRef.current = props.loginData;
-    // }, [props.loginData]);
 
     /**
      * called periodically every second once a refresh has failed to alert the user how long they have left
@@ -141,6 +138,15 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         "https://docs.google.com/document/d/1QG9mOu_HDBoGqQs7Dly0sxifk4w9vaJiDiWdi3Uk1a8",
         "_blank"
     )
+
+    const usernameFromProfile = ()=>{
+        if(userContext.profile) {
+            return userContext.profile.preferred_username ?? userContext.profile.username ?? userContext.profile.email
+        } else {
+            return "(not found)"
+        }
+    }
+
     return (
         <Grid container className="login-block" direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
             <Grid item>
@@ -148,7 +154,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                     <Grid item style={{marginRight: "0.2em"}}>
                         <Typography className={classes.textOnGrey}>You are logged in as</Typography></Grid>
                     <Grid item><Person className={classes.textOnGrey}/></Grid>
-                    <Grid item><Typography className="username">{userContext.profile?.preferred_username ?? userContext.profile?.username}</Typography></Grid>
+                    <Grid item><Typography className="username">{usernameFromProfile()}</Typography></Grid>
                 </Grid>
             </Grid>
             <Grid item>

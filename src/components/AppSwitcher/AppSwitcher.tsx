@@ -1,4 +1,4 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import "./AppSwitcher.css";
 import {Button} from "@material-ui/core";
@@ -17,8 +17,8 @@ interface AppSwitcherProps {
 }
 
 export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [expired, setExpired] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [expired, setExpired] = useState(false);
 
   // config
   const [menuSettings, setMenuSettings] = useState<AppSwitcherMenuSettings[]>(
@@ -27,6 +27,38 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = (props) => {
 
   const oAuthContext = useContext(OAuthContext);
   const userContext = useContext(UserContext);
+
+  useEffect(()=>{
+    setIsLoggedIn((prevValue)=>{
+      if(!prevValue && !!userContext.profile && props.onLoggedIn) props.onLoggedIn(); //we are moving from not-logged-in to logged-in
+      if(prevValue && !userContext.profile && props.onLoggedOut) props.onLoggedOut();  //we are moving from logged-in to not-logged-in
+
+      return !!userContext.profile
+    }); //if we have a profile, show the logged in state
+  }, [userContext]);
+
+  const loadMenu = async ()=> {
+    try {
+      const response = await fetch("/meta/menu-config/menu.json");
+
+      if (response.status === 200) {
+        const data = await response.json();
+
+        setMenuSettings(data);
+      } else {
+        SystemNotification.open(SystemNotifcationKind.Error, `Could not load menu contents, server returned ${response.status}`);
+        console.error(`Server returned ${response.status}`);
+        const errorContent = await response.text();
+        console.error(`Server content is `, errorContent);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(()=>{
+    loadMenu();
+  }, []);
 
   const getLink = (
     text: string,
