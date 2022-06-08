@@ -1,6 +1,17 @@
 import {JwtData, JwtDataShape} from "./DecodedProfile";
 import {OAuthContextData} from "../components/Context/OAuthContext";
-import {createRemoteJWKSet, jwtVerify} from "jose";
+import {createRemoteJWKSet, jwtVerify, importX509, importSPKI, KeyLike, ResolvedKey, JWTVerifyResult} from "jose";
+
+async function decodeSigningKey(rawKey:string):Promise<KeyLike|null> {
+  if(rawKey.includes("CERTIFICATE")) { //load as an x509
+    return importX509(rawKey, "RS256"); //assume 256 bit RSA key
+  } else if(rawKey.includes("PUBLIC KEY")) {
+    return importSPKI(rawKey, "RS256");
+  } else {
+    console.log("signingKey does not have either a certificate or public key header, assuming HMAC key");
+    return null;
+  }
+}
 
 /**
  * perform the validation of the token via jsonwebtoken library.
@@ -10,22 +21,36 @@ import {createRemoteJWKSet, jwtVerify} from "jose";
  *
  */
 async function verifyJwt(oauthConfig:OAuthContextData, token: string, refreshToken?: string) {
-     if(oauthConfig.jwksUri) {
-       const JWKS = createRemoteJWKSet(new URL(oauthConfig.jwksUri));
-       const {payload, protectedHeader} = await jwtVerify(token, JWKS);
-       console.log("verification successful: ");
-       console.log(payload);
-       console.log(protectedHeader);
-       window.localStorage.setItem("pluto:access-token", token); //it validates so save the token
-       if(refreshToken) window.localStorage.setItem("pluto:refresh-token", refreshToken);
-       return payload;
+  async function loadAndVerify(): Promise<JWTVerifyResult> {
+    if (oauthConfig.jwksUri) {
+      const JWKS = createRemoteJWKSet(new URL(oauthConfig.jwksUri));
+      return jwtVerify(token, JWKS);
 
-     } else {  //otherwise, fall back to a static signing key
-       console.log("Falling back to static key verification. Either oauthConfig.jwksUri is not set, or the JWT has no 'kid' parameter")
-       // const rawKey = await loadInSigningKey();
-       // const {payload, protectedHeader} = await jwtVerify(token, rawKey)
-       throw "not implemented"
-     }
+    } else {  //otherwise, fall back to a static signing key
+      console.log("Falling back to static key verification. Either oauthConfig.jwksUri is not set, or the JWT has no 'kid' parameter")
+      const rawKey = await loadInSigningKey();
+      //signing key could be either a public key or a cert. Need different loading functions for each of them.
+      const key = await decodeSigningKey(rawKey);
+      return jwtVerify(token, (protectedHeader)=>{
+        if(protectedHeader.alg=="HS256") {  //if it's an HMAC signature then the "signing key" is actually a passphrase
+          const decoder = new TextEncoder();
+          return decoder.encode(rawKey);  //need raw bytes
+        } else {
+          if(key) {
+            return key;
+          } else {
+            throw `Cannot use HMAC verification on ${protectedHeader.alg}`
+          }
+        }
+      });
+    }
+  }
+
+  const {payload, protectedHeader} = await loadAndVerify();
+
+  window.localStorage.setItem("pluto:access-token", token); //it validates so save the token
+  if(refreshToken) window.localStorage.setItem("pluto:refresh-token", refreshToken);
+  return payload;
 }
 
 /**

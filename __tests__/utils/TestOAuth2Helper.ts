@@ -104,10 +104,12 @@ describe("refreshLogin", ()=>{
             {status: 500}
         ],[
             JSON.stringify({
-                access_token: "some-access-token",
+                access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
                 refresh_token: "some-new-refresh-token"
             }),
             {status: 200}
+        ],[
+            "your-256-bit-secret",{status: 200}
         ]);
 
         const oauthconfig:OAuthContextData = {
@@ -123,7 +125,7 @@ describe("refreshLogin", ()=>{
 
         localStorage.setItem("pluto:refresh-token","some-old-refresh-token");
         await refreshLogin(oauthconfig, userContext);
-        expect(localStorage.getItem("pluto:access-token")).toEqual("some-access-token");
+        expect(localStorage.getItem("pluto:access-token")).toEqual("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
         expect(localStorage.getItem("pluto:refresh-token")).toEqual("some-new-refresh-token");
     })
 })
