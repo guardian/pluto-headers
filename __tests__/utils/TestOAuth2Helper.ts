@@ -1,6 +1,6 @@
 import {refreshLogin} from "../../src/utils/OAuth2Helper";
 import fetchMock from "jest-fetch-mock";
-import {OAuthContextData, UserContext} from "../../build";
+import {OAuthContextData, UserContext} from "../../src";
 import sinon from "sinon";
 import {JWTPayload} from "jose";
 
