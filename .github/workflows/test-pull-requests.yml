@@ -21,3 +21,8 @@ jobs:
       - run: yarn test
       - run: yarn build
 
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()  #runs even if there is a test failure
+        with:
+          files: junit.xml
