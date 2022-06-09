@@ -3,6 +3,24 @@
 Pluto-headers is a library that contains UI components re-used across multiple Pluto services, most notably the
 header and menu bars and the login code.
 
+## How to install it
+pluto-headers now publishes via a Github NPM repository. In order to use this, you'll need to create a file called
+`.npmrc` in the root of the project you want to import the library into, and put the following content into it:
+```
+@guardian:registry=https://npm.pkg.github.com
+```
+
+This tells `yarn` and `npm` to use the Github repo for the `@guardian` organisation instead of using the default npm.org repo.
+
+Now, simply add the library as a dependency in your package.json:
+```
+"@guardian/pluto-headers": "1.6.5"
+```
+
+Make sure that you use the latest version, as shown under Releases on the github front page.
+
+*If you want to develop the library itself* see "Local Development" below.
+
 **Help! I installed it locally and it broke my dev environment!** - see the section "Local Development" below.
 Or if you are very impatient, try:
 
@@ -10,6 +28,7 @@ Or if you are very impatient, try:
 rm -rf node_modules/pluto-headers/node_modules 
 ```
 
+# Provided components
 
 ## Header
 The "Header" is the static blue bar that sits across the top of all the pluto
@@ -398,14 +417,9 @@ to step 4.
 
 # Build and publish
 
-- Build
-
-  ```
-  yarn && yarn build
-  ```
-
 - Publish
-  - Commit the changes
+  - Get your PR reviewed and merged to `main`
+  - Check out `main` and pull it
   - Create a new version
     ```
     yarn version
@@ -415,7 +429,17 @@ to step 4.
     git push --follow-tags
     ```
 
+- Create a release
+  - Go to the Github frontpage and click the "Releases" title on the right-hand side
+  - Click "Draft new release" at the top-right of the "Releases" window that opens
+  - Use "Choose a tag" to find the tag you just created
+  - Click "Publish Release". You don't need to fill the other fields in
+  - This will kick off a build in Github Actions. Within a couple of minutes, you should see a new package version appear
+at https://github.com/guardian/pluto-headers/packages/1469763.
+
 # Update the other components that use this library
+
+**PLEASE NOTE THAT THIS SCRIPT NEEDS UPDATING FOR GITHUB AND IS CURRENTLY OUT OF DATE**
 
 A number of the prexit components use this library, and manually updating them all can be a drag.  To simplify this,
 a script is provided that can patch the package.json file and open a merge request on each component.
