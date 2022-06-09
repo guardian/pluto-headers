@@ -1,5 +1,5 @@
 import { verifyJwt } from "../../src";
-import {OAuthContextData} from "../../build";
+import {OAuthContextData} from "../../src";
 import fetchMock from "jest-fetch-mock";
 
 describe("validateAndDecode", () => {
