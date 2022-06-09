@@ -31,6 +31,5 @@ export default [
       image({ exclude: /\.(svg)$/ }),
       svgr(),
     ],
-    external: ["jwks-rsa"]
   },
 ];

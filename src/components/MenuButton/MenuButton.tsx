@@ -1,4 +1,4 @@
-import React, {useContext, useState} from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { Menu, MenuItem } from "@material-ui/core";
@@ -7,10 +7,9 @@ import {
   getDeploymentRootPathLink,
 } from "../../utils/AppLinks";
 import "./MenuButton.css";
-import {UserContext} from "../Context/UserContext";
-import {isAdmin, OAuthContext} from "../Context/OAuthContext";
 
 interface MenuButtonProps {
+  isAdmin: boolean;
   index: number;
   text: string;
   adminOnly: boolean | undefined;
@@ -18,7 +17,7 @@ interface MenuButtonProps {
 }
 
 export const MenuButton: React.FC<MenuButtonProps> = (props) => {
-  const { index, text, adminOnly, content } = props;
+  const { index, isAdmin, text, adminOnly, content } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const openSubmenu = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -29,14 +28,10 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
     setAnchorEl(null);
   };
 
-  const oAuthContext = useContext(OAuthContext);
-  const userContext = useContext(UserContext);
-
-  const displayAdmin = ()=>isAdmin(oAuthContext, userContext)
   return (
     <li
       style={{
-        display: adminOnly ? ( displayAdmin() ? "inherit" : "none") : "inherit",
+        display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
       }}
     >
       <button
@@ -46,7 +41,7 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
         onClick={openSubmenu}
       >
         {text}
-        <ArrowDropDownIcon style={{ fontSize: "16px" }}/>
+        <ArrowDropDownIcon style={{ fontSize: "16px" }}></ArrowDropDownIcon>
       </button>
       <Menu
         id={`pluto-menu-button-${index}`}
@@ -77,7 +72,7 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
                 key={`${index}-menu-item`}
                 style={{
                   display: adminOnly
-                    ? displayAdmin()
+                    ? isAdmin
                       ? "inherit"
                       : "none"
                     : "inherit",
@@ -97,7 +92,7 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
             <MenuItem
               key={`${index}-menu-item`}
               style={{
-                display: adminOnly ? (displayAdmin() ? "inherit" : "none") : "inherit",
+                display: adminOnly ? (isAdmin ? "inherit" : "none") : "inherit",
               }}
               onClick={() => {
                 closeMenu();

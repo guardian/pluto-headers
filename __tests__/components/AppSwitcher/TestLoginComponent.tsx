@@ -5,8 +5,6 @@ import {JwtDataShape} from "../../../src";
 import sinon from "sinon";
 jest.mock("../../../src/utils/OAuth2Helper");
 import {act} from "react-dom/test-utils";
-import {OAuthContext} from "../../../src";
-import {OAuthContextData, UserContext, UserContextProvider} from "../../../src";
 
 describe("LoginComponent", ()=> {
     let assignSpy:jest.SpyInstance<any,[string]>;
@@ -31,20 +29,9 @@ describe("LoginComponent", ()=> {
             exp: 78910,
         };
 
-        const mockUserContext:UserContext = {
-            profile: mockLoginData,
-            updateProfile: ()=>{ }
-        }
-        const oauthconfig:OAuthContextData = {
-            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri"
-        }
-
-        const rendered = mount(<OAuthContext.Provider value={oauthconfig} >
-            <UserContext.Provider value={mockUserContext}>
-            <LoginComponent onLoginExpired={loginExpiredCb}/>
-            </UserContext.Provider>
-        </OAuthContext.Provider>);
-
+        const rendered = mount(<LoginComponent loginData={mockLoginData}
+                                               onLoginExpired={loginExpiredCb}
+                                               tokenUri="https://fake-token-uri"/>);
         expect(setInterval).toHaveBeenCalledTimes(1);
         expect(loginExpiredCb.callCount).toEqual(0);
     });
@@ -61,39 +48,25 @@ describe("LoginComponent", ()=> {
         const mockLoginData: JwtDataShape = {
             aud: "my-audience",
             iss: "my-idP",
-            iat: 123456,
+            iat: new Date().getTime() / 1000,
             exp: 78910,
         };
 
-        const mockUserContext:UserContext = {
-            profile: mockLoginData,
-            updateProfile: ()=>{ }
-        }
-        const oauthconfig:OAuthContextData = {
-            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri"
-        }
-
-        const rendered = mount(<OAuthContext.Provider value={oauthconfig} >
-            <UserContextProvider value={mockUserContext}>
-                <LoginComponent onLoginExpired={loginExpiredCb}
-                                onLoginRefreshed={loginRefreshedCb}
-                                onLoggedOut={loggedOutCb}
-                                onLoginCantRefresh={loginCantRefreshCb}
-                                overrideRefreshLogin={mockRefresh}
-                />
-            </UserContextProvider>
-        </OAuthContext.Provider>);
+        const rendered = mount(<LoginComponent loginData={mockLoginData}
+                                               onLoginExpired={loginExpiredCb}
+                                               onLoginRefreshed={loginRefreshedCb}
+                                               onLoggedOut={loggedOutCb}
+                                               onLoginCantRefresh={loginCantRefreshCb}
+                                               overrideRefreshLogin={mockRefresh}
+                                               tokenUri="https://fake-token-uri"/>);
 
         expect(rendered.find("#refresh-in-progress").length).toEqual(0);
         expect(rendered.find("#refresh-failed").length).toEqual(0);
         expect(rendered.find("#refresh-success").length).toEqual(0);
 
-        await act(() => {
-            rendered.update();
+        act(() => {
             jest.advanceTimersByTime(60001);
-            Promise.resolve();
         });
-
         expect(mockRefresh.calledOnceWith("https://fake-token-uri")).toBeTruthy();
         await act(()=>Promise.resolve());    //this allows other outstanding promises to resolve _first_, including the one that
                                     //sets the component state and calls loginRefreshedCb
@@ -113,6 +86,7 @@ describe("LoginComponent", ()=> {
     });
 
     it("should fire a callback and display a message if the refresh failed", async ()=>{
+        // jest.useFakeTimers();
         const loginExpiredCb = sinon.spy();
         const loginRefreshedCb = sinon.spy();
         const loggedOutCb = sinon.spy();
@@ -128,24 +102,13 @@ describe("LoginComponent", ()=> {
             exp: (new Date().getTime() / 1000)+30,
         };
 
-
-        const mockUserContext:UserContext = {
-            profile: mockLoginData,
-            updateProfile: ()=>{ }
-        }
-        const oauthconfig:OAuthContextData = {
-            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri"
-        }
-
-        const rendered = mount(<OAuthContext.Provider value={oauthconfig} >
-            <UserContextProvider value={mockUserContext}>
-                <LoginComponent onLoginExpired={loginExpiredCb}
+        const rendered = mount(<LoginComponent loginData={mockLoginData}
+                                               onLoginExpired={loginExpiredCb}
                                                onLoginRefreshed={loginRefreshedCb}
                                                onLoggedOut={loggedOutCb}
                                                onLoginCantRefresh={loginCantRefreshCb}
-                                               overrideRefreshLogin={mockRefresh}/>
-            </UserContextProvider>
-        </OAuthContext.Provider>);
+                                               overrideRefreshLogin={mockRefresh}
+                                               tokenUri="https://fake-token-uri"/>);
 
         expect(rendered.find("#refresh-in-progress").length).toEqual(0);
         expect(rendered.find("#refresh-failed").length).toEqual(0);
@@ -186,24 +149,13 @@ describe("LoginComponent", ()=> {
             exp: (new Date().getTime() / 1000)-10,
         };
 
-
-        const mockUserContext:UserContext = {
-            profile: mockLoginData,
-            updateProfile: ()=>{ }
-        }
-        const oauthconfig:OAuthContextData = {
-            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri"
-        }
-
-        const rendered = mount(<OAuthContext.Provider value={oauthconfig} >
-            <UserContextProvider value={mockUserContext}>
-                <LoginComponent onLoginExpired={loginExpiredCb}
+        const rendered = mount(<LoginComponent loginData={mockLoginData}
+                                               onLoginExpired={loginExpiredCb}
                                                onLoginRefreshed={loginRefreshedCb}
                                                onLoggedOut={loggedOutCb}
                                                onLoginCantRefresh={loginCantRefreshCb}
-                                               overrideRefreshLogin={mockRefresh}/>
-            </UserContextProvider>
-        </OAuthContext.Provider>);
+                                               overrideRefreshLogin={mockRefresh}
+                                               tokenUri="https://fake-token-uri"/>);
 
         expect(rendered.find("#refresh-in-progress").length).toEqual(0);
         expect(rendered.find("#refresh-failed").length).toEqual(0);
@@ -248,24 +200,13 @@ describe("LoginComponent", ()=> {
             exp: (new Date().getTime() / 1000)-10,
         };
 
-
-        const mockUserContext:UserContext = {
-            profile: mockLoginData,
-            updateProfile: ()=>{ }
-        }
-        const oauthconfig:OAuthContextData = {
-            clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri"
-        }
-
-        const rendered = mount(<OAuthContext.Provider value={oauthconfig} >
-            <UserContextProvider value={mockUserContext}>
-                <LoginComponent onLoginExpired={loginExpiredCb}
+        const rendered = mount(<LoginComponent loginData={mockLoginData}
+                                               onLoginExpired={loginExpiredCb}
                                                onLoginRefreshed={loginRefreshedCb}
                                                onLoggedOut={loggedOutCb}
                                                onLoginCantRefresh={loginCantRefreshCb}
-                                               overrideRefreshLogin={mockRefresh}/>
-            </UserContextProvider>
-        </OAuthContext.Provider>);
+                                               overrideRefreshLogin={mockRefresh}
+                                               tokenUri="https://fake-token-uri"/>);
 
         const btn = rendered.find("button.login-button");
         expect(btn.length).toEqual(1);

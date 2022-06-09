@@ -3,11 +3,9 @@ import {createCheckers} from "ts-interface-checker";
 
 interface OAuthConfigurationIF {
     clientId: string;
-    resource?: string;
+    resource: string;
     oAuthUri: string;
     tokenUri: string;
-    jwksUri?: string;
-    scope?: string;
     adminClaimName: string;
 }
 
@@ -17,11 +15,9 @@ const {
 
 class OAuthConfiguration implements OAuthConfigurationIF {
     clientId: string;
-    resource?: string;
+    resource: string;
     oAuthUri: string;
     tokenUri: string;
-    jwksUri?: string;
-    scope?: string;
     adminClaimName: string;
 
     constructor(from:any, validate=true) {
@@ -33,8 +29,6 @@ class OAuthConfiguration implements OAuthConfigurationIF {
         this.resource = from.resource;
         this.oAuthUri = from.oAuthUri;
         this.tokenUri = from.tokenUri;
-        this.jwksUri = from.jwksUri;
-        this.scope = from.scope;
         this.adminClaimName = from.adminClaimName;
     }
 

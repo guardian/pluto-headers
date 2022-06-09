@@ -1,6 +1,6 @@
 import {fromUnixTime,addMinutes} from 'date-fns';
 
-interface JwtDataShapeIF {
+interface JwtDataShape {
   aud: string;
   iss: string;
   iat: number;
@@ -20,10 +20,7 @@ interface JwtDataShapeIF {
   auth_time?: string;
   ver?: string;
   appid?: string;
-  roles?: string[];
 }
-
-type JwtDataShape = JwtDataShapeIF & { [key: string]:any };
 
 function utcTime(from: number) {
   //see https://stackoverflow.com/a/61469549. `fromUnixTime` gives us a local time, but we want UTC.
@@ -47,7 +44,6 @@ function JwtData(jwtData: object) {
           return (<any>target)[prop] ?? null;
       }
     },
-
   });
 }
 

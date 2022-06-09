@@ -1,10 +1,3 @@
-import {OAuthContextData} from "../components/Context/OAuthContext";
-import {verifyJwt} from "./JwtHelpers";
-import {UserContext} from "../components/Context/UserContext";
-import {JwtData} from "./DecodedProfile";
-import {JWTPayload} from "jose";
-
-type VerifyFunction = (oauthConfig: OAuthContextData,     token: string,     refreshToken?: string | undefined) => Promise<JWTPayload>
 /**
  * call out to the IdP to request a refresh of the login using the refresh token stored in the localstorage.
  * on success, the updated token is stored in the local storage and the promise resolves
@@ -15,14 +8,10 @@ type VerifyFunction = (oauthConfig: OAuthContextData,     token: string,     ref
  * this is NOT written as a conventional async function in order to utilise more fine-grained control of when the promise
  * is resolved; i.e., it calls itself on a timer in order to retry so we must only resolve the promise once there has been
  * a definitive success or failure of the operation which could be after multiple calls
- * @param oAuthConfig OAuthContextData giving the server configuration, so we have the refresh url
- * @param userContext UserContext object giving the present user profile. We use the `update` method on this to update the profile once
- * login refresh is completed
- * @param alternateVerifyFunction Function to verify the token. Used only in testing.
+ * @param tokenUri server uri to make the refresh request to
  * @returns a Promise
  */
-export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext, alternateVerifyFunction?:VerifyFunction)=>Promise<void> =
-    (oAuthConfig, userContext, alternateVerifyFunction) => new Promise((resolve,reject)=>{
+export const refreshLogin:(tokenUri:string)=>Promise<void> = (tokenUri) => new Promise((resolve,reject)=>{
     const refreshToken = localStorage.getItem("pluto:refresh-token");
     if(!refreshToken) {
         reject("No refresh token");
@@ -38,7 +27,7 @@ export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext
     const body_content = content_elements.join("&");
 
     const performRefresh = async ()=> {
-        const response = await fetch(oAuthConfig.tokenUri, {
+        const response = await fetch(tokenUri, {
             method: "POST",
             body: body_content,
             headers: {
@@ -46,21 +35,13 @@ export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext
                 "Content-Type": "application/x-www-form-urlencoded",
             },
         });
-
-        const verifyFunction = alternateVerifyFunction ?? verifyJwt;
         switch (response.status) {
             case 200:
-                try {
-                    const content = await response.json();
-                    console.log("Server response: ", content);
-                    const result = await verifyFunction(oAuthConfig, content.id_token ?? content.access_token, content.refresh_token);
-                    const updatedProfile = JwtData(result);
-                    userContext.updateProfile(updatedProfile);
-
-                    resolve();
-                } catch(err) {
-                    reject(err);
-                }
+                const content = await response.json();
+                console.log("Server response: ", content);
+                localStorage.setItem("pluto:access-token", content.access_token);
+                if (content.refresh_token) localStorage.setItem("pluto:refresh-token", content.refresh_token);
+                resolve();
                 break;
             case 403:
             case 401:
