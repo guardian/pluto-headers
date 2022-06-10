@@ -62,9 +62,6 @@ const OAuthContextProvider: React.FC<{
         setJwksUri(config.jwksUri);
         setAdminClaimName(config.adminClaimName);
         setHaveData(true);
-        if(props.onLoaded) {
-          props.onLoaded(makeContext())
-        }
         break;
       case 404:
         await response.text(); //consume body and discard it
@@ -82,6 +79,10 @@ const OAuthContextProvider: React.FC<{
         break;
     }
   };
+
+  useEffect(()=> {
+    if(haveData && props.onLoaded) props.onLoaded(makeContext());
+  }, [haveData]);
 
   useEffect(() => {
     loadOauthData();
