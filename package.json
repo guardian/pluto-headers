@@ -5,6 +5,7 @@
   "repository": "git://github.com/guardian/pluto-headers",
   "main": "build/index.js",
   "module": "build/index.es.js",
+  "types": "build/index.d.ts",
   "files": [
     "build"
   ],
@@ -13,7 +14,6 @@
     "build": "rm -rf build && rollup -c",
     "update-interfaces": "ts-interface-builder src/utils/OAuthConfiguration.ts"
   },
-  "types": "./build/index.d.ts",
   "author": "",
   "license": "ISC",
   "jest": {
