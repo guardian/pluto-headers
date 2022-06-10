@@ -1,11 +1,11 @@
 {
   "name": "@guardian/pluto-headers",
-  "version": "2.0.0-pre2",
+  "version": "2.0.0-pre3",
   "description": "Header components for pluto",
   "repository": "git://github.com/guardian/pluto-headers",
-  "main": "build/index.js",
+  "main": "build/index",
   "module": "build/index.es.js",
-  "types": "build/index.d.ts",
+  "types": "build/index",
   "files": [
     "build"
   ],
