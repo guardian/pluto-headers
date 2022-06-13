@@ -9,6 +9,7 @@ interface OAuthConfigurationIF {
     jwksUri?: string;
     scope?: string;
     adminClaimName: string;
+    logoutUri?: string;
 }
 
 const {
@@ -23,6 +24,7 @@ class OAuthConfiguration implements OAuthConfigurationIF {
     jwksUri?: string;
     scope?: string;
     adminClaimName: string;
+    logoutUri?: string;
 
     constructor(from:any, validate=true) {
         if(validate) {
@@ -36,6 +38,7 @@ class OAuthConfiguration implements OAuthConfigurationIF {
         this.jwksUri = from.jwksUri;
         this.scope = from.scope;
         this.adminClaimName = from.adminClaimName;
+        this.logoutUri = from.logoutUri;
     }
 
     /**

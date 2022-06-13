@@ -12,6 +12,7 @@ interface OAuthContextData {
   redirectUri: string;
   jwksUri?: string;
   adminClaimName?: string;
+  logoutUri?: string;
 }
 
 const OAuthContext = React.createContext<OAuthContextData | undefined>(
@@ -42,6 +43,7 @@ const OAuthContextProvider: React.FC<{
   const [adminClaimName, setAdminClaimName] = useState<string>("");
   const [haveData, setHaveData] = useState(false);
   const [jwksUri, setJwksUri] = useState<string|undefined>(undefined);
+  const [logoutUri, setLogoutUri] = useState<string|undefined>(undefined);
 
   const currentUri = new URL(window.location.href);
   const redirectUrl =
@@ -61,6 +63,7 @@ const OAuthContextProvider: React.FC<{
         setScope(config.scope);
         setJwksUri(config.jwksUri);
         setAdminClaimName(config.adminClaimName);
+        setLogoutUri(config.logoutUri);
         setHaveData(true);
         break;
       case 404:
@@ -97,6 +100,7 @@ const OAuthContextProvider: React.FC<{
         scope: scope,
         jwksUri: jwksUri,
     adminClaimName: adminClaimName,
+    logoutUri: logoutUri,
   })
 
   return (

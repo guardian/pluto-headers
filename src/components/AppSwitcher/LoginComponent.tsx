@@ -214,12 +214,29 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                   variant="outlined"
                   size="small"
                   onClick={() => {
-                      if (props.onLoggedOut) {
-                          props.onLoggedOut();
-                          return;
-                      }
+                      if(oAuthContext?.logoutUri) {
+                          const currentUri = new URL(window.location.href);
+                          const redirectUrl =
+                              currentUri.protocol + "//" + currentUri.host + "/logout";
+                          const params:{ [key:string]: string } = {
+                              client_id: encodeURIComponent(oAuthContext.clientId),
+                              post_logout_redirect_uri: encodeURIComponent(redirectUrl)
+                          }
+                          const queryString = Object
+                              .keys(params)
+                              .map(k=>`${k}=${params[k]}`)
+                              .join("&");
 
-                      window.location.assign("/logout");
+                          const externalLogoutUri = `${oAuthContext.logoutUri}?${queryString}`;
+                          window.location.assign(externalLogoutUri);
+                      } else {
+                          if (props.onLoggedOut) {
+                              props.onLoggedOut();
+                              return;
+                          }
+
+                          window.location.assign("/logout");
+                      }
                   }}
               >
                 Logout

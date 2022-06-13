@@ -12,6 +12,7 @@ export const OAuthConfigurationIF = t.iface([], {
   "jwksUri": t.opt("string"),
   "scope": t.opt("string"),
   "adminClaimName": "string",
+  "logoutUri": t.opt("string"),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
