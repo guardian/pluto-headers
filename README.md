@@ -19,6 +19,28 @@ Now, simply add the library as a dependency in your package.json:
 
 Make sure that you use the latest version, as shown under Releases on the github front page.
 
+When running locally, you will need to authenticate to the github npm repository like this:
+```
+ npm login --scope=@guardian --registry=https://npm.pkg.github.com
+npm notice Log in on https://npm.pkg.github.com/
+Username: (your-email@gmail.com) github-user
+Password: 
+Email: (this IS public) your-email@gmail.com
+Logged in as github-user on https://npm.pkg.github.com/.
+```
+
+If you don't log in, yarn will complain: 
+```
+error Couldn't find package "@guardian/pluto-headers" on the "npm" registry.
+```
+
+If you see this error:
+```
+error An unexpected error occurred: "https://npm.pkg.github.com/@guardian%2fpluto-headers: Your token has not been granted the required scopes to execute this query. The 'summary' field requires one of the following scopes: ['read:packages'], but your token has only been granted the: ['repo'] scopes. Please modify your token's scopes at: https://github.com/settings/tokens.".
+```
+Then it means that you need to go to the Tokens page on github (while logged in of course!) and add the `read_packages`scope.
+
+
 *If you want to develop the library itself* see "Local Development" below.
 
 **Help! I installed it locally and it broke my dev environment!** - see the section "Local Development" below.
