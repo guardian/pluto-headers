@@ -6,10 +6,13 @@ import * as t from "ts-interface-checker";
 
 export const OAuthConfigurationIF = t.iface([], {
   "clientId": "string",
-  "resource": "string",
+  "resource": t.opt("string"),
   "oAuthUri": "string",
   "tokenUri": "string",
+  "jwksUri": t.opt("string"),
+  "scope": t.opt("string"),
   "adminClaimName": "string",
+  "logoutUri": t.opt("string"),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
