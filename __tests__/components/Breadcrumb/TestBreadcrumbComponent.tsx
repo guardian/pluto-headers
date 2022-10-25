@@ -221,7 +221,7 @@ describe("Breadcrumb", ()=>{
         const rendered = mount(<Breadcrumb commissionId={5}/>);
 
         const simpleTimeout = (duration:number)=> {
-            return new Promise((resolve,reject)=>window.setTimeout(()=>resolve(), duration));
+            return new Promise<void>((resolve,reject)=>window.setTimeout(()=>resolve(), duration));
         }
 
         return moxios.wait(async ()=> {

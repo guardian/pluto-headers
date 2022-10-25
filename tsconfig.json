@@ -2,11 +2,13 @@
   "compilerOptions": {
     "allowJs": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "jsx": "react",
     "module": "ES2015",
     "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
+    "useUnknownInCatchVariables": false,
     "target": "ES2016",
     "declaration": true,
     "declarationDir": "build"

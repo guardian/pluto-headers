@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import React from "react";
 import LoginComponent from "../../../src/components/AppSwitcher/LoginComponent";
 import {mount, shallow} from "enzyme";
@@ -5,18 +9,29 @@ import {JwtDataShape} from "../../../src";
 import sinon from "sinon";
 jest.mock("../../../src/utils/OAuth2Helper");
 import {act} from "react-dom/test-utils";
+import {OAuthContext} from "../../../src";
+import {OAuthContextData, UserContext, UserContextProvider} from "../../../src";
+
+
+jest.useFakeTimers();
+jest.spyOn(global, 'setInterval');
 
 describe("LoginComponent", ()=> {
-    let assignSpy:jest.SpyInstance<any,[string]>;
+    const realLocation = global.location
 
     beforeEach(()=>{
-        assignSpy = jest.spyOn(window.location,"assign");
-        jest.useFakeTimers()
+        // @ts-ignore
+        delete global.location
+        global.location = { ...realLocation, assign: jest.fn() }
+        // assignSpy = jest.spyOn(window.location, 'assign');
+        // jest.useFakeTimers();
     });
+
     afterEach(()=>{
-        assignSpy.mockRestore();
+        // assignSpy.mockRestore();
+        global.location = realLocation
         jest.clearAllTimers();
-        jest.useRealTimers();
+        // jest.useRealTimers();
     });
 
     it("should set up an interval on load to check login state", () => {
@@ -29,9 +44,20 @@ describe("LoginComponent", ()=> {
             exp: 78910,
         };
 
-        const rendered = mount(<LoginComponent loginData={mockLoginData}
-                                               onLoginExpired={loginExpiredCb}
-                                               tokenUri="https://fake-token-uri"/>);
+        const mockUserContext:UserContext = {
+            profile: mockLoginData,
+            updateProfile: ()=>{ }
+        }
+        const oauthconfig:OAuthContextData = {
+            resource: "", clientId: "", oAuthUri: "", redirectUri: "", tokenUri: "https://fake-token-uri"
+        }
+
+        const rendered = mount(<OAuthContext.Provider value={oauthconfig} >
+            <UserContext.Provider value={mockUserContext}>
+                <LoginComponent onLoginExpired={loginExpiredCb} loginData={mockLoginData} tokenUri="https://fake-token-uri"/>
+            </UserContext.Provider>
+        </OAuthContext.Provider>);
+
         expect(setInterval).toHaveBeenCalledTimes(1);
         expect(loginExpiredCb.callCount).toEqual(0);
     });
@@ -86,7 +112,6 @@ describe("LoginComponent", ()=> {
     });
 
     it("should fire a callback and display a message if the refresh failed", async ()=>{
-        // jest.useFakeTimers();
         const loginExpiredCb = sinon.spy();
         const loginRefreshedCb = sinon.spy();
         const loggedOutCb = sinon.spy();
@@ -124,7 +149,7 @@ describe("LoginComponent", ()=> {
         expect(loginRefreshedCb.callCount).toEqual(0);
         expect(loggedOutCb.callCount).toEqual(0);
         expect(loginCantRefreshCb.callCount).toEqual(1);
-        expect(loginExpiredCb.callCount).toEqual(0);
+        expect(loginExpiredCb.callCount).toEqual(1);
 
         const updated = rendered.update();
         expect(updated.find("#refresh-success").length).toEqual(0);
@@ -215,7 +240,7 @@ describe("LoginComponent", ()=> {
         /* TODO: this is the behaviour as coded; the parent is expected to take care of reloading the
         page _if_ a callback is specified. should think about whether that is desirable.
          */
-        expect(assignSpy).toHaveBeenCalledTimes(0);
+        expect(global.location.assign).toHaveBeenCalledTimes(0);
 
         expect(loggedOutCb.callCount).toEqual(1);
         expect(loginExpiredCb.callCount).toEqual(0);
