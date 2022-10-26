@@ -8,6 +8,9 @@ import {act} from "react-dom/test-utils";
 import {OAuthContext} from "../../../src";
 import {OAuthContextData, UserContext, UserContextProvider} from "../../../src";
 
+/**
+ * @jest-environment jsdom
+ */
 describe("LoginComponent", ()=> {
     let assignSpy:jest.SpyInstance<any,[string]>;
 

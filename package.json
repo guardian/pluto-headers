@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "jest": {
+    "testEnvironment": "jsdom",
     "moduleFileExtensions": [
       "jsx",
       "js",
@@ -80,8 +81,8 @@
     "enzyme-adapter-react-16": "^1.15.2",
     "expect": "^24.9.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^26.0.1",
-    "jest-cli": "^24.8.0",
+    "jest": "^27.1.5",
+    "jest-cli": "^27.1.5",
     "jest-fetch-mock": "^3.0.3",
     "jest-junit": "^4.0.0",
     "jest-localstorage-mock": "^2.4.3",
@@ -101,7 +102,7 @@
     "sinon": "^8.0.4",
     "ts-interface-builder": "^0.2.2",
     "ts-interface-checker": "^0.1.13",
-    "ts-jest": "^26.1.0",
+    "ts-jest": "^27.1.5",
     "ts-loader": "^7.0.5",
     "typescript": "^4.7.4"
   }

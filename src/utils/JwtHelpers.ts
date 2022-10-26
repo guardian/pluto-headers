@@ -34,7 +34,7 @@ async function verifyJwt(oauthConfig:OAuthContextData, token: string, refreshTok
       return jwtVerify(token, (protectedHeader)=>{
         if(protectedHeader.alg=="HS256") {  //if it's an HMAC signature then the "signing key" is actually a passphrase
           const decoder = new TextEncoder();
-          return decoder.encode(rawKey);  //need raw bytes
+          return Uint8Array.from(decoder.encode(rawKey));  //need raw bytes
         } else {
           if(key) {
             return key;
