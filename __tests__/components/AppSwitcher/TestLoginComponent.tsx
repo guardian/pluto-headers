@@ -8,14 +8,8 @@ import {act} from "react-dom/test-utils";
 import {OAuthContext} from "../../../src";
 import {OAuthContextData, UserContext, UserContextProvider} from "../../../src";
 
-/**
- * @jest-environment jsdom
- */
-jest.useFakeTimers();
-
 describe("LoginComponent", ()=> {
     const realLocation = global.location
-
 
     beforeEach(()=>{
         // @ts-ignore
@@ -24,6 +18,8 @@ describe("LoginComponent", ()=> {
         global.location = { ...realLocation, assign: jest.fn() }
     });
     afterEach(()=>{
+        // @ts-ignore
+        delete global.location
         jest.clearAllTimers();
         jest.useRealTimers();
     });
@@ -65,11 +61,11 @@ describe("LoginComponent", ()=> {
         const mockRefresh = sinon.stub();
         mockRefresh.returns(Promise.resolve());
 
-        const mockLoginData: JwtDataShape = {
+        const mockLoginData:JwtDataShape = {
             aud: "my-audience",
             iss: "my-idP",
-            iat: 123456,
-            exp: 78910,
+            iat: new Date().getTime() / 1000,
+            exp: (new Date().getTime() / 1000)+30,
         };
 
         const mockUserContext:UserContext = {
@@ -95,10 +91,9 @@ describe("LoginComponent", ()=> {
         expect(rendered.find("#refresh-failed").length).toEqual(0);
         expect(rendered.find("#refresh-success").length).toEqual(0);
 
-        await act(() => {
+        await act(async() => {
             rendered.update();
             jest.advanceTimersByTime(60001);
-            Promise.resolve();
         });
 
         expect(mockRefresh.calledOnceWith("https://fake-token-uri")).toBeTruthy();
@@ -159,7 +154,7 @@ describe("LoginComponent", ()=> {
         expect(rendered.find("#refresh-success").length).toEqual(0);
 
         act(()=>{
-            jest.advanceTimersByTime(70001);
+            jest.advanceTimersByTime(60000);
         });
         expect(mockRefresh.calledOnceWith("https://fake-token-uri")).toBeTruthy();
 
@@ -168,7 +163,7 @@ describe("LoginComponent", ()=> {
         expect(loginRefreshedCb.callCount).toEqual(0);
         expect(loggedOutCb.callCount).toEqual(0);
         expect(loginCantRefreshCb.callCount).toEqual(1);
-        // expect(loginExpiredCb.callCount).toEqual(0);
+        expect(loginExpiredCb.callCount).toEqual(0);
 
         const updated = rendered.update();
         expect(updated.find("#refresh-success").length).toEqual(0);
@@ -189,8 +184,8 @@ describe("LoginComponent", ()=> {
         const mockLoginData:JwtDataShape = {
             aud: "my-audience",
             iss: "my-idP",
-            iat: (new Date().getTime() / 1000)-3600,
-            exp: (new Date().getTime() / 1000)-10,
+            iat: (new Date().getTime() / 1000) - 3600,
+            exp: (new Date().getTime() / 1000) + 60,
         };
 
 

@@ -77,7 +77,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         if(userContext.profile) {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             const expiry = userContext.profile.exp;
-            const timeToGo = expiry - nowTime;
+            const timeToGo = nowTime - expiry;
 
             if (timeToGo > 1) {
                 setLoginExpiryCount(`expires in ${Math.ceil(timeToGo)}s`);
@@ -98,7 +98,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             //we know that it is not null due to above check
             const expiry = userContext.profile.exp;
-            const timeToGo = expiry - nowTime;
+            const timeToGo = nowTime - expiry;
 
             if (timeToGo <= 120) {
                 console.log("less than 2mins to expiry, attempting refresh...");
