@@ -418,7 +418,6 @@ to step 4.
 - Once you have removed the extraneous node_modules, Build the host project you are testing with:
    ```
    yarn dev
-   cd build
    sbt docker:publishLocal or docker build . -t guardianmultimedia/... or other thing to build the package
    ```
   
