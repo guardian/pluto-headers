@@ -390,12 +390,13 @@ to step 4.
 
 - In external repository, install the added dependency
   ```
+  sed -i "" -e "/pluto-headers/d" yarn.lock #removes pluto-headers if it is already there
   yarn
   ```
 
 - In external repository, find the `node_modules` directory for pluto-headers that was copied, and delete it:
    ```
-   rm -rf node_modules/pluto-headers/node_modules
+   rm -rf node_modules/@guardian/pluto-headers/node_modules
    ```
   This removes extraneous copies of react, material-ui etc. which otherwise conflict with the component you were testing.
 
@@ -417,6 +418,7 @@ to step 4.
 - Once you have removed the extraneous node_modules, Build the host project you are testing with:
    ```
    yarn dev
+   cd build
    sbt docker:publishLocal or docker build . -t guardianmultimedia/... or other thing to build the package
    ```
   
