@@ -127,7 +127,7 @@ describe("LoginComponent", ()=> {
             aud: "my-audience",
             iss: "my-idP",
             iat: new Date().getTime() / 1000,
-            exp: (new Date().getTime() / 1000)+30,
+            exp: (new Date().getTime() / 1000) + 90,
         };
 
 
@@ -154,22 +154,22 @@ describe("LoginComponent", ()=> {
         expect(rendered.find("#refresh-success").length).toEqual(0);
 
         act(()=>{
-            jest.advanceTimersByTime(60000);
+            jest.advanceTimersByTime(60001);
         });
         expect(mockRefresh.calledOnceWith("https://fake-token-uri")).toBeTruthy();
 
         await act(()=>Promise.resolve());    //this allows other outstanding promises to resolve _first_, including the one that
-                                    //sets the component state and calls loginRefreshedCb
+                                                    //sets the component state and calls loginRefreshedCb
         expect(loginRefreshedCb.callCount).toEqual(0);
         expect(loggedOutCb.callCount).toEqual(0);
         expect(loginCantRefreshCb.callCount).toEqual(1);
-        // expect(loginExpiredCb.callCount).toEqual(0);
+        expect(loginExpiredCb.callCount).toEqual(0);
 
         const updated = rendered.update();
         expect(updated.find("#refresh-success").length).toEqual(0);
         const failureblock = updated.find("div#refresh-failed");
         expect(failureblock.length).toEqual(1);
-        // expect(failureblock.text()).toContain("Login expires in 30s");
+        expect(failureblock.text()).toContain("Login expires in 30s");
     });
 
     it("should alert the parent when the login actually expires", async ()=>{
