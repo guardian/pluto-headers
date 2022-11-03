@@ -9,21 +9,24 @@ import {OAuthContext} from "../../../src";
 import {OAuthContextData, UserContext, UserContextProvider} from "../../../src";
 
 describe("LoginComponent", ()=> {
-    let assignSpy:jest.SpyInstance<any,[string]>;
+    const realLocation = global.location
 
     beforeEach(()=>{
-        assignSpy = jest.spyOn(window.location,"assign");
-        jest.useFakeTimers()
+        // @ts-ignore
+        delete global.location
+        jest.useFakeTimers();
+        global.location = { ...realLocation, assign: jest.fn() }
     });
     afterEach(()=>{
-        assignSpy.mockRestore();
+        // @ts-ignore
+        delete global.location
         jest.clearAllTimers();
         jest.useRealTimers();
     });
 
     it("should set up an interval on load to check login state", () => {
+        jest.spyOn(global, 'setInterval');
         const loginExpiredCb = sinon.spy();
-
         const mockLoginData: JwtDataShape = {
             aud: "my-audience",
             iss: "my-idP",
@@ -58,11 +61,11 @@ describe("LoginComponent", ()=> {
         const mockRefresh = sinon.stub();
         mockRefresh.returns(Promise.resolve());
 
-        const mockLoginData: JwtDataShape = {
+        const mockLoginData:JwtDataShape = {
             aud: "my-audience",
             iss: "my-idP",
-            iat: 123456,
-            exp: 78910,
+            iat: new Date().getTime() / 1000,
+            exp: (new Date().getTime() / 1000)+30,
         };
 
         const mockUserContext:UserContext = {
@@ -88,10 +91,9 @@ describe("LoginComponent", ()=> {
         expect(rendered.find("#refresh-failed").length).toEqual(0);
         expect(rendered.find("#refresh-success").length).toEqual(0);
 
-        await act(() => {
+        await act(async() => {
             rendered.update();
             jest.advanceTimersByTime(60001);
-            Promise.resolve();
         });
 
         expect(mockRefresh.calledOnceWith("https://fake-token-uri")).toBeTruthy();
@@ -125,7 +127,7 @@ describe("LoginComponent", ()=> {
             aud: "my-audience",
             iss: "my-idP",
             iat: new Date().getTime() / 1000,
-            exp: (new Date().getTime() / 1000)+30,
+            exp: (new Date().getTime() / 1000) + 90,
         };
 
 
@@ -157,7 +159,7 @@ describe("LoginComponent", ()=> {
         expect(mockRefresh.calledOnceWith("https://fake-token-uri")).toBeTruthy();
 
         await act(()=>Promise.resolve());    //this allows other outstanding promises to resolve _first_, including the one that
-                                    //sets the component state and calls loginRefreshedCb
+                                                    //sets the component state and calls loginRefreshedCb
         expect(loginRefreshedCb.callCount).toEqual(0);
         expect(loggedOutCb.callCount).toEqual(0);
         expect(loginCantRefreshCb.callCount).toEqual(1);
@@ -182,8 +184,8 @@ describe("LoginComponent", ()=> {
         const mockLoginData:JwtDataShape = {
             aud: "my-audience",
             iss: "my-idP",
-            iat: (new Date().getTime() / 1000)-3600,
-            exp: (new Date().getTime() / 1000)-10,
+            iat: (new Date().getTime() / 1000) - 3600,
+            exp: (new Date().getTime() / 1000) + 60,
         };
 
 
@@ -274,7 +276,7 @@ describe("LoginComponent", ()=> {
         /* TODO: this is the behaviour as coded; the parent is expected to take care of reloading the
         page _if_ a callback is specified. should think about whether that is desirable.
          */
-        expect(assignSpy).toHaveBeenCalledTimes(0);
+        expect(global.location.assign).toHaveBeenCalledTimes(0);
 
         expect(loggedOutCb.callCount).toEqual(1);
         expect(loginExpiredCb.callCount).toEqual(0);

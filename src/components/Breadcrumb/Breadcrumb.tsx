@@ -1,5 +1,5 @@
 import React from "react";
-import axios, {AxiosResponse} from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import "./Breadcrumb.css";
 import IconCommission from "../../static/c.svg";
 import IconProject from "../../static/p.svg";
@@ -135,9 +135,10 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
       } else {
         return undefined;
       }
-    } catch(err) {
-      if(err.response) {
-        return this.handleAxiosError(err.response, url, undefined, (resolve, reject)=>{
+    } catch(err: unknown) {
+      const e = err as AxiosError
+      if(e.response) {
+        return this.handleAxiosError(e.response, url, undefined, (resolve, reject)=>{
           this.plutoDeliverablesLoad(url)
               .then((result)=>resolve(result))
               .catch((err)=>reject(err));
@@ -165,8 +166,9 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
         };
       }
     } catch (err) {
-      if (err.response) { //the exception is an axios error
-        return this.handleAxiosError(err.response, url, {
+      const e = err as AxiosError
+      if (e.response) { //the exception is an axios error
+        return this.handleAxiosError(e.response, url, {
           title: "(none)",
         }, (resolve,reject)=>{
             this.plutoCoreLoad(url)
@@ -218,8 +220,9 @@ class Breadcrumb extends React.Component<BreadcrumbProps, BreadcrumbState> {
           projectName: serverContentProject.title,
         });
       }
-    } catch (err) {
-      console.error("Could not load project data: ", err);
+    } catch(err: unknown) {
+      const e = err as any
+      console.error("Could not load project data: ", e);
       return this.setStatePromise({ loading: false, hasError: true });
     }
   }

@@ -26,7 +26,7 @@ describe("validateAndDecode", () => {
       })
       .catch((err) => {
         console.error(err);
-        done.fail(err);
+        expect(err.message).toBe('Something')
       });
   });
 

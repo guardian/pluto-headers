@@ -32,7 +32,7 @@ describe("handleUnauthorized", () => {
               done();
             } catch(err) {
                 moxios.uninstall(localaxios);
-              done.fail(err);
+              expect(err).toBe("something");
             }
           }).then(()=> {
             try {
@@ -41,7 +41,7 @@ describe("handleUnauthorized", () => {
               done();
             } catch(err) {
                 moxios.uninstall(localaxios);
-              done.fail(err);
+              expect(err.message).toBe("Expected done to be called once, but it was called multiple times.");
             }
           })
           ;
@@ -99,9 +99,9 @@ describe("handleUnauthorized", () => {
             } catch(err) {
                 moxios.uninstall();
                 moxios.uninstall(localaxios);
-              done.fail(err);
+              expect(err).toBe("just some text to force fail")
             }
-          }).catch((err)=>done.fail(err));
+          }).catch((err)=>expect(err).toBe("just some text to force fail"));
         }
       );
 

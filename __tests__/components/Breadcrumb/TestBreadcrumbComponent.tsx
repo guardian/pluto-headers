@@ -3,6 +3,9 @@ import {mount} from "enzyme";
 import moxios from "moxios";
 import {Breadcrumb} from "../../../src";
 
+/**
+ * @jest-environment jsdom
+ */
 describe("Breadcrumb", ()=>{
     beforeEach(() => moxios.install());
     afterEach(() => moxios.uninstall());
@@ -30,8 +33,9 @@ describe("Breadcrumb", ()=>{
                 expect(commText.text()).toEqual("My commission title");
                 expect(commText.prop("href")).toEqual("/pluto-core/commission/5")
                 done();
-            } catch(err) {
-                done.fail(err);
+            } catch(err: unknown) {
+                const e = err as string | { message: string; }
+                done.fail(e);
             }
         })
     });
@@ -82,8 +86,9 @@ describe("Breadcrumb", ()=>{
                     expect(projText.text()).toEqual("My project title")
                     expect(projText.prop("href")).toEqual("/pluto-core/project/5");
                     done();
-                } catch(err) {
-                    done.fail(err);
+                } catch(err: unknown) {
+                    const e = err as string | { message: string; }
+                    done.fail(e);
                 }
             })
         })
@@ -113,8 +118,9 @@ describe("Breadcrumb", ()=>{
                 const txt = crumb.find("p");
                 expect(txt.text()).toEqual("Full master deliverable.mxf");
                 done();
-            } catch (err) {
-                done.fail(err);
+            } catch (err: unknown) {
+                const e = err as string | { message: string; }
+                done.fail(e);
             }
         })
     });
@@ -181,8 +187,9 @@ describe("Breadcrumb", ()=>{
                         const txt = crumb.find("p");
                         expect(txt.text()).toEqual("Full master deliverable.mxf");
                         done();
-                    } catch (err) {
-                        done.fail(err);
+                    } catch (err: unknown) {
+                        const e = err as string | { message: string; }
+                        done.fail(e);
                     }
                 })
             })
@@ -211,8 +218,9 @@ describe("Breadcrumb", ()=>{
                 const errcrumb = container.find("p");
                 expect(errcrumb.text()).toEqual("Could not load location data");
                 done();
-            } catch (err) {
-                done.fail(err);
+            } catch (err: unknown) {
+                const e = err as string | { message: string; }
+                done.fail(e);
             }
         });
     });
@@ -221,7 +229,7 @@ describe("Breadcrumb", ()=>{
         const rendered = mount(<Breadcrumb commissionId={5}/>);
 
         const simpleTimeout = (duration:number)=> {
-            return new Promise((resolve,reject)=>window.setTimeout(()=>resolve(), duration));
+            return new Promise<void>((resolve,reject)=>window.setTimeout(()=>resolve(), duration));
         }
 
         return moxios.wait(async ()=> {
@@ -258,8 +266,9 @@ describe("Breadcrumb", ()=>{
                 expect(commText.text()).toEqual("My commission title");
                 expect(commText.prop("href")).toEqual("/pluto-core/commission/5");
                 done();
-            } catch(err) {
-                done.fail(err);
+            } catch(err: unknown) {
+                const e = err as string | { message: string; }
+                done.fail(e);
             }
         })
     })
