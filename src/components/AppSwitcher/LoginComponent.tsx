@@ -44,7 +44,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     const [loginExpiryCount, setLoginExpiryCount] = useState<string>("");
 
     const overrideRefreshLoginRef = useRef(props.overrideRefreshLogin);
-
+    console.log(overrideRefreshLoginRef)
     const classes = useStyles();
 
     const oAuthContext = useContext(OAuthContext);
@@ -54,7 +54,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
 
     useEffect(()=>{
         const intervalTimerId = window.setInterval(checkExpiryHandler, props.checkInterval ?? 60000);
-
+        console.log("useEffect count")
         return (()=>{
             window.clearInterval(intervalTimerId);
         })
@@ -78,6 +78,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             const expiry = userContext.profile.exp;
             const timeToGo = expiry - nowTime;
+            console.log("updateCountdownHandler\n", "nowtime: ", nowTime, "\n", "expiry: ", expiry, "\n", "timeToGo: ", timeToGo)
 
             if (timeToGo > 1) {
                 setLoginExpiryCount(`expires in ${Math.ceil(timeToGo)}s`);
@@ -94,11 +95,13 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
      * is ignored but it is used in testing to ensure that the component state is only checked after it has been set.
      */
     const checkExpiryHandler = () => {
+        console.log("CHECK-EXPIRY")
         if (userContext.profile && oAuthContext) {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             //we know that it is not null due to above check
             const expiry = userContext.profile.exp;
             const timeToGo = expiry - nowTime;
+            console.log("checkExpiryHandler\n", "nowtime: ", nowTime, "\n", "expiry: ", expiry, "\n", "timeToGo: ", timeToGo)
 
             if (timeToGo <= 120) {
                 console.log("less than 2mins to expiry, attempting refresh...");
@@ -110,6 +113,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                     refreshedPromise = overrideRefreshLoginRef.current(oAuthContext.tokenUri);
                 }  else {
                     refreshedPromise = refreshLogin(oAuthContext, userContext);
+                    console.log("RefreshPromise: ",refreshedPromise)
                 }
 
                 refreshedPromise.then(()=>{
@@ -119,9 +123,12 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                     setRefreshed(true);
 
                     if(props.onLoginRefreshed) props.onLoginRefreshed();
+                    console.log(props.onLoginRefreshed)
+                    console.log("Refreshing......")
                     window.setTimeout(()=>setRefreshed(false), 5000);   //show success message for 5s
                 }).catch(errString=>{
                     if(props.onLoginCantRefresh) props.onLoginCantRefresh(errString);
+                    console.log("Can't refresh.....")
                     setRefreshFailed(true);
                     setRefreshInProgress(false);
                     updateCountdownHandler();
