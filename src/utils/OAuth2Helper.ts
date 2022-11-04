@@ -4,7 +4,7 @@ import {UserContext} from "../components/Context/UserContext";
 import {JwtData} from "./DecodedProfile";
 import {JWTPayload} from "jose";
 
-type VerifyFunction = (oauthConfig: OAuthContextData,     token: string,     refreshToken?: string | undefined) => Promise<JWTPayload>
+type VerifyFunction = (oauthConfig: OAuthContextData, token: string, refreshToken?: string | undefined, expires_in?: number) => Promise<JWTPayload>
 /**
  * call out to the IdP to request a refresh of the login using the refresh token stored in the localstorage.
  * on success, the updated token is stored in the local storage and the promise resolves
@@ -53,7 +53,7 @@ export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext
                 try {
                     const content = await response.json();
                     console.log("Server response: ", content);
-                    const result = await verifyFunction(oAuthConfig, content.id_token ?? content.access_token, content.refresh_token);
+                    const result = await verifyFunction(oAuthConfig, content.id_token ?? content.access_token, content.refresh_token, content.expires_in);
                     const updatedProfile = JwtData(result);
                     userContext.updateProfile(updatedProfile);
 
