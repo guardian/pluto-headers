@@ -54,7 +54,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
 
     useEffect(()=>{
         const intervalTimerId = window.setInterval(checkExpiryHandler, props.checkInterval ?? 60000);
-        console.log("useEffect count")
+        console.log("useEffect intervalTimerId: ", intervalTimerId)
         return (()=>{
             window.clearInterval(intervalTimerId);
         })
@@ -78,7 +78,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             const nowTime = new Date().getTime() / 1000; //assume time is in seconds
             const expiry = userContext.profile.exp;
             const timeToGo = expiry - nowTime;
-            console.log("updateCountdownHandler\n", "nowtime: ", nowTime, "\n", "expiry: ", expiry, "\n", "timeToGo: ", timeToGo)
+            console.log("updateCountdownHandler\n", "nowtime: ", nowTime, "\n", "expiry: ", expiry, "\n", "timeToGo: ", timeToGo, "\n", userContext.profile)
 
             if (timeToGo > 1) {
                 setLoginExpiryCount(`expires in ${Math.ceil(timeToGo)}s`);
