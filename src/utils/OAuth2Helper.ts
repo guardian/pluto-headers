@@ -35,6 +35,7 @@ export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext
     const content_elements = Object.keys(postdata).map(
         (k) => k + "=" + encodeURIComponent(postdata[k])
     );
+    console.log("content_elements: ", content_elements)
     const body_content = content_elements.join("&");
 
     const performRefresh = async ()=> {
@@ -46,10 +47,11 @@ export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext
                 "Content-Type": "application/x-www-form-urlencoded",
             },
         });
-
+        console.log("performRefresh response: ", response)
         const verifyFunction = alternateVerifyFunction ?? verifyJwt;
         switch (response.status) {
             case 200:
+                console.log("200!")
                 try {
                     const content = await response.json();
                     console.log("Server response: ", content);

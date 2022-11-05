@@ -36,6 +36,7 @@ function JwtData(jwtData: object) {
   return new Proxy(<JwtDataShape>jwtData, {
     get(target, prop) {
       console.log("Target prop: ", prop)
+      console.log("Target: ", target)
       switch (prop) {
         case "iat_moment":
           return utcTime(target.iat);

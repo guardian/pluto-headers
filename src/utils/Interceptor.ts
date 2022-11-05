@@ -24,7 +24,7 @@ export const refreshToken = async (
     client_id: clientId,
     refresh_token: window.localStorage.getItem("pluto:refresh-token") as string,
   };
-
+  console.log("Postdata: ", postdata)
   try {
     const response = await axios.post(tokenUri, qs.stringify(postdata), {
       headers: {
@@ -98,7 +98,7 @@ export const handleUnauthorized = async (
 
     try {
       const data = await refreshToken(plutoConfig);
-
+      console.log("Data: ", data)
       window.localStorage.setItem("pluto:access-token", data.access_token);
       window.localStorage.setItem("pluto:refresh-token", data.refresh_token);
 
