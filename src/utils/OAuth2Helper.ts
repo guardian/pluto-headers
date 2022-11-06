@@ -51,14 +51,13 @@ export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext
         const verifyFunction = alternateVerifyFunction ?? verifyJwt;
         switch (response.status) {
             case 200:
-                console.log("200!")
                 try {
                     const content = await response.json();
                     console.log("Server response: ", content);
                     const result = await verifyFunction(oAuthConfig, content.id_token ?? content.access_token, content.refresh_token, content.expires_in);
                     const updatedProfile = JwtData(result);
-                    console.log("Updated profile: ", updatedProfile)
                     userContext.updateProfile(updatedProfile);
+                    console.log("Updated profile: ", userContext.profile)
 
                     resolve();
                 } catch(err) {

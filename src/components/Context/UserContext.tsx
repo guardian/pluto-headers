@@ -8,7 +8,7 @@ interface UserContext {
 
 const UserContext = React.createContext<UserContext>({
   profile: undefined,
-  updateProfile: (newValue) => {},
+  updateProfile: () => {},
 });
 
 export const UserContextProvider = UserContext.Provider;

@@ -40,7 +40,7 @@ function JwtData(jwtData: object) {
       switch (prop) {
         case "iat_moment":
           return utcTime(target.iat);
-        case "exp_moment":
+        case "exp":
           return utcTime(target.exp);
         case "username":
           return target.preferred_username ?? target.username;
