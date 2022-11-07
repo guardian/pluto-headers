@@ -56,9 +56,9 @@ export const refreshLogin:(oAuthConfig:OAuthContextData, userContext:UserContext
                     console.log("Server response: ", content);
                     const result = await verifyFunction(oAuthConfig, content.id_token ?? content.access_token, content.refresh_token, content.expires_in);
                     const updatedProfile = JwtData(result);
+                    console.log("Updated profile data: ", updatedProfile)
                     userContext.updateProfile(updatedProfile);
                     console.log("Updated profile: ", userContext.profile)
-
                     resolve();
                 } catch(err) {
                     reject(err);
