@@ -58,7 +58,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
         return (()=>{
             window.clearInterval(intervalTimerId);
         })
-    }, []);
+    }, [userContext]);
 
     useEffect(()=>{
         if(refreshFailed) {
