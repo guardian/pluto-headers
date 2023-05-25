@@ -1,6 +1,6 @@
 {
   "name": "@guardian/pluto-headers",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "description": "Header components for pluto",
   "repository": "git://github.com/guardian/pluto-headers",
   "main": "build/index",
@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "test": "jest --verbose",
-    "build": "rm -rf build && rollup -c",
+    "build": "rm -rf build && rollup -c && mkdir build/static && cp src/static/* build/static/",
     "update-interfaces": "ts-interface-builder src/utils/OAuthConfiguration.ts"
   },
   "author": "",
