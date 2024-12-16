@@ -135,7 +135,7 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
 
     const toggleThemeMode = ()=>themeContext.changeDarkMode(!themeContext.darkMode);
     const openDocs = ()=> window.open(
-        "https://docs.google.com/document/d/1QG9mOu_HDBoGqQs7Dly0sxifk4w9vaJiDiWdi3Uk1a8",
+        "pluto-core/help",
         "_blank"
     )
 
@@ -167,10 +167,16 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                 </Tooltip>
             </Grid>
             <Grid item>
-                <Tooltip title="Open pluto guide">
-                    <IconButton onClick={openDocs} className={classes.iconButton}>
-                        <HelpOutline style={{color: themeContext.darkMode ? "rgba(0,0,0,0.54)" : "inherit" }}/>
-                    </IconButton>
+                <Tooltip title="Open help page">
+                    <Button
+                        className="help-button"
+                        variant="outlined"
+                        size="small"
+                        onClick={openDocs}
+                        style={{  marginLeft: "10px", borderColor: "black", color: "black" }}
+                    >
+                      Help
+                    </Button>
                 </Tooltip>
             </Grid>
             {
