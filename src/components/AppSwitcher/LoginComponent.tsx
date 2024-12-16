@@ -169,10 +169,11 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
             <Grid item>
                 <Tooltip title="Open help page">
                     <Button
-                        className="login-button"
+                        className="help-button"
                         variant="outlined"
                         size="small"
                         onClick={openDocs}
+                        style={{  marginLeft: "10px", borderColor: "black", color: "black" }}
                     >
                       Help
                     </Button>
