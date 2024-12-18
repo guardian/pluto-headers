@@ -134,10 +134,6 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
     };
 
     const toggleThemeMode = ()=>themeContext.changeDarkMode(!themeContext.darkMode);
-    const openDocs = ()=> window.open(
-        "pluto-core/help",
-        "_blank"
-    )
 
     const usernameFromProfile = ()=>{
         if(userContext.profile) {
@@ -172,7 +168,14 @@ const LoginComponent:React.FC<LoginComponentProps> = (props) => {
                         className="help-button"
                         variant="outlined"
                         size="small"
-                        onClick={openDocs}
+                        onClick={() => {
+                          const currentURI = new URL(window.location.href);
+                          const linkURL = currentURI.protocol + "//" + currentURI.host + "/pluto-core/help";
+                          window.open(
+                              linkURL,
+                              "_blank"
+                          )
+                        }}
                         style={{  marginLeft: "10px", borderColor: "black", color: "black" }}
                     >
                       Help
