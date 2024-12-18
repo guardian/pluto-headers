@@ -1,6 +1,6 @@
 {
   "name": "@guardian/pluto-headers",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Header components for pluto",
   "repository": "git://github.com/guardian/pluto-headers",
   "main": "build/index",
